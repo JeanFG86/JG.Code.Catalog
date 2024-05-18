@@ -26,5 +26,7 @@ public class Category
             throw new EntityValidationException($"{nameof(Name)} should not be empty or null");
         if(Description is null)
             throw new EntityValidationException($"{nameof(Description)} should not be null");
+        if (Name.Length < 3)
+            throw new EntityValidationException($"{nameof(Name)} should be at least 3 characters");
     }
 }
