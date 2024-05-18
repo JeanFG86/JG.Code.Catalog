@@ -19,8 +19,14 @@ public class Category
 
         Validate();
     }   
+
+    public void Activate()
+    {
+        IsActive = true;
+        Validate();
+    }
     
-    public void Validate()
+    private void Validate()
     {
         if (String.IsNullOrWhiteSpace(Name))
             throw new EntityValidationException($"{nameof(Name)} should not be empty or null");
