@@ -30,5 +30,7 @@ public class Category
             throw new EntityValidationException($"{nameof(Name)} should be at least 3 characters");
         if (Name.Length > 255)
             throw new EntityValidationException($"{nameof(Name)} should be less or equal 255 characters");
+        if (Description.Length > 10_000)
+            throw new EntityValidationException($"{nameof(Description)} should be less or equal 10_000 characters");
     }
 }
