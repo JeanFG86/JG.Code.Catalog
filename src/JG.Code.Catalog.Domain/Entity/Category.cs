@@ -32,10 +32,10 @@ public class Category
         Validate();
     }
 
-    public void Update(string name, string description)
+    public void Update(string name, string? description = null)
     {
         Name = name;
-        Description = description;
+        Description = description ?? Description;
     }
 
     private void Validate()
