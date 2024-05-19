@@ -146,4 +146,17 @@ public class CategoryTest
 
         Assert.False(category.IsActive);
     }
+
+    [Fact(DisplayName = nameof(Update))]
+    [Trait("Domain", "Category - Aggegates")]
+    public void Update()
+    {
+        var category = new DomainEntity.Category("Category name", "Category description");
+        var newValues = new { Name = "New Name", Description = "New Description" };
+
+        category.Update(newValues.Name, newValues.Description);
+
+        Assert.Equal(newValues.Name, category.Name);
+        Assert.Equal(newValues.Description, category.Description);
+    }
 }
