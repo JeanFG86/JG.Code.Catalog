@@ -187,4 +187,41 @@ public class CategoryTest
         var exception = Assert.Throws<EntityValidationException>(action);
         Assert.Equal("Name should not be empty or null", exception.Message);
     }
+
+    [Theory(DisplayName = nameof(UpdateErrorWhenNameIsLess3Characters))]
+    [Trait("Domain", "Category - Aggegates")]
+    [InlineData("a")]
+    [InlineData("ab")]
+    public void UpdateErrorWhenNameIsLess3Characters(string invalidName)
+    {
+        var category = new DomainEntity.Category("Category name", "Category description");
+        Action action = () => category.Update(invalidName);
+
+        var exception = Assert.Throws<EntityValidationException>(action);
+        Assert.Equal("Name should be at least 3 characters", exception.Message);
+    }
+
+    [Fact(DisplayName = nameof(UpdateErrorWhenNameIsGreaterThan255Characters))]
+    [Trait("Domain", "Category - Aggegates")]
+    public void UpdateErrorWhenNameIsGreaterThan255Characters()
+    {
+        var category = new DomainEntity.Category("Category name", "Category description");
+        var invalidName = String.Join(null, Enumerable.Range(1, 256).Select(_ => "a").ToArray());
+        Action action = () => category.Update(invalidName);
+
+        var exception = Assert.Throws<EntityValidationException>(action);
+        Assert.Equal("Name should be less or equal 255 characters", exception.Message);
+    }
+
+    [Fact(DisplayName = nameof(UpdateErrorWhenDescriptionIsGreaterThan10_000Characters))]
+    [Trait("Domain", "Category - Aggegates")]
+    public void UpdateErrorWhenDescriptionIsGreaterThan10_000Characters()
+    {
+        var category = new DomainEntity.Category("Category name", "Category description");
+        var invalidDescription = String.Join(null, Enumerable.Range(1, 10_001).Select(_ => "a").ToArray());
+        Action action = () => category.Update("Category new name", invalidDescription);
+
+        var exception = Assert.Throws<EntityValidationException>(action);
+        Assert.Equal("Description should be less or equal 10_000 characters", exception.Message);
+    }
 }
