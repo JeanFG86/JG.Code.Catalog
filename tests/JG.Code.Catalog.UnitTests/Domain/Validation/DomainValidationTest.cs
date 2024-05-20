@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using FluentAssertions;
+using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Validation;
 
 
@@ -15,5 +16,14 @@ public class DomainValidationTest
         var value = Faker.Commerce.ProductName;
         Action action = () => DomainValidation.NotNull(value, "Value");
         action.Should().NotThrow();
+    }
+
+    [Fact(DisplayName = nameof(NotNullThrowWhenNull))]
+    [Trait("Domain", "DomainValidation - Validation")]
+    public void NotNullThrowWhenNull()
+    {
+        string? value = null;
+        Action action = () => DomainValidation.NotNull(value, "FieldName");
+        action.Should().Throw<EntityValidationException>().WithMessage("FieldName should not be null");
     }
 }
