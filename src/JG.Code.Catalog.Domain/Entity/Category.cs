@@ -1,5 +1,4 @@
-﻿using JG.Code.Catalog.Domain.Exceptions;
-using JG.Code.Catalog.Domain.SeedWork;
+﻿using JG.Code.Catalog.Domain.SeedWork;
 using JG.Code.Catalog.Domain.Validation;
 
 namespace JG.Code.Catalog.Domain.Entity;
