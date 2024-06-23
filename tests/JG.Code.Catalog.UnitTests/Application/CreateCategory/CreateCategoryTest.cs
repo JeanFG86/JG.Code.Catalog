@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.Domain.Entity;
+using JG.Code.Catalog.Domain.Repository;
 using Moq;
 using UsesCases = JG.Code.Catalog.Application.UseCases;
 
@@ -16,7 +17,7 @@ public class CreateCategoryTest
 
         var output = await useCase.Handle(input, CancellationToken.None);
 
-        repositoryMock.Verify(repository => repository.Create(It.IsAny<Category>(), It.IsAny<CancellationToken>), Times.Once);
+        repositoryMock.Verify(repository => repository.Insert(It.IsAny<Category>(), It.IsAny<CancellationToken>), Times.Once);
         unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Once);
         output.Should().NotBeNull();
         output.Name.Should().Be("Category Name");
