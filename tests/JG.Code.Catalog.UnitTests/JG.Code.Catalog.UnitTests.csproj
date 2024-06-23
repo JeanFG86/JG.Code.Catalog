@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\JG.Code.Catalog.Application\JG.Code.Catalog.Application.csproj" />
     <ProjectReference Include="..\..\src\JG.Code.Catalog.Domain\JG.Code.Catalog.Domain.csproj" />
   </ItemGroup>
 
