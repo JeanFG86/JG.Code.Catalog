@@ -1,8 +1,9 @@
-﻿using JG.Code.Catalog.Application.Interfaces;
+﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Repository;
 using Moq;
-using UsesCases = JG.Code.Catalog.Application.UseCases;
+using UsesCases = JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 
 namespace JG.Code.Catalog.UnitTests.Application.CreateCategory;
 public class CreateCategoryTest
@@ -14,7 +15,7 @@ public class CreateCategoryTest
         var repositoryMock = new Mock<ICategoryRepository>();
         var unitOfWorkMock = new Mock<IUnitOfWork>();
         var useCase = new UsesCases.CreateCategory(repositoryMock.Object, unitOfWorkMock.Object);
-        var input = new CreateCategoryInput("Category Name", "Category Description", true);
+        var input = new UsesCases.CreateCategoryInput("Category Name", "Category Description", true);
 
         var output = await useCase.Handle(input, CancellationToken.None);
 
@@ -24,7 +25,7 @@ public class CreateCategoryTest
         output.Name.Should().Be("Category Name");
         output.Description.Should().Be("Category Description");
         output.IsActive.Should().Be(true);
-        (output.Id != null && output.Id != Guid.Empty).Should().Be(true);
-        (output.CreatedAt != null && output.CreatedAt != default(DateTime)).Should().Be(true);
+        output.Id.Should().NotBeEmpty();
+        output.CreatedAt.Should().NotBeSameDateAs(default);
     }
 }
