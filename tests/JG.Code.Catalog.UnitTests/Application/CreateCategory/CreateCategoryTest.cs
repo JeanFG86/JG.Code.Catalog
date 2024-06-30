@@ -60,6 +60,27 @@ public class CreateCategoryTest
         output.CreatedAt.Should().NotBeSameDateAs(default);
     }
 
+    [Fact(DisplayName = nameof(CreateCategoryWithOnlyNameAndDescription))]
+    [Trait("Application", "CreateCategory - Use Cases")]
+    public async void CreateCategoryWithOnlyNameAndDescription()
+    {
+        var repositoryMock = _fixture.GetRepositoryMock();
+        var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
+        var useCase = new UsesCases.CreateCategory(repositoryMock.Object, unitOfWorkMock.Object);
+        var input = new CreateCategoryInput(_fixture.GetValidCategoryName(), _fixture.GetValidCategoryDescription());
+
+        var output = await useCase.Handle(input, CancellationToken.None);
+
+        repositoryMock.Verify(repository => repository.Insert(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Once);
+        output.Should().NotBeNull();
+        output.Name.Should().Be(input.Name);
+        output.Description.Should().Be(input.Description);
+        output.IsActive.Should().Be(true);
+        output.Id.Should().NotBeEmpty();
+        output.CreatedAt.Should().NotBeSameDateAs(default);
+    }
+
     [Theory(DisplayName = nameof(ThrowWhenCantInstantiateAggregate))]
     [Trait("Application", "CreateCategory - Use Cases")]
     [MemberData(nameof(GetInvalidInputs))]
