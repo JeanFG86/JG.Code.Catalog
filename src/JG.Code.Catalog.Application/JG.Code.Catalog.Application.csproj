@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\JG.Code.Catalog.Domain\JG.Code.Catalog.Domain.csproj" />
   </ItemGroup>
 
