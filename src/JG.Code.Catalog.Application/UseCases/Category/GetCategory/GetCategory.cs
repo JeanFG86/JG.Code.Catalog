@@ -1,8 +1,8 @@
-﻿using JG.Code.Catalog.Domain.Repository;
-using MediatR;
+﻿using JG.Code.Catalog.Application.UseCases.Category.Common;
+using JG.Code.Catalog.Domain.Repository;
 
 namespace JG.Code.Catalog.Application.UseCases.Category.GetCategory;
-public class GetCategory : IRequestHandler<GetCategoryInput, GetCategoryOutput>
+public class GetCategory : IGetCategory
 {
     private readonly ICategoryRepository _categoryRepository;
 
@@ -11,9 +11,9 @@ public class GetCategory : IRequestHandler<GetCategoryInput, GetCategoryOutput>
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<GetCategoryOutput> Handle(GetCategoryInput request, CancellationToken cancellationToken)
+    public async Task<CategoryModelOutput> Handle(GetCategoryInput request, CancellationToken cancellationToken)
     {
         var category = await _categoryRepository.Get(request.Id, cancellationToken);
-        return GetCategoryOutput.FromCategory(category);
+        return CategoryModelOutput.FromCategory(category);
     }
 }

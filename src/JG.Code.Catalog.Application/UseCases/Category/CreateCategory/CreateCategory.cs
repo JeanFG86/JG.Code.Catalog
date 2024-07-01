@@ -1,6 +1,7 @@
 ﻿using JG.Code.Catalog.Application.Interfaces;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Repository;
+using JG.Code.Catalog.Application.UseCases.Category.Common;
 
 namespace JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 public class CreateCategory : ICreateCategory
@@ -14,11 +15,11 @@ public class CreateCategory : ICreateCategory
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<CreateCategoryOutput> Handle(CreateCategoryInput input, CancellationToken cancellationToken)
+    public async Task<CategoryModelOutput> Handle(CreateCategoryInput input, CancellationToken cancellationToken)
     {
         var category = new DomainEntity.Category(input.Name, input.Description, input.IsActive);
         await _categoryRepository.Insert(category, cancellationToken);
         await _unitOfWork.Commit(cancellationToken);
-        return CreateCategoryOutput.FromCategory(category);
+        return CategoryModelOutput.FromCategory(category);
     }
 }

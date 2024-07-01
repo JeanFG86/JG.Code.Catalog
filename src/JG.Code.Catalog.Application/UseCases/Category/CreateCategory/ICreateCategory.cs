@@ -1,7 +1,7 @@
-﻿using MediatR;
+﻿using JG.Code.Catalog.Application.UseCases.Category.Common;
+using MediatR;
 
 namespace JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
-public interface ICreateCategory : IRequestHandler<CreateCategoryInput, CreateCategoryOutput>
+public interface ICreateCategory : IRequestHandler<CreateCategoryInput, CategoryModelOutput>
 {
-    public Task<CreateCategoryOutput> Handle(CreateCategoryInput input, CancellationToken cancellationToken);
 }
