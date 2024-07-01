@@ -2,7 +2,6 @@
 using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Exceptions;
-using JG.Code.Catalog.UnitTests.Domain.Entity.Category;
 using Moq;
 using UsesCases = JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 
