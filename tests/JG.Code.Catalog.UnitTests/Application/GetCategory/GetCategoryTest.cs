@@ -1,5 +1,5 @@
-﻿using JG.Code.Catalog.Domain.Entity;
-using useCase = JG.Code.Catalog.Application.UseCases.Category.GetCategory;
+﻿using useCase = JG.Code.Catalog.Application.UseCases.Category.GetCategory;
+using JG.Code.Catalog.Application.Exceptions;
 using Moq;
 using FluentAssertions;
 
@@ -34,5 +34,22 @@ public class GetCategoryTest
         output.IsActive.Should().Be(exampleCategory.IsActive);
         output.Id.Should().Be(exampleCategory.Id);
         output.CreatedAt.Should().Be(exampleCategory.CreatedAt);
+    }
+
+    [Fact(DisplayName = nameof(NotFoundExceptionWhenCategoryDoesntExist))]
+    [Trait("Application", "GetCategory - Use Cases")]
+    public async Task NotFoundExceptionWhenCategoryDoesntExist()
+    {
+        var repositoryMock = _fixture.GetRepositoryMock();
+        var exampleGuid = Guid.NewGuid();
+        repositoryMock.Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new NotFoundException($"Category {exampleGuid} not found"));
+        var input = new useCase.GetCategoryInput(exampleGuid);
+        var useCase = new useCase.GetCategory(repositoryMock.Object);
+
+        var task = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await task.Should().ThrowAsync<NotFoundException>();
+        repositoryMock.Verify(repository => repository.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }
