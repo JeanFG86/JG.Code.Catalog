@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.UseCases.Category.Common;
 using JG.Code.Catalog.Domain.Entity;
 using Moq;
@@ -41,5 +42,24 @@ public class UpdateCategoryTest
         output.IsActive.Should().Be(input.IsActive);
         output.Id.Should().NotBeEmpty();
         output.CreatedAt.Should().NotBeSameDateAs(default);
+    }
+
+    [Fact(DisplayName = nameof(ThrowWhenCategoryNotFound))]
+    [Trait("Application", "UpdateCategory - Use Cases")]
+    public async Task ThrowWhenCategoryNotFound()
+    {
+        var repositoryMock = _fixture.GetRepositoryMock();
+        var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
+        var input = _fixture.GetValidInput();
+        repositoryMock.Setup(x => x.Get(input.Id, It.IsAny<CancellationToken>())).ThrowsAsync(new NotFoundException($"category '{input.Id}' not found"));
+        var useCase = new UseCase.UpdateCategory(repositoryMock.Object, unitOfWorkMock.Object);
+        
+
+        var task = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await task.Should().ThrowAsync<NotFoundException>();
+        repositoryMock.Verify(repository => repository.Get(input.Id, It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(repository => repository.Update(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Never);
+        unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

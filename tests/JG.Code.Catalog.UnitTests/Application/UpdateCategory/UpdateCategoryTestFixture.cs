@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.Application.Interfaces;
+using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
 using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Repository;
 using JG.Code.Catalog.UnitTests.Common;
@@ -24,7 +25,7 @@ public class UpdateCategoryTestFixture : BaseFixture
 
     public string GetValidCategoryDescription()
     {
-        var categoryDescription = "";
+        var categoryDescription = Faker.Commerce.ProductDescription();
         if (categoryDescription.Length > 10_000)
             categoryDescription = categoryDescription[..10_000];
         return categoryDescription;
@@ -34,6 +35,9 @@ public class UpdateCategoryTestFixture : BaseFixture
 
     public Category GetExampleCategory() 
         => new Category(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
+
+    public UpdateCategoryInput GetValidInput(Guid? id = null)
+        => new UpdateCategoryInput(id ?? Guid.NewGuid(), GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
 
     public Mock<ICategoryRepository> GetRepositoryMock() => new();
 
