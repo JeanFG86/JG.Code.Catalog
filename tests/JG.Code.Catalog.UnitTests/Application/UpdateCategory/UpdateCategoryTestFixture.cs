@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.Application.Interfaces;
+using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
 using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Repository;
@@ -38,6 +39,36 @@ public class UpdateCategoryTestFixture : BaseFixture
 
     public UpdateCategoryInput GetValidInput(Guid? id = null)
         => new UpdateCategoryInput(id ?? Guid.NewGuid(), GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
+
+    public UpdateCategoryInput GetInvalidInputShortName()
+    {
+        var invalidInputShortName = GetValidInput();
+        invalidInputShortName.Name = invalidInputShortName.Name.Substring(0, 2);
+        return invalidInputShortName;
+    }
+
+    public UpdateCategoryInput GetInvalidInputTooLongName()
+    {
+        var invalidInputTooLongName = GetValidInput();
+        var tooLongNameForCategory = Faker.Commerce.ProductName();
+        while (tooLongNameForCategory.Length <= 255)
+            tooLongNameForCategory = $"{tooLongNameForCategory} {Faker.Commerce.ProductName()}";
+
+        invalidInputTooLongName.Name = tooLongNameForCategory;
+
+        return invalidInputTooLongName;
+    }
+
+    public UpdateCategoryInput GetInvalidInputTooLongDescription()
+    {
+        var invalidInputTooLongDescription = GetValidInput();
+        var tooLongDescriptionForCategory = Faker.Commerce.ProductDescription();
+        while (tooLongDescriptionForCategory.Length <= 10_000)
+            tooLongDescriptionForCategory = $"{tooLongDescriptionForCategory} {Faker.Commerce.ProductName()}";
+        invalidInputTooLongDescription.Description = tooLongDescriptionForCategory;
+
+        return invalidInputTooLongDescription;
+    }
 
     public Mock<ICategoryRepository> GetRepositoryMock() => new();
 
