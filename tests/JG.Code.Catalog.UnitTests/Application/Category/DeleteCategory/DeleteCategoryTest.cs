@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Application.Exceptions;
-using JG.Code.Catalog.Domain.Entity;
+using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using Moq;
 using UsesCases = JG.Code.Catalog.Application.UseCases.Category.DeleteCategory;
 
-namespace JG.Code.Catalog.UnitTests.Application.DeleteCategory;
+namespace JG.Code.Catalog.UnitTests.Application.Category.DeleteCategory;
 
 [Collection(nameof(DeleteCategoryTestFixture))]
 public class DeleteCategoryTest
@@ -50,7 +50,7 @@ public class DeleteCategoryTest
 
         await task.Should().ThrowAsync<NotFoundException>();
         repositoryMock.Verify(repository => repository.Get(exampleGuid, It.IsAny<CancellationToken>()), Times.Once);
-        repositoryMock.Verify(repository => repository.Delete(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.Delete(It.IsAny<DomainEntity.Category>(), It.IsAny<CancellationToken>()), Times.Never);
         unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

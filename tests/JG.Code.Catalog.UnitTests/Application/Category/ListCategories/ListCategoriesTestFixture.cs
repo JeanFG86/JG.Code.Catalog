@@ -1,9 +1,9 @@
 ﻿using JG.Code.Catalog.Application.UseCases.Category.ListCategories;
-using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
-using JG.Code.Catalog.UnitTests.Application.Common;
+using JG.Code.Catalog.UnitTests.Application.Category.Common;
+using DomainEntity = JG.Code.Catalog.Domain.Entity;
 
-namespace JG.Code.Catalog.UnitTests.Application.ListCategories;
+namespace JG.Code.Catalog.UnitTests.Application.Category.ListCategories;
 
 
 [CollectionDefinition(nameof(ListCategoriesTestFixture))]
@@ -11,11 +11,11 @@ public class ListCategoriesTestFixtureCollection : ICollectionFixture<ListCatego
 
 public class ListCategoriesTestFixture : CategoryUseCasesBaseFixture
 {
-    public List<Category> GetExampleCategoriesList(int length = 10)
+    public List<DomainEntity.Category> GetExampleCategoriesList(int length = 10)
     {
-        var categories = new List<Category>();
-        for (int i = 0; i < length; i++)        
-            categories.Add(GetExampleCategory());        
+        var categories = new List<DomainEntity.Category>();
+        for (int i = 0; i < length; i++)
+            categories.Add(GetExampleCategory());
         return categories;
     }
 

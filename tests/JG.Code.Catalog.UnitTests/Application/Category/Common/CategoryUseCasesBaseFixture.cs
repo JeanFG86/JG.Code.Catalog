@@ -1,10 +1,10 @@
 ﻿using JG.Code.Catalog.Application.Interfaces;
-using JG.Code.Catalog.Domain.Entity;
+using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Repository;
 using JG.Code.Catalog.UnitTests.Common;
 using Moq;
 
-namespace JG.Code.Catalog.UnitTests.Application.Common;
+namespace JG.Code.Catalog.UnitTests.Application.Category.Common;
 public abstract class CategoryUseCasesBaseFixture : BaseFixture
 {
     public string GetValidCategoryName()
@@ -25,10 +25,10 @@ public abstract class CategoryUseCasesBaseFixture : BaseFixture
         return categoryDescription;
     }
 
-    public Category GetExampleCategory()
+    public DomainEntity.Category GetExampleCategory()
         => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
 
-    public bool GetRandomBoolean() => (new Random()).NextDouble() < 0.5;
+    public bool GetRandomBoolean() => new Random().NextDouble() < 0.5;
 
     public Mock<ICategoryRepository> GetRepositoryMock() => new();
 

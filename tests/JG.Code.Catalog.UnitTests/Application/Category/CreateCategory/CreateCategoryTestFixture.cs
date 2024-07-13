@@ -1,22 +1,22 @@
 ﻿using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
-using JG.Code.Catalog.UnitTests.Application.Common;
+using JG.Code.Catalog.UnitTests.Application.Category.Common;
 
-namespace JG.Code.Catalog.UnitTests.Application.CreateCategory;
+namespace JG.Code.Catalog.UnitTests.Application.Category.CreateCategory;
 
 [CollectionDefinition(nameof(CreateCategoryTestFixture))]
-public class CreateCategoryTestFixtureCollection: ICollectionFixture<CreateCategoryTestFixture>
+public class CreateCategoryTestFixtureCollection : ICollectionFixture<CreateCategoryTestFixture>
 {
 }
 
-public class CreateCategoryTestFixture: CategoryUseCasesBaseFixture
-{    
+public class CreateCategoryTestFixture : CategoryUseCasesBaseFixture
+{
     public CreateCategoryInput GetInput() => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
 
     public CreateCategoryInput GetInvalidInputShortName()
     {
         var invalidInputShortName = GetInput();
         invalidInputShortName.Name = invalidInputShortName.Name.Substring(0, 2);
-        return invalidInputShortName;        
+        return invalidInputShortName;
     }
 
     public CreateCategoryInput GetInvalidInputTooLongName()
@@ -49,5 +49,5 @@ public class CreateCategoryTestFixture: CategoryUseCasesBaseFixture
         return invalidInputTooLongDescription;
     }
 
-    
+
 }

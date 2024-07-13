@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Application.UseCases.Category.GetCategory;
 
-namespace JG.Code.Catalog.UnitTests.Application.GetCategory;
+namespace JG.Code.Catalog.UnitTests.Application.Category.GetCategory;
 
 [Collection(nameof(GetCategoryFixture))]
 public class GetCategoryInputValidatorTest

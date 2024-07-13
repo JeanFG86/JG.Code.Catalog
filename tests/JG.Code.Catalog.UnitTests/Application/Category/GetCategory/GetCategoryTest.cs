@@ -3,7 +3,7 @@ using JG.Code.Catalog.Application.Exceptions;
 using Moq;
 using FluentAssertions;
 
-namespace JG.Code.Catalog.UnitTests.Application.GetCategory;
+namespace JG.Code.Catalog.UnitTests.Application.Category.GetCategory;
 
 [Collection(nameof(GetCategoryFixture))]
 public class GetCategoryTest

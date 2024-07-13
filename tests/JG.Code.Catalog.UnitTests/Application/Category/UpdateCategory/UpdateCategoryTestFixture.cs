@@ -1,7 +1,7 @@
 ﻿using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
-using JG.Code.Catalog.UnitTests.Application.Common;
+using JG.Code.Catalog.UnitTests.Application.Category.Common;
 
-namespace JG.Code.Catalog.UnitTests.Application.UpdateCategory;
+namespace JG.Code.Catalog.UnitTests.Application.Category.UpdateCategory;
 
 [CollectionDefinition(nameof(UpdateCategoryTestFixture))]
 public class UpdateCategoryTestFixtureCollection : ICollectionFixture<UpdateCategoryTestFixture>

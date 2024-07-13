@@ -2,12 +2,12 @@
 using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.UseCases.Category.Common;
 using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
-using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Exceptions;
 using Moq;
 using UseCase = JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
+using DomainEntity = JG.Code.Catalog.Domain.Entity;
 
-namespace JG.Code.Catalog.UnitTests.Application.UpdateCategory;
+namespace JG.Code.Catalog.UnitTests.Application.Category.UpdateCategory;
 
 [Collection(nameof(UpdateCategoryTestFixture))]
 public class UpdateCategoryTest
@@ -22,11 +22,11 @@ public class UpdateCategoryTest
     [Theory(DisplayName = nameof(UpdateCategory))]
     [Trait("Application", "UpdateCategory - Use Cases")]
     [MemberData(
-        nameof(UpdateCategoryDataGenerator.GetCategoriesToUpdate), 
-        parameters: 10, 
+        nameof(UpdateCategoryDataGenerator.GetCategoriesToUpdate),
+        parameters: 10,
         MemberType = typeof(UpdateCategoryDataGenerator)
     )]
-    public async Task UpdateCategory(Category exampleCategory, UseCase.UpdateCategoryInput input)
+    public async Task UpdateCategory(DomainEntity.Category exampleCategory, UpdateCategoryInput input)
     {
         var repositoryMock = _fixture.GetRepositoryMock();
         var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
@@ -55,13 +55,13 @@ public class UpdateCategoryTest
         var input = _fixture.GetValidInput();
         repositoryMock.Setup(x => x.Get(input.Id, It.IsAny<CancellationToken>())).ThrowsAsync(new NotFoundException($"category '{input.Id}' not found"));
         var useCase = new UseCase.UpdateCategory(repositoryMock.Object, unitOfWorkMock.Object);
-        
+
 
         var task = async () => await useCase.Handle(input, CancellationToken.None);
 
         await task.Should().ThrowAsync<NotFoundException>();
         repositoryMock.Verify(repository => repository.Get(input.Id, It.IsAny<CancellationToken>()), Times.Once);
-        repositoryMock.Verify(repository => repository.Update(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.Update(It.IsAny<DomainEntity.Category>(), It.IsAny<CancellationToken>()), Times.Never);
         unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -72,9 +72,9 @@ public class UpdateCategoryTest
         parameters: 10,
         MemberType = typeof(UpdateCategoryDataGenerator)
     )]
-    public async Task UpdateCategoryWithoutProvidingIsActive(Category exampleCategory, UseCase.UpdateCategoryInput exampleInput)
+    public async Task UpdateCategoryWithoutProvidingIsActive(DomainEntity.Category exampleCategory, UpdateCategoryInput exampleInput)
     {
-        var input = new UseCase.UpdateCategoryInput(exampleInput.Id, exampleInput.Name, exampleInput.Description);
+        var input = new UpdateCategoryInput(exampleInput.Id, exampleInput.Name, exampleInput.Description);
         var repositoryMock = _fixture.GetRepositoryMock();
         var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
         repositoryMock.Setup(x => x.Get(exampleCategory.Id, It.IsAny<CancellationToken>())).ReturnsAsync(exampleCategory);
@@ -100,9 +100,9 @@ public class UpdateCategoryTest
         parameters: 10,
         MemberType = typeof(UpdateCategoryDataGenerator)
     )]
-    public async Task UpdateCategoryOnlyName(Category exampleCategory, UseCase.UpdateCategoryInput exampleInput)
+    public async Task UpdateCategoryOnlyName(DomainEntity.Category exampleCategory, UpdateCategoryInput exampleInput)
     {
-        var input = new UseCase.UpdateCategoryInput(exampleInput.Id, exampleInput.Name);
+        var input = new UpdateCategoryInput(exampleInput.Id, exampleInput.Name);
         var repositoryMock = _fixture.GetRepositoryMock();
         var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
         repositoryMock.Setup(x => x.Get(exampleCategory.Id, It.IsAny<CancellationToken>())).ReturnsAsync(exampleCategory);

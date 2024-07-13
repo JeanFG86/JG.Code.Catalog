@@ -1,6 +1,6 @@
 ﻿using JG.Code.Catalog.Application.UseCases.Category.ListCategories;
 
-namespace JG.Code.Catalog.UnitTests.Application.ListCategories;
+namespace JG.Code.Catalog.UnitTests.Application.Category.ListCategories;
 public class ListCategoriesTestDataGenerator
 {
     public static IEnumerable<object[]> GetInputsWithoutAllParameter(int times = 14)
@@ -10,10 +10,10 @@ public class ListCategoriesTestDataGenerator
 
         for (int i = 0; i < times; i++)
         {
-            switch(i % 7)
+            switch (i % 7)
             {
                 case 0:
-                    yield return new object[] { new ListCategoriesInput() } ;
+                    yield return new object[] { new ListCategoriesInput() };
                     break;
                 case 1:
                     yield return new object[] { new ListCategoriesInput(inputExample.Page) };

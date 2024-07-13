@@ -1,7 +1,4 @@
-﻿using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
-using JG.Code.Catalog.UnitTests.Application.CreateCategory;
-
-namespace JG.Code.Catalog.UnitTests.Application.UpdateCategory;
+﻿namespace JG.Code.Catalog.UnitTests.Application.Category.UpdateCategory;
 public class UpdateCategoryDataGenerator
 {
     public static IEnumerable<object[]> GetCategoriesToUpdate(int times = 10)
@@ -16,10 +13,10 @@ public class UpdateCategoryDataGenerator
         }
     }
 
-    public static IEnumerable<Object[]> GetInvalidInputs(int times = 12)
+    public static IEnumerable<object[]> GetInvalidInputs(int times = 12)
     {
         var fixture = new UpdateCategoryTestFixture();
-        var invalidInputList = new List<Object[]>();
+        var invalidInputList = new List<object[]>();
         var totalInvalidCases = 3;
 
         for (int index = 0; index < times; index++)
@@ -39,7 +36,7 @@ public class UpdateCategoryDataGenerator
                            fixture.GetInvalidInputTooLongName(),
                                 "Name should be less or equal 255 characters"
                        ]);
-                    break;               
+                    break;
                 case 2:
                     invalidInputList.Add(
                        [
