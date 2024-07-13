@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.Application.Interfaces;
+using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Repository;
 using JG.Code.Catalog.UnitTests.Common;
 using Moq;
@@ -23,6 +24,9 @@ public abstract class CategoryUseCasesBaseFixture : BaseFixture
             categoryDescription = categoryDescription[..10_000];
         return categoryDescription;
     }
+
+    public Category GetExampleCategory()
+        => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
 
     public bool GetRandomBoolean() => (new Random()).NextDouble() < 0.5;
 

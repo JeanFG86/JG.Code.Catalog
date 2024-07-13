@@ -12,6 +12,5 @@ public class GetCategoryFixtureCollection : ICollectionFixture<DeleteCategoryTes
 
 public class DeleteCategoryTestFixture : CategoryUseCasesBaseFixture
 {
-    public Category GetValidCategory()
-        => new(GetValidCategoryName(), GetValidCategoryDescription());
+    
 }
