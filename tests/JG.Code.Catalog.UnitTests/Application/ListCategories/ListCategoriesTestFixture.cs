@@ -1,10 +1,7 @@
 ﻿using JG.Code.Catalog.Application.UseCases.Category.ListCategories;
 using JG.Code.Catalog.Domain.Entity;
-using JG.Code.Catalog.Domain.Repository;
 using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using JG.Code.Catalog.UnitTests.Application.Common;
-using JG.Code.Catalog.UnitTests.Common;
-using Moq;
 
 namespace JG.Code.Catalog.UnitTests.Application.ListCategories;
 
