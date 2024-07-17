@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\JG.Code.Catalog.Domain\JG.Code.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\..\src\JG.Code.Catalog.Infra.Data.EF\JG.Code.Catalog.Infra.Data.EF.csproj" />
   </ItemGroup>
 
   <ItemGroup>

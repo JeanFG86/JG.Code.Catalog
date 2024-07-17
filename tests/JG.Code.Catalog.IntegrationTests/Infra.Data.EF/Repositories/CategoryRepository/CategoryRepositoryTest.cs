@@ -1,5 +1,7 @@
 ﻿namespace JG.Code.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CategoryRepository;
 using FluentAssertions;
+using JG.Code.Catalog.Infra.Data.EF;
+using Repository = JG.Code.Catalog.Infra.Data.EF.Repositories;
 
 [Collection(nameof(CategoryRepositoryTestFixture))]
 public class CategoryRepositoryTest
@@ -17,14 +19,14 @@ public class CategoryRepositoryTest
     {
         CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
         var exampleCategory = _fixture.GetExampleCategory();
-        var categoryRepository = new CategoryRepository(dbContext);
+        var categoryRepository = new Repository.CategoryRepository(dbContext);
 
         await categoryRepository.Insert(exampleCategory, CancellationToken.None);
         await dbContext.SaveChangesAsync();
 
-        var dbCategory = await dbContext.Categories.Find(exampleCategory.Id);
+        var dbCategory = await dbContext.Categories.FindAsync(exampleCategory.Id);
         dbCategory.Should().NotBeNull();
-        dbCategory.Name.Should().Be(exampleCategory.Name);
+        dbCategory!.Name.Should().Be(exampleCategory.Name);
         dbCategory.Description.Should().Be(exampleCategory.Description);
         dbCategory.IsActive.Should().Be(exampleCategory.IsActive);
         dbCategory.CreatedAt.Should().Be(exampleCategory.CreatedAt);

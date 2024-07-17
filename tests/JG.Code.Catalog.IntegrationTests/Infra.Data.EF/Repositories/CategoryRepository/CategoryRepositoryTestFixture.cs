@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.Domain.Entity;
+using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.IntegrationTests.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,6 +38,7 @@ public class CategoryRepositoryTestFixture : BaseFixture
 
     public CodeCatalogDbContext CreateDbContext()
     {
-        var dbContext = new CodeCatalogDbContext(new DbContextOptionsBuilder<CodeCatalogDbContext>().UseInMemoryDatabase("integration-tests-db").Options)
+        var dbContext = new CodeCatalogDbContext(new DbContextOptionsBuilder<CodeCatalogDbContext>().UseInMemoryDatabase("integration-tests-db").Options);
+        return dbContext;
     }
 }
