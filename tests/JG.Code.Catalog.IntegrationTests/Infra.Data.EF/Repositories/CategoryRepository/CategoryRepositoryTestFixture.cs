@@ -36,6 +36,9 @@ public class CategoryRepositoryTestFixture : BaseFixture
     public Category GetExampleCategory()
         => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
 
+    public List<Category> GetExampleCategoriesList(int length = 10)
+        => Enumerable.Range(1, length).Select(_ => GetExampleCategory()).ToList();
+
     public CodeCatalogDbContext CreateDbContext()
     {
         var dbContext = new CodeCatalogDbContext(new DbContextOptionsBuilder<CodeCatalogDbContext>().UseInMemoryDatabase("integration-tests-db").Options);
