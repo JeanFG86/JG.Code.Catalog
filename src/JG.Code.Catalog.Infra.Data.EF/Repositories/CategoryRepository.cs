@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Domain.Entity;
+﻿using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Repository;
 using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,9 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<Category> Get(Guid id, CancellationToken cancellationToken)
     {
-        return await _categories.FindAsync(new object[] { id }, cancellationToken);
+        var category = await _categories.FindAsync(new object[] { id }, cancellationToken);
+        NotFoundException.ThrowIfNull(category, $"Category '{id}' not found.");        
+        return category!;
     }
 
     public Task Delete(Category aggregate, CancellationToken cancellationToken)
