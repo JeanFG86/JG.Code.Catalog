@@ -1,8 +1,6 @@
 ﻿using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
-using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.IntegrationTests.Common;
-using Microsoft.EntityFrameworkCore;
 
 namespace JG.Code.Catalog.IntegrationTests.Infra.Data.EF.Repositories.CategoryRepository;
 
@@ -62,13 +60,5 @@ public class CategoryRepositoryTestFixture : BaseFixture
             _ => listClone.OrderBy(x => x.Name),
         };
         return orderedEnumerable.ToList();
-    }
-
-    public CodeCatalogDbContext CreateDbContext(bool preserveData = false)
-    {
-        var dbContext = new CodeCatalogDbContext(new DbContextOptionsBuilder<CodeCatalogDbContext>().UseInMemoryDatabase("integration-tests-db").Options);
-        if(preserveData == false)
-            dbContext.Database.EnsureDeleted();
-        return dbContext;
-    }
+    }    
 }
