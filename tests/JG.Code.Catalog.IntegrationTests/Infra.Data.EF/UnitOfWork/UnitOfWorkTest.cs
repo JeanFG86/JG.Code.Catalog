@@ -18,16 +18,27 @@ public class UnitOfWorkTest
     [Trait("Integration/Infra.Data", "UnitOfWork - Persistence")]
     public async Task Commit()
     {
-        var dbId = Guid.NewGuid().ToString();
-        var dbContext = _fixture.CreateDbContext(false, dbId);
+        var dbContext = _fixture.CreateDbContext();
         var exampleCategoriesList = _fixture.GetExampleCategoriesList();
         await dbContext.AddRangeAsync(exampleCategoriesList);
         var unitOfWork = new UnitOfWorkInfra.UnitOfWork(dbContext);
 
         await unitOfWork.Commit(CancellationToken.None);
 
-        var assertDbContext = _fixture.CreateDbContext(true, dbId);
+        var assertDbContext = _fixture.CreateDbContext(true);
         var savedCategories = assertDbContext.Categories.AsNoTracking().ToList();
         savedCategories.Should().HaveCount(exampleCategoriesList.Count);
+    }
+
+    [Fact(DisplayName = nameof(RollBack))]
+    [Trait("Integration/Infra.Data", "UnitOfWork - Persistence")]
+    public async Task RollBack()
+    {
+        var dbContext = _fixture.CreateDbContext();
+        var unitOfWork = new UnitOfWorkInfra.UnitOfWork(dbContext);
+
+        var task = async () => await unitOfWork.Rollback(CancellationToken.None);
+
+        await task.Should().NotThrowAsync();
     }
 }

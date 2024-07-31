@@ -12,4 +12,7 @@ public class UnitOfWork : IUnitOfWork
 
     public Task Commit(CancellationToken cancellationToken)
      => _context.SaveChangesAsync(cancellationToken);
+
+    public Task Rollback(CancellationToken cancellationToken)
+     => Task.CompletedTask;
 }

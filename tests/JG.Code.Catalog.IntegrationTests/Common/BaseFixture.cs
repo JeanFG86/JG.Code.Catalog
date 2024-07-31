@@ -9,9 +9,9 @@ public class BaseFixture
 
     protected Faker Faker {  get; set; }
 
-    public CodeCatalogDbContext CreateDbContext(bool preserveData = false, string dbId = "")
+    public CodeCatalogDbContext CreateDbContext(bool preserveData = false)
     {
-        var dbContext = new CodeCatalogDbContext(new DbContextOptionsBuilder<CodeCatalogDbContext>().UseInMemoryDatabase($"integration-tests-db{dbId}").Options);
+        var dbContext = new CodeCatalogDbContext(new DbContextOptionsBuilder<CodeCatalogDbContext>().UseInMemoryDatabase("integration-tests-db").Options);
         if (preserveData == false)
             dbContext.Database.EnsureDeleted();
         return dbContext;
