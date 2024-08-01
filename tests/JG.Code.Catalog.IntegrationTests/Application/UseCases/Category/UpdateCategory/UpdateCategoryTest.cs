@@ -7,6 +7,7 @@ using ApplicationUseCase = JG.Code.Catalog.Application.UseCases.Category.UpdateC
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Domain.Exceptions;
 
 namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.Category.UpdateCategory;
 
@@ -118,7 +119,6 @@ public class UpdateCategoryTest
         output.IsActive.Should().Be(exampleCategory.IsActive);
     }
 
-
     [Fact(DisplayName = nameof(UpdateThrowsWhenNotFoundCategory))]
     [Trait("Integration/Application", "UpdateCategory - Use Cases")]
     public async Task UpdateThrowsWhenNotFoundCategory()
@@ -134,5 +134,28 @@ public class UpdateCategoryTest
         var task = async () => await useCase.Handle(input, CancellationToken.None);
 
         await task.Should().ThrowAsync<NotFoundException>().WithMessage($"Category '{input.Id}' not found.");
+    }
+
+    [Theory(DisplayName = nameof(UpdateThrowsWhenCantInstantiateCategory))]
+    [Trait("Integration/Application", "UpdateCategory - Use Cases")]
+    [MemberData(
+        nameof(UpdateCategoryDataGenerator.GetInvalidInputs),
+        parameters: 6,
+        MemberType = typeof(UpdateCategoryDataGenerator)
+    )]
+    public async Task UpdateThrowsWhenCantInstantiateCategory(UpdateCategoryInput input, string expectedExceptionMessage)
+    {
+        var dbContext = _fixture.CreateDbContext();
+        var exampleCategories = _fixture.GetExampleCategoriesList();
+        var repository = new CategoryRepository(dbContext);
+        var unitOfWork = new UnitOfWork(dbContext);
+        await dbContext.AddRangeAsync(exampleCategories);
+        dbContext.SaveChanges();
+        var useCase = new ApplicationUseCase.UpdateCategory(repository, unitOfWork);
+        input.Id = exampleCategories[0].Id;
+
+        var task = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await task.Should().ThrowAsync<EntityValidationException>().WithMessage(expectedExceptionMessage);
     }
 }
