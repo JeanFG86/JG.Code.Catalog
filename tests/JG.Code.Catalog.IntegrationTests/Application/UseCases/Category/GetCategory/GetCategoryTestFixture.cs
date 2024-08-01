@@ -7,6 +7,5 @@ namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.Category.GetCate
 public class GetCategoryTestFixtureCollection : ICollectionFixture<GetCategoryTestFixture> { }
 
 public class GetCategoryTestFixture : CategoryUseCasesBaseFixture
-{
-
+{    
 }
