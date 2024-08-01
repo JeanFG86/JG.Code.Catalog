@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
+using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.Infra.Data.EF.Repositories;
 using UsesCases = JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
@@ -92,5 +93,21 @@ public class CreateCategoryTest
         output.IsActive.Should().Be(true);
         output.Id.Should().NotBeEmpty();
         output.CreatedAt.Should().NotBeSameDateAs(default);
+    }
+
+    [Theory(DisplayName = nameof(ThrowWhenCantInstantiateCategory))]
+    [Trait("Integration/Application", "CreateCategory - Use Cases")]
+    [MemberData(nameof(CreateCategoryTestDataGenerator.GetInvalidInputs), parameters: 6, MemberType = typeof(CreateCategoryTestDataGenerator))]
+    public async Task ThrowWhenCantInstantiateCategory(CreateCategoryInput input, string expectedExceptionMessage)
+    {
+        var dbContext = _fixture.CreateDbContext();
+        var repository = new CategoryRepository(dbContext);
+        var unitOfWork = new UnitOfWork(dbContext);
+        var useCase = new UsesCases.CreateCategory(repository, unitOfWork);
+        var exampleInput = _fixture.GetInput();
+
+        var task = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await task.Should().ThrowAsync<EntityValidationException>().WithMessage(expectedExceptionMessage);
     }
 }
