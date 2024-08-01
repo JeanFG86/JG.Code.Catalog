@@ -3,6 +3,7 @@ using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.Infra.Data.EF.Repositories;
+using Microsoft.EntityFrameworkCore;
 using UsesCases = JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 
 namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.Category.CreateCategory;
@@ -109,5 +110,7 @@ public class CreateCategoryTest
         var task = async () => await useCase.Handle(input, CancellationToken.None);
 
         await task.Should().ThrowAsync<EntityValidationException>().WithMessage(expectedExceptionMessage);
+        var dbCategoriesList = _fixture.CreateDbContext().Categories.AsNoTracking().ToList();
+        dbCategoriesList.Should().HaveCount(0);
     }
 }
