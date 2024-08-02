@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using AppUseCase = JG.Code.Catalog.Application.UseCases.Category.DeleteCategory;
 using JG.Code.Catalog.Application.UseCases.Category.DeleteCategory;
 using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 
 namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.Category.DeleteCategory;
 
@@ -42,4 +43,21 @@ public class DeleteCategoryTest
         dbCategories.Should().HaveCount(exampleList.Count);
     }
 
+    [Fact(DisplayName = nameof(ThrowWhenCategoryNotFound))]
+    [Trait("Integration/Application", "DeleteCategory - Use Cases")]
+    public async Task ThrowWhenCategoryNotFound()
+    {
+        var dbContext = _fixture.CreateDbContext();
+        var exampleList = _fixture.GetExampleCategoriesList(10);
+        await dbContext.AddRangeAsync(exampleList);
+        await dbContext.SaveChangesAsync();
+        var repository = new CategoryRepository(dbContext);
+        var unitOfWork = new UnitOfWork(dbContext);
+        var useCase = new AppUseCase.DeleteCategory(repository, unitOfWork);
+        var input = new DeleteCategoryInput(Guid.NewGuid());
+
+        var task = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await task.Should().ThrowAsync<NotFoundException>().WithMessage($"Category '{input.Id}' not found.");
+    }
 }
