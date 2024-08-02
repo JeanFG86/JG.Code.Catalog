@@ -4,6 +4,7 @@ using JG.Code.Catalog.Infra.Data.EF.Repositories;
 using JG.Code.Catalog.Application.UseCases.Category.ListCategories;
 using AppUseCases = JG.Code.Catalog.Application.UseCases.Category.ListCategories;
 using JG.Code.Catalog.Application.UseCases.Category.Common;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 
 namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.Category.ListCategories;
 
@@ -156,6 +157,51 @@ public class ListCategoriesTest
         {
             var exampleItem = exampleCategoriesList.Find(category => category.Id == outputIem.Id);
             exampleItem.Should().NotBeNull();
+            outputIem!.Name.Should().Be(exampleItem!.Name);
+            outputIem.Description.Should().Be(exampleItem.Description);
+            outputIem.IsActive.Should().Be(exampleItem.IsActive);
+            outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+        }
+    }
+
+    [Theory(DisplayName = nameof(SearchOrdered))]
+    [Trait("Integration/Application", "ListCategories - Use Cases")]
+    [InlineData("name", "asc")]
+    [InlineData("name", "desc")]
+    [InlineData("id", "asc")]
+    [InlineData("id", "desc")]
+    [InlineData("createdat", "asc")]
+    [InlineData("createdat", "desc")]
+    [InlineData("", "asc")]
+    public async Task SearchOrdered(
+        string orderBy,
+        string order
+    )
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleCategoriesList = _fixture.GetExampleCategoriesList(15);
+        await dbContext.AddRangeAsync(exampleCategoriesList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var categoryRepository = new CategoryRepository(dbContext);
+        var searchOrder = order.ToLower() == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+        var input = new ListCategoriesInput(1, 20, "", orderBy, searchOrder);
+        var useCase = new AppUseCases.ListCategories(categoryRepository);
+
+        var output = await useCase.Handle(input, CancellationToken.None);
+
+        var expectedOrderedList = _fixture.CloneCategoriesListOrdered(exampleCategoriesList, input.Sort, input.Dir);
+        output.Should().NotBeNull();
+        output.Items.Should().NotBeNull();
+        output.Page.Should().Be(input.Page);
+        output.PerPage.Should().Be(input.PerPage);
+        output.Total.Should().Be(exampleCategoriesList.Count);
+        output.Items.Should().HaveCount(exampleCategoriesList.Count);
+        for (int indice = 0; indice < expectedOrderedList.Count; indice++)
+        {
+            var outputIem = output.Items[indice];
+            var exampleItem = expectedOrderedList[indice];
+            exampleItem.Should().NotBeNull();
+            outputIem.Id.Should().Be(exampleItem!.Id);
             outputIem!.Name.Should().Be(exampleItem!.Name);
             outputIem.Description.Should().Be(exampleItem.Description);
             outputIem.IsActive.Should().Be(exampleItem.IsActive);
