@@ -2,6 +2,7 @@
 using JG.Code.Catalog.IntegrationTests.Application.UseCases.Category.Common;
 
 namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.Category.CreateCategory;
+
 [CollectionDefinition(nameof(CreateCategoryTestFixture))]
 public class CreateCategoryTestFixtureCollection : ICollectionFixture<CreateCategoryTestFixture>
 {

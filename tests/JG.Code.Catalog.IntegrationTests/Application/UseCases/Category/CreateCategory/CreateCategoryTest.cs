@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using UsesCases = JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 
 namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.Category.CreateCategory;
+
 [Collection(nameof(CreateCategoryTestFixture))]
 public class CreateCategoryTest
 {
