@@ -3,6 +3,7 @@ using JG.Code.Catalog.Api.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
+    .AddAppConnections()
     .AddUseCases()
     .AddAndConfigureControllers();
 
