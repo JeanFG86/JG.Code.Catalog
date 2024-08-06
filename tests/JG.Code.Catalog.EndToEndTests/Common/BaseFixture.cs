@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore;
 namespace JG.Code.Catalog.EndToEndTests.Common;
 public class BaseFixture
 {
-    public BaseFixture() => Faker = new Faker("pt_BR");
-
     protected Faker Faker { get; set; }
+
+    public ApiClient ApiClient { get; set; }
+
+    public BaseFixture() => Faker = new Faker("pt_BR");
 
     public CodeCatalogDbContext CreateDbContext()
     {

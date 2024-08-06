@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JG.Code.Catalog.EndToEndTests.Common;
+
+//permite rodar a api no proprio processo do teste (WebApplicationFactory)
 public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> 
     where TStartup : class
 {
