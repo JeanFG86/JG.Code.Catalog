@@ -1,10 +1,12 @@
-﻿namespace JG.Code.Catalog.Api.Configurations;
+﻿using JG.Code.Catalog.Api.Filters;
+
+namespace JG.Code.Catalog.Api.Configurations;
 
 public static class ControllersConfigs
 {
     public static IServiceCollection AddAndConfigureControllers(this IServiceCollection services)
     {
-        services.AddControllers();
+        services.AddControllers(options => options.Filters.Add(typeof(ApiGlobalExceptionFilter)));
         services.AddDocumentation();
         return services;
     }

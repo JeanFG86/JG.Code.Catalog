@@ -2,6 +2,10 @@
 using DomianEntity = JG.Code.Catalog.Domain.Entity;
 using FluentAssertions;
 using System.Net;
+using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.CreateCategory;
 
@@ -38,5 +42,24 @@ public class CreateCategoryApiTest
         dbCategory.IsActive.Should().Be(input.IsActive);
         dbCategory.Id.Should().NotBeEmpty();
         dbCategory.CreatedAt.Should().NotBeSameDateAs(default);
+    }
+
+    [Theory(DisplayName = nameof(ThrowWhenCantInstantiateAggregate))]
+    [Trait("EndToEnd/API", "CreateCategory - EndPoints")]
+    [MemberData(
+        nameof(CreateCategoryApiTestDataGenerator.GetInvalidInputs),
+        MemberType = typeof(CreateCategoryApiTestDataGenerator)
+    )]
+    public async Task ThrowWhenCantInstantiateAggregate(CreateCategoryInput input, string expectedDetail)
+    {
+        var (reponse, output) = await _fixture.ApiClient.Post<ProblemDetails>("/categories", input);
+
+        reponse.Should().NotBeNull();
+        reponse!.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        output.Should().NotBeNull();
+        output!.Title.Should().Be("One or more validation errors ocurred");
+        output.Type.Should().Be("UnprocessableEntity");
+        output.Status.Should().Be((int)StatusCodes.Status422UnprocessableEntity);
+        output.Detail.Should().Be(expectedDetail);        
     }
 }
