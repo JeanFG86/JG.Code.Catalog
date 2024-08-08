@@ -20,7 +20,7 @@ public class CreateCategoryApiTest
     }
 
     [Fact(DisplayName = nameof(CreateCategory))]
-    [Trait("EndToEnd/API", "CreateCategory - EndPoints")]
+    [Trait("EndToEnd/API", "Category/Create - EndPoints")]
     public async Task CreateCategory()
     {
         var input = _fixture.GetExampleInput();
@@ -45,7 +45,7 @@ public class CreateCategoryApiTest
     }
 
     [Theory(DisplayName = nameof(ThrowWhenCantInstantiateAggregate))]
-    [Trait("EndToEnd/API", "CreateCategory - EndPoints")]
+    [Trait("EndToEnd/API", "Category/Create - EndPoints")]
     [MemberData(
         nameof(CreateCategoryApiTestDataGenerator.GetInvalidInputs),
         MemberType = typeof(CreateCategoryApiTestDataGenerator)

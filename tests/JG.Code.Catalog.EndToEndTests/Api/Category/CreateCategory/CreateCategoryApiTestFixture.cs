@@ -10,5 +10,5 @@ public class CreateCategoryApiTestFixtureCollection : ICollectionFixture<CreateC
 public class CreateCategoryApiTestFixture : CategoryBaseFixture
 {
     public CreateCategoryInput GetExampleInput()
-     => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
+     => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandonBoolean());
 }
