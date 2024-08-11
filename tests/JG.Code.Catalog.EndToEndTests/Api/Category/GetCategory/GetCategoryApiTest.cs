@@ -36,9 +36,9 @@ public class GetCategoryApiTest
         output.IsActive.Should().Be(exampleCategory.IsActive);
     }
 
-    [Fact(DisplayName = nameof(ThrowWhenNotFound))]
+    [Fact(DisplayName = nameof(ErrorWhenNotFound))]
     [Trait("EndToEnd/API", "Category/Get - Endpoints")]
-    public async Task ThrowWhenNotFound()
+    public async Task ErrorWhenNotFound()
     {
         var exampleCategoriesList = _fixture.GetExampleCategoriesList(20);
         await _fixture.Persistence.InsertList(exampleCategoriesList);

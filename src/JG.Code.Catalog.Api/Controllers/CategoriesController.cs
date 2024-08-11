@@ -36,6 +36,7 @@ public class CategoriesController : ControllerBase
 
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(typeof(CategoryModelOutput), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         await _mediator.Send(new DeleteCategoryInput(id), cancellationToken);
