@@ -2,6 +2,7 @@ using JG.Code.Catalog.Application.UseCases.Category.Common;
 using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 using JG.Code.Catalog.Application.UseCases.Category.DeleteCategory;
 using JG.Code.Catalog.Application.UseCases.Category.GetCategory;
+using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,14 @@ public class CategoriesController : ControllerBase
     {
         var output = await _mediator.Send(input, cancellationToken);
         return CreatedAtAction(nameof(Create), new { output.Id }, output);
+    }
+
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(CategoryModelOutput), StatusCodes.Status200OK)]    
+    public async Task<IActionResult> Update([FromBody] UpdateCategoryInput input, CancellationToken cancellationToken)
+    {
+        var output = await _mediator.Send(input, cancellationToken);
+        return Ok(output);
     }
 
     [HttpGet("{id:guid}")]
