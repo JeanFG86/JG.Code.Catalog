@@ -1,11 +1,9 @@
 ﻿using JG.Code.Catalog.Application.UseCases.Category.Common;
-using DomianEntity = JG.Code.Catalog.Domain.Entity;
 using FluentAssertions;
 using System.Net;
 using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.CreateCategory;
 
@@ -25,10 +23,10 @@ public class CreateCategoryApiTest
     {
         var input = _fixture.GetExampleInput();
 
-        var (reponse, output) = await _fixture.ApiClient.Post<CategoryModelOutput>("/categories", input);
+        var (response, output) = await _fixture.ApiClient.Post<CategoryModelOutput>("/categories", input);
 
-        reponse.Should().NotBeNull();
-        reponse!.StatusCode.Should().Be(HttpStatusCode.Created);
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be(HttpStatusCode.Created);
         output.Should().NotBeNull();
         output!.Name.Should().Be(input.Name);
         output.Description.Should().Be(input.Description);
