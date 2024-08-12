@@ -2,6 +2,7 @@
 using JG.Code.Catalog.Application.UseCases.Category.Common;
 using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.UpdateCategory;
@@ -89,5 +90,25 @@ public class UpdateCategoryApiTest
         dbCategory!.Name.Should().Be(input.Name);
         dbCategory.Description.Should().Be(input.Description);
         dbCategory.IsActive.Should().Be((bool)exampleCategory.IsActive);
+    }
+
+    [Fact(DisplayName = nameof(ErrorWhenNotFound))]
+    [Trait("EndToEnd/API", "Category/Update - EndPoints")]
+    public async Task ErrorWhenNotFound()
+    {
+        var exampleCategoriesList = _fixture.GetExampleCategoriesList(20);
+        await _fixture.Persistence.InsertList(exampleCategoriesList);
+        var randomGuid = Guid.NewGuid();
+        var input = _fixture.GetExampleInput(randomGuid);
+
+        var (response, output) = await _fixture.ApiClient.Put<ProblemDetails>($"/categories/{randomGuid}", input);
+
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status404NotFound);
+        output.Should().NotBeNull();
+        output!.Status.Should().Be(StatusCodes.Status404NotFound);
+        output.Title.Should().Be("Not Found");
+        output.Detail.Should().Be($"Category '{randomGuid}' not found.");
+        output.Type.Should().Be("NotFound");
     }
 }
