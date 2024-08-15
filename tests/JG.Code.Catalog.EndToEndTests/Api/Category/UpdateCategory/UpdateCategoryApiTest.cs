@@ -8,7 +8,7 @@ using System.Net;
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.UpdateCategory;
 
 [Collection(nameof(UpdateCategoryApiTestFixture))]
-public class UpdateCategoryApiTest
+public class UpdateCategoryApiTest : IDisposable
 {
     private readonly UpdateCategoryApiTestFixture _fixture;
 
@@ -131,5 +131,10 @@ public class UpdateCategoryApiTest
         output.Type.Should().Be("UnprocessableEntity");
         output.Status.Should().Be((int)StatusCodes.Status422UnprocessableEntity);
         output.Detail.Should().Be(expectedDetails);
+    }
+
+    public void Dispose()
+    {
+        _fixture.CleanPersistence();
     }
 }

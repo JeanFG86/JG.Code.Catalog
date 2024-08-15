@@ -23,4 +23,11 @@ public class BaseFixture
         var dbContext = new CodeCatalogDbContext(new DbContextOptionsBuilder<CodeCatalogDbContext>().UseInMemoryDatabase("end2end-tests-db").Options);
         return dbContext;
     }
+
+    public void CleanPersistence()
+    {
+        var context = CreateDbContext();
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+    }
 }

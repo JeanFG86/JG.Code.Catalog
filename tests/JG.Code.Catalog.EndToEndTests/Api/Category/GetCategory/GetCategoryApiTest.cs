@@ -8,7 +8,7 @@ using System.Net;
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.GetCategoryById;
 
 [Collection(nameof(CreateCategoryApiTestFixture))]
-public class GetCategoryApiTest
+public class GetCategoryApiTest : IDisposable
 {
     private readonly CreateCategoryApiTestFixture _fixture;
 
@@ -53,5 +53,10 @@ public class GetCategoryApiTest
         output.Title.Should().Be("Not Found");
         output.Detail.Should().Be($"Category '{randonGuid}' not found.");
         output.Type.Should().Be("NotFound");
+    }
+
+    public void Dispose()
+    {
+        _fixture.CleanPersistence();
     }
 }

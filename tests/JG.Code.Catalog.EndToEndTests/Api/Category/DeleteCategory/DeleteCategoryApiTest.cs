@@ -6,7 +6,7 @@ using System.Net;
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.DeleteCategory;
 
 [Collection(nameof(DeleteCategoryApiTestFixture))]
-public class DeleteCategoryApiTest
+public class DeleteCategoryApiTest : IDisposable
 {
     private readonly DeleteCategoryApiTestFixture _fixture;
 
@@ -49,5 +49,10 @@ public class DeleteCategoryApiTest
         output.Title.Should().Be("Not Found");
         output.Detail.Should().Be($"Category '{exampleRandonGuid}' not found.");
         output.Type.Should().Be("NotFound");
+    }
+
+    public void Dispose()
+    {
+        _fixture.CleanPersistence();
     }
 }

@@ -7,14 +7,14 @@ using System.Net;
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.ListCategories;
 
 [Collection(nameof(ListCategoriesApiTestFixture))]
-public class ListCategoriesApiTest
+public class ListCategoriesApiTest : IDisposable
 {
     private readonly ListCategoriesApiTestFixture _fixture;
 
     public ListCategoriesApiTest(ListCategoriesApiTestFixture fixture)
     {
         _fixture = fixture;
-    }
+    }    
 
     [Fact(DisplayName = nameof(ListCategoriesAndTotalByDefault))]
     [Trait("EndToEnd/API", "Category/List - Endpoints")]
@@ -40,5 +40,10 @@ public class ListCategoriesApiTest
             outputItem.IsActive.Should().Be(exampleItem.IsActive);
             outputItem.CreatedAt.Should().Be(exampleItem.CreatedAt);
         }        
+    }
+
+    public void Dispose()
+    {
+        _fixture.CleanPersistence();
     }
 }
