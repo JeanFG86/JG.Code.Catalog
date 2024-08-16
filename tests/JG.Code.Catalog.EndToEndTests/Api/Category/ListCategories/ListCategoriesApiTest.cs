@@ -42,6 +42,19 @@ public class ListCategoriesApiTest : IDisposable
         }        
     }
 
+    [Fact(DisplayName = nameof(ItemsEmptyWhenPersistenceEmpty))]
+    [Trait("EndToEnd/API", "Category/List - Endpoints")]
+    public async Task ItemsEmptyWhenPersistenceEmpty()
+    {
+        var (response, output) = await _fixture.ApiClient.Get<ListCategoriesOutput>($"/categories");
+
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
+        output.Should().NotBeNull();
+        output!.Total.Should().Be(0);
+        output!.Items.Should().HaveCount(0);        
+    }
+
     public void Dispose()
     {
         _fixture.CleanPersistence();
