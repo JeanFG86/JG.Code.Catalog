@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Application.UseCases.Category.Common;
 using JG.Code.Catalog.Application.UseCases.Category.ListCategories;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 
@@ -172,6 +173,48 @@ public class ListCategoriesApiTest : IDisposable
             outputItem.Description.Should().Be(exampleItem.Description);
             outputItem.IsActive.Should().Be(exampleItem.IsActive);
             outputItem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+        }
+    }
+
+    [Theory(DisplayName = nameof(SearchOrdered))]
+    [Trait("EndToEnd/API", "Category/List - Endpoints")]
+    [InlineData("name", "asc")]
+    [InlineData("name", "desc")]
+    [InlineData("id", "asc")]
+    [InlineData("id", "desc")]
+    [InlineData("createdat", "asc")]
+    [InlineData("createdat", "desc")]
+    [InlineData("", "asc")]
+    public async Task SearchOrdered(
+        string orderBy,
+        string order
+        )
+    {
+        var exampleCategoriesList = _fixture.GetExampleCategoriesList(10);
+        await _fixture.Persistence.InsertList(exampleCategoriesList);
+        var searchOrder = order.ToLower() == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+        var input = new ListCategoriesInput(1, 20, sort: orderBy, dir: searchOrder);
+
+        var (response, output) = await _fixture.ApiClient.Get<ListCategoriesOutput>($"/categories", input);
+
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
+        output.Should().NotBeNull();
+        output!.Total.Should().Be(exampleCategoriesList.Count);
+        output!.Items.Should().HaveCount(exampleCategoriesList.Count);
+        output!.Page.Should().Be(input.Page);
+        output!.PerPage.Should().Be(input.PerPage);
+        var expectedOrderedList = _fixture.CloneCategoriesListOrdered(exampleCategoriesList, input.Sort, input.Dir);
+        for (int indice = 0; indice < expectedOrderedList.Count; indice++)
+        {
+            var outputIem = output.Items[indice];
+            var exampleItem = expectedOrderedList[indice];
+            exampleItem.Should().NotBeNull();
+            outputIem!.Name.Should().Be(exampleItem!.Name);
+            outputIem.Id.Should().Be(exampleItem!.Id);
+            outputIem.Description.Should().Be(exampleItem.Description);
+            outputIem.IsActive.Should().Be(exampleItem.IsActive);
+            outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
         }
     }
 
