@@ -19,7 +19,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JG.Code.Catalog.Infra.Data.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JG.Code.Catalog.EndToEndTests", "tests\JG.Code.Catalog.EndToEndTests\JG.Code.Catalog.EndToEndTests.csproj", "{06551076-BF92-4461-BFD9-E95C0E652884}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JG.Code.Catalog.Api", "src\JG.Code.Catalog.Api\JG.Code.Catalog.Api.csproj", "{F504AFB5-20E9-465F-AA60-74B16B63D55D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JG.Code.Catalog.Api", "src\JG.Code.Catalog.Api\JG.Code.Catalog.Api.csproj", "{F504AFB5-20E9-465F-AA60-74B16B63D55D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "env", "env", "{8898DE89-9FC4-4929-AFB9-1D3CDF95C867}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
