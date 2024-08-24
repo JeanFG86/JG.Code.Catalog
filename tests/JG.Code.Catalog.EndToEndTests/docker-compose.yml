@@ -1,0 +1,11 @@
+﻿version: '3.4'
+
+services:
+  jg.flix.catalog.db:
+    container_name: catelogdb-e2e
+    hostname: catalogdb-e2e
+    image: mysql
+    ports:
+      - 33060:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456

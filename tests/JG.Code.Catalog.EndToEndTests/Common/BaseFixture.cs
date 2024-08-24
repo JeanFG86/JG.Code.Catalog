@@ -1,6 +1,7 @@
 ﻿using Bogus;
 using JG.Code.Catalog.Infra.Data.EF;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace JG.Code.Catalog.EndToEndTests.Common;
 public class BaseFixture
@@ -10,18 +11,23 @@ public class BaseFixture
     public HttpClient HttpClient { get; set; }
     public ApiClient ApiClient { get; set; }
 
+    private readonly string _dbConnectionString;
+
     public BaseFixture()
     {
         Faker = new Faker("pt_BR");
         WebAppFactory = new CustomWebApplicationFactory<Program>();
         HttpClient = WebAppFactory.CreateClient();
         ApiClient = new ApiClient(HttpClient);
-    } 
+        var configuration = WebAppFactory.Services.GetService(typeof(IConfiguration));
+        ArgumentNullException.ThrowIfNull(configuration);
+        _dbConnectionString = ((IConfiguration)configuration).GetConnectionString("CatalogDb");
+    }
 
     public CodeCatalogDbContext CreateDbContext()
     {
-        var dbContext = new CodeCatalogDbContext(new DbContextOptionsBuilder<CodeCatalogDbContext>().UseInMemoryDatabase("end2end-tests-db").Options);
-        return dbContext;
+        var context = new CodeCatalogDbContext(new DbContextOptionsBuilder<CodeCatalogDbContext>().UseMySql(_dbConnectionString, ServerVersion.AutoDetect(_dbConnectionString)).Options);
+        return context;
     }
 
     public void CleanPersistence()
