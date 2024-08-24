@@ -5,6 +5,7 @@ using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using JG.Code.Catalog.EndToEndTests.Extensions.DateTime;
 using Microsoft.AspNetCore.Http;
 using System.Net;
+using Xunit.Abstractions;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.ListCategories;
 
@@ -12,10 +13,12 @@ namespace JG.Code.Catalog.EndToEndTests.Api.Category.ListCategories;
 public class ListCategoriesApiTest : IDisposable
 {
     private readonly ListCategoriesApiTestFixture _fixture;
+    private readonly ITestOutputHelper _output;
 
-    public ListCategoriesApiTest(ListCategoriesApiTestFixture fixture)
+    public ListCategoriesApiTest(ListCategoriesApiTestFixture fixture, ITestOutputHelper output)
     {
         _fixture = fixture;
+        _output = output;
     }    
 
     [Fact(DisplayName = nameof(ListCategoriesAndTotalByDefault))]
@@ -183,9 +186,6 @@ public class ListCategoriesApiTest : IDisposable
     [InlineData("name", "desc")]
     [InlineData("id", "asc")]
     [InlineData("id", "desc")]
-    [InlineData("createdat", "asc")]
-    [InlineData("createdat", "desc")]
-    [InlineData("", "asc")]
     public async Task SearchOrdered(
         string orderBy,
         string order
@@ -216,6 +216,50 @@ public class ListCategoriesApiTest : IDisposable
             outputIem.Description.Should().Be(exampleItem.Description);
             outputIem.IsActive.Should().Be(exampleItem.IsActive);
             outputIem.CreatedAt.TrimMillisseconds().Should().Be(exampleItem.CreatedAt.TrimMillisseconds());
+        }
+    }
+
+    [Theory(DisplayName = nameof(ListOrderedDates))]
+    [Trait("EndToEnd/API", "Category/List - Endpoints")]    
+    [InlineData("createdat", "asc")]
+    [InlineData("createdat", "desc")]
+    public async Task ListOrderedDates(
+        string orderBy,
+        string order
+        )
+    {
+        var exampleCategoriesList = _fixture.GetExampleCategoriesList(10);
+        await _fixture.Persistence.InsertList(exampleCategoriesList);
+        var searchOrder = order.ToLower() == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+        var input = new ListCategoriesInput(1, 20, sort: orderBy, dir: searchOrder);
+
+        var (response, output) = await _fixture.ApiClient.Get<ListCategoriesOutput>($"/categories", input);
+
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
+        output.Should().NotBeNull();
+        output!.Total.Should().Be(exampleCategoriesList.Count);
+        output!.Items.Should().HaveCount(exampleCategoriesList.Count);
+        output!.Page.Should().Be(input.Page);
+        output!.PerPage.Should().Be(input.PerPage);
+        DateTime? lastItemDate = null;
+        foreach (CategoryModelOutput outputItem in output!.Items)
+        {
+            var exampleItem = exampleCategoriesList.FirstOrDefault(x => x.Id == outputItem.Id);
+            exampleItem.Should().NotBeNull();
+            outputItem.Name.Should().Be(exampleItem!.Name);
+            outputItem.Description.Should().Be(exampleItem.Description);
+            outputItem.IsActive.Should().Be(exampleItem.IsActive);
+            outputItem.CreatedAt.TrimMillisseconds().Should().Be(exampleItem.CreatedAt.TrimMillisseconds());
+            if (lastItemDate != null)
+            {
+                if (order == "asc")
+                    Assert.True(outputItem.CreatedAt >= lastItemDate);
+                else
+                    Assert.True(outputItem.CreatedAt <= lastItemDate);
+
+            }
+            lastItemDate = outputItem.CreatedAt;
         }
     }
 

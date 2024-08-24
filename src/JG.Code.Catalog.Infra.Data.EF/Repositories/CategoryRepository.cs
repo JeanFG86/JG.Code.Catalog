@@ -35,18 +35,21 @@ public class CategoryRepository : ICategoryRepository
     public Task Delete(Category aggregate, CancellationToken _)
     {
         return Task.FromResult(_categories.Remove(aggregate));
-    }        
+    }
 
     public async Task<SearchOutput<Category>> Search(SearchInput input, CancellationToken cancellationToken)
     {
         var toSkip = (input.Page - 1) * input.PerPage;
         var query = _categories.AsNoTracking();
         query = AddOrderToQuery(query, input.OrderBy, input.Order);
-        if (!String.IsNullOrWhiteSpace(input.Search))        
+        if (!String.IsNullOrWhiteSpace(input.Search))
             query = query.Where(x => x.Name.Contains(input.Search));
-        
+
         var total = await query.CountAsync();
-        var items = await query.Skip(toSkip).Take(input.PerPage).ToListAsync();
+        var items = await query
+            .Skip(toSkip)
+            .Take(input.PerPage)
+            .ToListAsync();
         return new SearchOutput<Category>(input.Page, input.PerPage, total, items);
     }
 

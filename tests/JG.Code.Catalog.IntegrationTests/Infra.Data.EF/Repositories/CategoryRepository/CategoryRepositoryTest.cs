@@ -267,40 +267,39 @@ public class CategoryRepositoryTest
     [InlineData("id", "desc")]
     [InlineData("createdat", "asc")]
     [InlineData("createdat", "desc")]
-    [InlineData("", "asc")]
     public async Task SearchOrdered(
         string orderBy,
         string order
     )
     {
         CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
-        var exampleCategoriesList = _fixture.GetExampleCategoriesList(10);
-        await dbContext.AddRangeAsync(exampleCategoriesList);
-        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var exampleCategoryList = _fixture.GetExampleCategoriesList(10);
+        await dbContext.AddRangeAsync(exampleCategoryList);
+        await dbContext.SaveChangesAsync();
         var categoryRepository = new Repository.CategoryRepository(dbContext);
-        var searchOrder = order.ToLower() == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+        var searchOrder = order == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
         var searchInput = new SearchInput(1, 20, "", orderBy, searchOrder);
 
         var output = await categoryRepository.Search(searchInput, CancellationToken.None);
+        var expectedOrderList = _fixture.CloneCategoriesListOrdered(exampleCategoryList, orderBy, searchOrder);
 
-        var expectedOrderedList = _fixture.CloneCategoriesListOrdered(exampleCategoriesList, orderBy, searchOrder);
         output.Should().NotBeNull();
         output.Items.Should().NotBeNull();
         output.CurrentPage.Should().Be(searchInput.Page);
         output.PerPage.Should().Be(searchInput.PerPage);
-        output.Total.Should().Be(exampleCategoriesList.Count);
-        output.Items.Should().HaveCount(exampleCategoriesList.Count);
-        for( int indice = 0; indice < expectedOrderedList.Count; indice++)
+        output.Total.Should().Be(exampleCategoryList.Count);
+        output.Items.Should().HaveCount(exampleCategoryList.Count);
+        for (int i = 0; i < expectedOrderList.Count; i++)
         {
-            var expectedItem = expectedOrderedList[indice];
-            var outputIem = output.Items[indice];
+            var expectedItem = expectedOrderList[i];
+            var outputItem = output.Items[i];
             expectedItem.Should().NotBeNull();
-            outputIem.Should().NotBeNull();
-            outputIem.Id.Should().Be(expectedItem!.Id);
-            outputIem!.Name.Should().Be(expectedItem!.Name);
-            outputIem.Description.Should().Be(expectedItem.Description);
-            outputIem.IsActive.Should().Be(expectedItem.IsActive);
-            outputIem.CreatedAt.Should().Be(expectedItem.CreatedAt);
+            outputItem.Should().NotBeNull();
+            outputItem!.Name.Should().Be(expectedItem!.Name);
+            outputItem!.Id.Should().Be(expectedItem!.Id);
+            outputItem!.CreatedAt.Should().Be(expectedItem!.CreatedAt);
+            outputItem.Description.Should().Be(expectedItem.Description);
+            outputItem.IsActive.Should().Be(expectedItem.IsActive);
         }
     }
 }

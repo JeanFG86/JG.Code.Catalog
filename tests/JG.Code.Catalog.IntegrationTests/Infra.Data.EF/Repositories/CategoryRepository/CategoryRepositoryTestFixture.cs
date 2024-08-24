@@ -49,15 +49,15 @@ public class CategoryRepositoryTestFixture : BaseFixture
     public List<Category> CloneCategoriesListOrdered(List<Category> categoriesList, string orderBy, SearchOrder searchOrder)
     {
         var listClone = new List<Category>(categoriesList);
-        var orderedEnumerable = (orderBy.ToLower(), searchOrder) switch
+        var orderedEnumerable = (orderBy, searchOrder) switch
         {
-            ("name", SearchOrder.Asc) => listClone.OrderBy(x => x.Name),
-            ("name", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Name),
-            ("id", SearchOrder.Asc) => listClone.OrderBy(x => x.Id),
-            ("id", SearchOrder.Desc) => listClone.OrderByDescending(x => x.Id),
-            ("createdat", SearchOrder.Asc) => listClone.OrderBy(x => x.CreatedAt),
-            ("createdat", SearchOrder.Desc) => listClone.OrderByDescending(x => x.CreatedAt),
-            _ => listClone.OrderBy(x => x.Name),
+            ("name", SearchOrder.Asc) => listClone.OrderBy(n => n.Name).ThenBy(x => x.Id),
+            ("name", SearchOrder.Desc) => listClone.OrderByDescending(n => n.Name).ThenByDescending(x => x.Id),
+            ("id", SearchOrder.Asc) => listClone.OrderBy(n => n.Id),
+            ("id", SearchOrder.Desc) => listClone.OrderByDescending(n => n.Id),
+            ("createdat", SearchOrder.Asc) => listClone.OrderBy(n => n.CreatedAt),
+            ("createdat", SearchOrder.Desc) => listClone.OrderByDescending(n => n.CreatedAt),
+            _ => listClone.OrderBy(n => n.Name).ThenBy(x => x.Id),
         };
         return orderedEnumerable.ToList();
     }    
