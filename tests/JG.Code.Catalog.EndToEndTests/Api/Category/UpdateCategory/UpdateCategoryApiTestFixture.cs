@@ -1,4 +1,4 @@
-﻿using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
+﻿using JG.Code.Catalog.Api.ApiModels.Category;
 using JG.Code.Catalog.EndToEndTests.Api.Category.Common;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.UpdateCategory;
@@ -9,8 +9,8 @@ public class UpdateCategoryApiTestFixtureCollection : ICollectionFixture<UpdateC
 
 public class UpdateCategoryApiTestFixture : CategoryBaseFixture
 {
-    public UpdateCategoryInput GetExampleInput(Guid? id = null)
+    public UpdateCategoryApiInput GetExampleInput()
     {
-        return new UpdateCategoryInput(id ?? new Guid(), GetValidCategoryName() , GetValidCategoryDescription(), GetRandonBoolean());        
+        return new UpdateCategoryApiInput(GetValidCategoryName() , GetValidCategoryDescription(), GetRandonBoolean());        
     }
 }
