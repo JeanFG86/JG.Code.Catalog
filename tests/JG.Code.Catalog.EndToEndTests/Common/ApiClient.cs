@@ -1,17 +1,29 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
-using System.Globalization;
+﻿using JG.Code.Catalog.EndToEndTests.Extensions.String;
+using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using System.Text.Json;
-using Xunit.Sdk;
 
 namespace JG.Code.Catalog.EndToEndTests.Common;
+
+class SnakeCaseNamingPolicy : JsonNamingPolicy
+{
+    public override string ConvertName(string name)
+        => name.ToSnakeCase();
+}
+
 public class ApiClient
 {
     private readonly HttpClient _httpClient;
+    private readonly JsonSerializerOptions _serializerOptions;
 
     public ApiClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
+        _serializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = new SnakeCaseNamingPolicy(),
+            PropertyNameCaseInsensitive = true
+        };
     }
 
     public async Task<(HttpResponseMessage?, TOutput?)> Post<TOutput>(String route, object payload)
@@ -19,7 +31,7 @@ public class ApiClient
     {
         var response = await _httpClient.PostAsync(
             route, new StringContent(
-                JsonSerializer.Serialize(payload), 
+                JsonSerializer.Serialize(payload, _serializerOptions), 
                 Encoding.UTF8, 
                 "application/json")
             );
@@ -49,7 +61,7 @@ public class ApiClient
     {
         var response = await _httpClient.PutAsync(
             route, new StringContent(
-                JsonSerializer.Serialize(payload),
+                JsonSerializer.Serialize(payload, _serializerOptions),
                 Encoding.UTF8,
                 "application/json")
             );
@@ -63,11 +75,7 @@ public class ApiClient
         TOutput? output = null;
         if (!string.IsNullOrWhiteSpace(outputString))
         {
-            output = JsonSerializer.Deserialize<TOutput>(outputString,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+            output = JsonSerializer.Deserialize<TOutput>(outputString, _serializerOptions);
         }
         return output;
     }

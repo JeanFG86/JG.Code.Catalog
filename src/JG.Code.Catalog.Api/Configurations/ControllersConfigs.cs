@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Api.Filters;
+﻿using JG.Code.Catalog.Api.Configurations.Policies;
+using JG.Code.Catalog.Api.Filters;
 
 namespace JG.Code.Catalog.Api.Configurations;
 
@@ -6,7 +7,12 @@ public static class ControllersConfigs
 {
     public static IServiceCollection AddAndConfigureControllers(this IServiceCollection services)
     {
-        services.AddControllers(options => options.Filters.Add(typeof(ApiGlobalExceptionFilter)));
+        services.AddControllers(
+            options => options.Filters.Add(typeof(ApiGlobalExceptionFilter)))
+            .AddJsonOptions(joptions =>
+            {
+                joptions.JsonSerializerOptions.PropertyNamingPolicy = new JsonSnakeCasePolicy();
+            });
         services.AddDocumentation();
         return services;
     }
