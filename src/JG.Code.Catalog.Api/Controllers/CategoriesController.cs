@@ -1,4 +1,5 @@
 using JG.Code.Catalog.Api.ApiModels.Category;
+using JG.Code.Catalog.Api.ApiModels.Response;
 using JG.Code.Catalog.Application.UseCases.Category.Common;
 using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 using JG.Code.Catalog.Application.UseCases.Category.DeleteCategory;
@@ -42,12 +43,12 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(CategoryModelOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CategoryModelOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var output = await _mediator.Send(new GetCategoryInput(id), cancellationToken);
-        return Ok(output);
+        return Ok(new ApiResponse<CategoryModelOutput>(output));
     }
 
     [HttpDelete("{id:guid}")]
