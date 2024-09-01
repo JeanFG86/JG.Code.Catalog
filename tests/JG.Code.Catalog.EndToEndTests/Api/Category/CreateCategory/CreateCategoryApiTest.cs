@@ -4,6 +4,7 @@ using System.Net;
 using JG.Code.Catalog.Application.UseCases.Category.CreateCategory;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using JG.Code.Catalog.Api.ApiModels.Response;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Category.CreateCategory;
 
@@ -23,17 +24,17 @@ public class CreateCategoryApiTest : IDisposable
     {
         var input = _fixture.GetExampleInput();
 
-        var (response, output) = await _fixture.ApiClient.Post<CategoryModelOutput>("/categories", input);
+        var (response, output) = await _fixture.ApiClient.Post<ApiResponse<CategoryModelOutput>>("/categories", input);
 
         response.Should().NotBeNull();
         response!.StatusCode.Should().Be(HttpStatusCode.Created);
         output.Should().NotBeNull();
-        output!.Name.Should().Be(input.Name);
-        output.Description.Should().Be(input.Description);
-        output.IsActive.Should().Be(input.IsActive);
-        output.Id.Should().NotBeEmpty();
-        output.CreatedAt.Should().NotBeSameDateAs(default);
-        var dbCategory = await _fixture.Persistence.GetById(output.Id);
+        output!.Data.Name.Should().Be(input.Name);
+        output.Data.Description.Should().Be(input.Description);
+        output.Data.IsActive.Should().Be(input.IsActive);
+        output.Data.Id.Should().NotBeEmpty();
+        output.Data.CreatedAt.Should().NotBeSameDateAs(default);
+        var dbCategory = await _fixture.Persistence.GetById(output.Data.Id);
         dbCategory.Should().NotBeNull();
         dbCategory!.Name.Should().Be(input.Name);
         dbCategory.Description.Should().Be(input.Description);

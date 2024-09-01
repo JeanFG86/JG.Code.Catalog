@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Api.ApiModels.Category;
+using JG.Code.Catalog.Api.ApiModels.Response;
 using JG.Code.Catalog.Application.UseCases.Category.Common;
 using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
 using Microsoft.AspNetCore.Http;
@@ -27,15 +28,15 @@ public class UpdateCategoryApiTest : IDisposable
         var exampleCategory = exampleCategoriesList[10];
         var input = _fixture.GetExampleInput();
 
-        var (response, output) = await _fixture.ApiClient.Put<CategoryModelOutput>($"/categories/{exampleCategory.Id}", input);
+        var (response, output) = await _fixture.ApiClient.Put<ApiResponse<CategoryModelOutput>>($"/categories/{exampleCategory.Id}", input);
 
         response.Should().NotBeNull();
         response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
         output.Should().NotBeNull();
-        output!.Id.Should().Be(exampleCategory.Id);
-        output!.Name.Should().Be(input.Name);
-        output.Description.Should().Be(input.Description);
-        output.IsActive.Should().Be((bool)input.IsActive!);        
+        output!.Data.Id.Should().Be(exampleCategory.Id);
+        output!.Data.Name.Should().Be(input.Name);
+        output.Data.Description.Should().Be(input.Description);
+        output.Data.IsActive.Should().Be((bool)input.IsActive!);        
         var dbCategory = await _fixture.Persistence.GetById(exampleCategory.Id);
         dbCategory.Should().NotBeNull();
         dbCategory!.Name.Should().Be(input.Name);
@@ -52,15 +53,15 @@ public class UpdateCategoryApiTest : IDisposable
         var exampleCategory = exampleCategoriesList[10];
         var input = new UpdateCategoryApiInput(_fixture.GetValidCategoryName());
 
-        var (response, output) = await _fixture.ApiClient.Put<CategoryModelOutput>($"/categories/{exampleCategory.Id}", input);
+        var (response, output) = await _fixture.ApiClient.Put<ApiResponse<CategoryModelOutput>>($"/categories/{exampleCategory.Id}", input);
 
         response.Should().NotBeNull();
         response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
         output.Should().NotBeNull();
-        output!.Id.Should().Be(exampleCategory.Id);
-        output!.Name.Should().Be(input.Name);
-        output.Description.Should().Be(exampleCategory.Description);
-        output.IsActive.Should().Be((bool)exampleCategory.IsActive!);
+        output!.Data.Id.Should().Be(exampleCategory.Id);
+        output!.Data.Name.Should().Be(input.Name);
+        output.Data.Description.Should().Be(exampleCategory.Description);
+        output.Data.IsActive.Should().Be((bool)exampleCategory.IsActive!);
         var dbCategory = await _fixture.Persistence.GetById(exampleCategory.Id);
         dbCategory.Should().NotBeNull();
         dbCategory!.Name.Should().Be(input.Name);
@@ -77,15 +78,15 @@ public class UpdateCategoryApiTest : IDisposable
         var exampleCategory = exampleCategoriesList[10];
         var input = new UpdateCategoryApiInput(_fixture.GetValidCategoryName(), _fixture.GetValidCategoryDescription());
 
-        var (response, output) = await _fixture.ApiClient.Put<CategoryModelOutput>($"/categories/{exampleCategory.Id}", input);
+        var (response, output) = await _fixture.ApiClient.Put<ApiResponse<CategoryModelOutput>>($"/categories/{exampleCategory.Id}", input);
 
         response.Should().NotBeNull();
         response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
         output.Should().NotBeNull();
-        output!.Id.Should().Be(exampleCategory.Id);
-        output!.Name.Should().Be(input.Name);
-        output.Description.Should().Be(input.Description);
-        output.IsActive.Should().Be((bool)exampleCategory.IsActive!);
+        output!.Data.Id.Should().Be(exampleCategory.Id);
+        output!.Data.Name.Should().Be(input.Name);
+        output.Data.Description.Should().Be(input.Description);
+        output.Data.IsActive.Should().Be((bool)exampleCategory.IsActive!);
         var dbCategory = await _fixture.Persistence.GetById(exampleCategory.Id);
         dbCategory.Should().NotBeNull();
         dbCategory!.Name.Should().Be(input.Name);

@@ -1,15 +1,9 @@
-﻿using JG.Code.Catalog.EndToEndTests.Extensions.String;
+﻿using JG.Code.Catalog.Api.Configurations.Policies;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using System.Text.Json;
 
 namespace JG.Code.Catalog.EndToEndTests.Common;
-
-class SnakeCaseNamingPolicy : JsonNamingPolicy
-{
-    public override string ConvertName(string name)
-        => name.ToSnakeCase();
-}
 
 public class ApiClient
 {
@@ -21,7 +15,7 @@ public class ApiClient
         _httpClient = httpClient;
         _serializerOptions = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = new SnakeCaseNamingPolicy(),
+            PropertyNamingPolicy = new JsonSnakeCasePolicy(),
             PropertyNameCaseInsensitive = true
         };
     }
