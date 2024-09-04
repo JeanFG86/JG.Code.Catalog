@@ -17,7 +17,7 @@ public class GenreTest
     [Trait("Domain", "Genre - Aggegates")]
     public void Instantiate()
     {
-        var genreName = "Horror";
+        var genreName = _fixture.GetValidName();
 
         var datetimeBefore = DateTime.Now;
         var genre = new DomainEntity.Genre(genreName);
@@ -36,7 +36,7 @@ public class GenreTest
     [InlineData(false)]
     public void InstantiateWithIsActive(bool isActive)
     {
-        var genreName = "Horror";
+        var genreName = _fixture.GetValidName();
 
         var datetimeBefore = DateTime.Now;
         var genre = new DomainEntity.Genre(genreName, isActive);
@@ -48,5 +48,22 @@ public class GenreTest
         genre.CreatedAt.Should().NotBeSameDateAs(default);
         (genre.CreatedAt >= datetimeBefore).Should().BeTrue();
         (genre.CreatedAt <= datetimeAfter).Should().BeTrue();
+    }
+
+    [Theory(DisplayName = nameof(Instantiate))]
+    [Trait("Domain", "Genre - Aggegates")]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Activate(bool isActive)
+    {
+        var genreName = _fixture.GetValidName();
+        var genre = new DomainEntity.Genre(genreName, isActive);
+
+        genre.Activate();
+
+        genre.Should().NotBeNull();
+        genre.Name.Should().Be(genreName);
+        genre.IsActive.Should().BeTrue();
+        genre.CreatedAt.Should().NotBeSameDateAs(default);
     }
 }
