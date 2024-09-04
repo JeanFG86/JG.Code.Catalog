@@ -5,10 +5,10 @@ public class Genre
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    public Genre(string name)
+    public Genre(string name, bool isActive = true)
     {
         Name = name;
-        IsActive = true;
+        IsActive = isActive;
         CreatedAt = DateTime.Now;
     }
 }
