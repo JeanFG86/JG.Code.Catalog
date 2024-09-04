@@ -1,8 +1,7 @@
-﻿namespace JG.Code.Catalog.UnitTests.Domain.Entity.Category;
-
-using FluentAssertions;
+﻿using FluentAssertions;
 using JG.Code.Catalog.Domain.Exceptions;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
+namespace JG.Code.Catalog.UnitTests.Domain.Entity.Category;
 
 [Collection(nameof(CategoryTestFixture))]
 public class CategoryTest
