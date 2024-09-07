@@ -18,6 +18,10 @@ public class Genre
 
     public void Activate() => IsActive = true;
     public void Deactivate() => IsActive = false;
-    public void Update(string name) => Name = name;
+    public void Update(string name)
+    {
+        Name = name;
+        Validate();
+    }
     private void Validate() => DomainValidation.NotNullOrEmpty(Name, nameof(Name));
 }

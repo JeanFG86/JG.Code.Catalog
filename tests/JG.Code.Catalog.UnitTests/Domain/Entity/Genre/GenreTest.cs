@@ -108,4 +108,18 @@ public class GenreTest
         genre.IsActive.Should().Be(oldIsActive);
         genre.CreatedAt.Should().NotBeSameDateAs(default);
     }
+
+    [Theory(DisplayName = nameof(UpdateThrowWhenNameIsEmpty))]
+    [Trait("Domain", "Genre - Aggegates")]
+    [InlineData("")]
+    [InlineData("  ")]
+    [InlineData(null)]
+    public void UpdateThrowWhenNameIsEmpty(string? name)
+    {
+        var genre = _fixture.GetExampleGenre();
+
+        var action = () => genre.Update(name!);
+
+        action.Should().Throw<EntityValidationException>().WithMessage("Name should not be empty or null");
+    }
 }
