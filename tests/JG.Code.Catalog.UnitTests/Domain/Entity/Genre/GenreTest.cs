@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Domain.Exceptions;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 
 namespace JG.Code.Catalog.UnitTests.Domain.Entity.Genre;
@@ -28,6 +29,18 @@ public class GenreTest
         genre.CreatedAt.Should().NotBeSameDateAs(default);
         (genre.CreatedAt >= datetimeBefore).Should().BeTrue();
         (genre.CreatedAt <= datetimeAfter).Should().BeTrue();
+    }
+
+    [Theory(DisplayName = nameof(InstantiateThrowWhenNameEmpty))]
+    [Trait("Domain", "Genre - Aggegates")]
+    [InlineData("")]
+    [InlineData("  ")]
+    [InlineData(null)]
+    public void InstantiateThrowWhenNameEmpty(string? name)
+    {       
+        var action = () => new DomainEntity.Genre(name);
+
+        action.Should().Throw<EntityValidationException>().WithMessage("Name should not be empty or null");
     }
 
     [Theory(DisplayName = nameof(InstantiateWithIsActive))]

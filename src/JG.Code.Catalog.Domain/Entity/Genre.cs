@@ -1,4 +1,6 @@
-﻿namespace JG.Code.Catalog.Domain.Entity;
+﻿using JG.Code.Catalog.Domain.Validation;
+
+namespace JG.Code.Catalog.Domain.Entity;
 public class Genre
 {
     public string Name { get; private set; }
@@ -10,10 +12,12 @@ public class Genre
         Name = name;
         IsActive = isActive;
         CreatedAt = DateTime.Now;
+
+        Validate();
     }
 
     public void Activate() => IsActive = true;
     public void Deactivate() => IsActive = false;
-
     public void Update(string name) => Name = name;
+    private void Validate() => DomainValidation.NotNullOrEmpty(Name, nameof(Name));
 }
