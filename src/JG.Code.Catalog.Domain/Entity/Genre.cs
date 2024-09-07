@@ -16,8 +16,18 @@ public class Genre
         Validate();
     }
 
-    public void Activate() => IsActive = true;
-    public void Deactivate() => IsActive = false;
+    public void Activate()
+    {
+        IsActive = true;
+        Validate();
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+        Validate();
+    }
+
     public void Update(string name)
     {
         Name = name;
