@@ -135,4 +135,20 @@ public class GenreTest
         genre.Categories.Should().HaveCount(1);
         genre.Categories.Should().Contain(categoryGuid);
     }
+
+    [Fact(DisplayName = nameof(AddTwoCategories))]
+    [Trait("Domain", "Genre - Aggegates")]
+    public void AddTwoCategories()
+    {
+        var genre = _fixture.GetExampleGenre();
+        var categoryGuid1 = Guid.NewGuid();
+        var categoryGuid2 = Guid.NewGuid();
+
+        genre.AddCategory(categoryGuid1);
+        genre.AddCategory(categoryGuid2);
+
+        genre.Categories.Should().HaveCount(2);
+        genre.Categories.Should().Contain(categoryGuid1);
+        genre.Categories.Should().Contain(categoryGuid2);
+    }
 }
