@@ -122,4 +122,17 @@ public class GenreTest
 
         action.Should().Throw<EntityValidationException>().WithMessage("Name should not be empty or null");
     }
+
+    [Fact(DisplayName = nameof(AddCategory))]
+    [Trait("Domain", "Genre - Aggegates")]
+    public void AddCategory()
+    {
+        var genre = _fixture.GetExampleGenre();
+        var categoryGuid = Guid.NewGuid();
+
+        genre.AddCategory(categoryGuid);
+
+        genre.Categories.Should().HaveCount(1);
+        genre.Categories.Should().Contain(categoryGuid);
+    }
 }
