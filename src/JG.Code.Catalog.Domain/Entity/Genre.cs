@@ -1,7 +1,8 @@
-﻿using JG.Code.Catalog.Domain.Validation;
+﻿using JG.Code.Catalog.Domain.SeedWork;
+using JG.Code.Catalog.Domain.Validation;
 
 namespace JG.Code.Catalog.Domain.Entity;
-public class Genre
+public class Genre : AggregateRoot
 {
     public string Name { get; private set; }
     public bool IsActive { get; private set; }

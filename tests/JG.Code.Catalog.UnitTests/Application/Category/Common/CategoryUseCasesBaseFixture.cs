@@ -26,9 +26,7 @@ public abstract class CategoryUseCasesBaseFixture : BaseFixture
     }
 
     public DomainEntity.Category GetExampleCategory()
-        => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
-
-    public bool GetRandomBoolean() => new Random().NextDouble() < 0.5;
+        => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());    
 
     public Mock<ICategoryRepository> GetRepositoryMock() => new();
 
