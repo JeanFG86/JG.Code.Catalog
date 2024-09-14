@@ -9,7 +9,8 @@ public class GenreUseCasesBaseFixture : BaseFixture
     public string GetValidGenreName() =>
        Faker.Commerce.Categories(1)[0];
 
-    public Mock<IGenreRepository> GetRepositoryMock() => new();
+    public Mock<IGenreRepository> GetGenreRepositoryMock() => new();
+    public Mock<ICategoryRepository> GetCategoryRepositoryMock() => new();
 
     public Mock<IUnitOfWork> GetUnitOfWorkMock() => new();
 }
