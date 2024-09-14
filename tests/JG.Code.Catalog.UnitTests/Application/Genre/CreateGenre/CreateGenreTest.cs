@@ -45,9 +45,10 @@ public class CreateGenreTest
         var repositoryMock = _fixture.GetGenreRepositoryMock();
         var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
         var categoryRepositoryMock = _fixture.GetCategoryRepositoryMock();
-        var useCase = new UsesCases.CreateGenre(repositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
         var input = _fixture.GetExampleInputWithCategories();
-
+        categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync(input.CategoriesIds!);
+        var useCase = new UsesCases.CreateGenre(repositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
+        
         var output = await useCase.Handle(input, CancellationToken.None);
 
         repositoryMock.Verify(repository => repository.Insert(It.IsAny<DomainEntity.Genre>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -70,12 +71,12 @@ public class CreateGenreTest
         var repositoryMock = _fixture.GetGenreRepositoryMock();
         var categoryRepositoryMock = _fixture.GetCategoryRepositoryMock();
         var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
-        categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync((IReadOnlyList<Guid>)input.CategoriesIds.FindAll(x => x != exampleGuid));
+        categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync(input.CategoriesIds.FindAll(x => x != exampleGuid));
         var useCase = new UsesCases.CreateGenre(repositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
         
         var action =  async () => await useCase.Handle(input, CancellationToken.None);
 
-        await action.Should().ThrowAsync<RelatedAggregateException>().WithMessage($"Related category id (or ids) not found: '{exampleGuid}'");
+        await action.Should().ThrowAsync<RelatedAggregateException>().WithMessage($"Related category id (or ids) not found: {exampleGuid}");
         categoryRepositoryMock.Verify(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

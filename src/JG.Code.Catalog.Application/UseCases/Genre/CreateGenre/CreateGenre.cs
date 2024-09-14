@@ -28,7 +28,7 @@ public class CreateGenre : ICreateGenre
             {
                 var notFoundIds = input.CategoriesIds.FindAll(x => !idsInPersistence.Contains(x));
                 var notFoundIdsAsString = String.Join(", ", notFoundIds);
-                throw new RelatedAggregateException($"Related category id (or ids) not found: '{notFoundIdsAsString}'");
+                throw new RelatedAggregateException($"Related category id (or ids) not found: {notFoundIdsAsString}");
             }
             input.CategoriesIds.ForEach(genre.AddCategory);
         }
