@@ -3,6 +3,7 @@ using UsesCases = JG.Code.Catalog.Application.UseCases.Genre.CreateGenre;
 using Moq;
 using FluentAssertions;
 using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Domain.Exceptions;
 
 namespace JG.Code.Catalog.UnitTests.Application.Genre.CreateGenre;
 
@@ -78,5 +79,23 @@ public class CreateGenreTest
 
         await action.Should().ThrowAsync<RelatedAggregateException>().WithMessage($"Related category id (or ids) not found: {exampleGuid}");
         categoryRepositoryMock.Verify(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Theory(DisplayName = nameof(ThrowWhenNameIsInvalid))]
+    [Trait("Application", "CreateGenre - Use Cases")]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(null)]
+    public async Task ThrowWhenNameIsInvalid(string name)
+    {
+        var input = _fixture.GetExampleInput(name);
+        var repositoryMock = _fixture.GetGenreRepositoryMock();
+        var categoryRepositoryMock = _fixture.GetCategoryRepositoryMock();
+        var unitOfWorkMock = _fixture.GetUnitOfWorkMock();       
+        var useCase = new UsesCases.CreateGenre(repositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
+
+        var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<EntityValidationException>().WithMessage($"Name should not be empty or null");
     }
 }
