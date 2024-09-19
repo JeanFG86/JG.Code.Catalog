@@ -6,6 +6,7 @@ using Moq;
 using FluentAssertions;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
 using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Domain.Exceptions;
 
 namespace JG.Code.Catalog.UnitTests.Application.Genre.UpdateGenre;
 
@@ -60,5 +61,26 @@ public class UpdateGenreTest
         var action = async () => await useCase.Handle(input, CancellationToken.None);
 
         await action.Should().ThrowAsync<NotFoundException>().WithMessage($"Genre '{exampleId}' not found.");
+    }
+
+    [Theory(DisplayName = nameof(ThrowWhenNameIsInvalid))]
+    [Trait("Application", "UpdateGenre - Use Cases")]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(null)]
+    public async Task ThrowWhenNameIsInvalid(string? name)
+    {
+        var genreRepositoryMock = _fixture.GetGenreRepositoryMock();
+        var categoryRepositoryMock = _fixture.GetCategoryRepositoryMock();
+        var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
+        var exampleGenre = _fixture.GetExampleGenre();
+        var newIsActive = !exampleGenre.IsActive;
+        genreRepositoryMock.Setup(x => x.Get(exampleGenre.Id, It.IsAny<CancellationToken>())).ReturnsAsync(exampleGenre);
+        var useCase = new UseCase.UpdateGenre(genreRepositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
+        var input = new UseCase.UpdateGenreInput(exampleGenre.Id, name!, newIsActive);
+
+        var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<EntityValidationException>().WithMessage($"Name should not be empty or null");
     }
 }
