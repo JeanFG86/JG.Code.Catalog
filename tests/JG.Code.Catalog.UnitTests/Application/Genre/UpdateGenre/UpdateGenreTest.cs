@@ -5,6 +5,7 @@ using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
 using Moq;
 using FluentAssertions;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
+using JG.Code.Catalog.Application.Exceptions;
 
 namespace JG.Code.Catalog.UnitTests.Application.Genre.UpdateGenre;
 
@@ -44,5 +45,20 @@ public class UpdateGenreTest
         output.Id.Should().NotBeEmpty();
         output.CreatedAt.Should().NotBeSameDateAs(default);
         output.Categories.Should().HaveCount(0);
+    }
+
+    [Fact(DisplayName = nameof(ThrowWhenNotFound))]
+    [Trait("Application", "UpdateGenre - Use Cases")]
+    public async Task ThrowWhenNotFound()
+    {
+        var genreRepositoryMock = _fixture.GetGenreRepositoryMock();
+        var exampleId = Guid.NewGuid();
+        genreRepositoryMock.Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ThrowsAsync(new NotFoundException($"Genre '{exampleId}' not found."));
+        var useCase = new UseCase.UpdateGenre(genreRepositoryMock.Object, _fixture.GetUnitOfWorkMock().Object, _fixture.GetCategoryRepositoryMock().Object);
+        var input = new UseCase.UpdateGenreInput(exampleId, _fixture.GetValidGenreName(), true);
+
+        var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>().WithMessage($"Genre '{exampleId}' not found.");
     }
 }
