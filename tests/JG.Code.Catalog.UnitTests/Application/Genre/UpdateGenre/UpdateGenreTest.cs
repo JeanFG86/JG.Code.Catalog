@@ -1,7 +1,4 @@
-﻿using DomainEntity = JG.Code.Catalog.Domain.Entity;
-using UseCase = JG.Code.Catalog.Application.UseCases.Genre.UpdateGenre;
-using JG.Code.Catalog.Application.UseCases.Category.Common;
-using JG.Code.Catalog.Application.UseCases.Category.UpdateCategory;
+﻿using UseCase = JG.Code.Catalog.Application.UseCases.Genre.UpdateGenre;
 using Moq;
 using FluentAssertions;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
@@ -82,5 +79,34 @@ public class UpdateGenreTest
         var action = async () => await useCase.Handle(input, CancellationToken.None);
 
         await action.Should().ThrowAsync<EntityValidationException>().WithMessage($"Name should not be empty or null");
+    }
+
+    [Theory(DisplayName = nameof(UpdateGenreOnlyName))]
+    [Trait("Application", "UpdateGenre - Use Cases")]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task UpdateGenreOnlyName(bool isActive)
+    {
+        var genreRepositoryMock = _fixture.GetGenreRepositoryMock();
+        var categoryRepositoryMock = _fixture.GetCategoryRepositoryMock();
+        var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
+        var exampleGenre = _fixture.GetExampleGenre(isActive);
+        var newNameExample = _fixture.GetValidGenreName();
+        var newIsActive = !exampleGenre.IsActive;
+        genreRepositoryMock.Setup(x => x.Get(exampleGenre.Id, It.IsAny<CancellationToken>())).ReturnsAsync(exampleGenre);
+        var useCase = new UseCase.UpdateGenre(genreRepositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
+        var input = new UseCase.UpdateGenreInput(exampleGenre.Id, newNameExample);
+
+        GenreModelOutput output = await useCase.Handle(input, CancellationToken.None);
+
+        genreRepositoryMock.Verify(repository => repository.Get(exampleGenre.Id, It.IsAny<CancellationToken>()), Times.Once);
+        genreRepositoryMock.Verify(repository => repository.Update(exampleGenre, It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Once);
+        output.Should().NotBeNull();
+        output.Name.Should().Be(newNameExample);
+        output.IsActive.Should().Be(isActive);
+        output.Id.Should().NotBeEmpty();
+        output.CreatedAt.Should().NotBeSameDateAs(default);
+        output.Categories.Should().HaveCount(0);
     }
 }
