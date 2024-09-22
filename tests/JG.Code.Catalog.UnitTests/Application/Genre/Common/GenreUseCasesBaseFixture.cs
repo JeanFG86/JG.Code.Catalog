@@ -13,6 +13,9 @@ public class GenreUseCasesBaseFixture : BaseFixture
     public DomainEntity.Genre GetExampleGenre(bool? isActive = null) =>
        new(GetValidGenreName(), isActive ?? GetRandomBoolean());
 
+    public List<Guid> GetRandonIdsList(int? count = null)
+     => Enumerable.Range(1, count ?? (new Random()).Next(1, 10)).Select(_ => Guid.NewGuid()).ToList();
+    
     public Mock<IGenreRepository> GetGenreRepositoryMock() => new();
     public Mock<ICategoryRepository> GetCategoryRepositoryMock() => new();
     public Mock<IUnitOfWork> GetUnitOfWorkMock() => new();

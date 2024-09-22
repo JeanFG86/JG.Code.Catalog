@@ -27,6 +27,11 @@ public class UpdateGenre : IUpdateGenre
             else 
                 genre.Deactivate();
         }
+        if((request.CategoriesIds?.Count ?? 0) > 0)
+        {
+            genre.RemoveAllCategories();
+            request.CategoriesIds?.ForEach(genre.AddCategory);
+        }
         await _genreRepository.Update(genre, cancellationToken);
         await _unitOfWork.Commit(cancellationToken);
         return GenreModelOutput.FromGenre(genre);
