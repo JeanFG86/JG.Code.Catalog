@@ -1,5 +1,7 @@
-﻿using JG.Code.Catalog.Application.Interfaces;
+﻿using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
+using JG.Code.Catalog.Application.UseCases.Genre.CreateGenre;
 using JG.Code.Catalog.Domain.Repository;
 
 namespace JG.Code.Catalog.Application.UseCases.Genre.UpdateGenre;
@@ -29,11 +31,23 @@ public class UpdateGenre : IUpdateGenre
         }
         if((request.CategoriesIds?.Count ?? 0) > 0)
         {
+            await ValidateCategoriesIds(request, cancellationToken);
             genre.RemoveAllCategories();
             request.CategoriesIds?.ForEach(genre.AddCategory);
         }
         await _genreRepository.Update(genre, cancellationToken);
         await _unitOfWork.Commit(cancellationToken);
         return GenreModelOutput.FromGenre(genre);
+    }
+
+    private async Task ValidateCategoriesIds(UpdateGenreInput input, CancellationToken cancellationToken)
+    {
+        var idsInPersistence = await _categoryRepository.GetIdsListByIds(input.CategoriesIds!, cancellationToken);
+        if (idsInPersistence.Count < input.CategoriesIds!.Count)
+        {
+            var notFoundIds = input.CategoriesIds.FindAll(x => !idsInPersistence.Contains(x));
+            var notFoundIdsAsString = String.Join(", ", notFoundIds);
+            throw new RelatedAggregateException($"Related category id (or ids) not found: {notFoundIdsAsString}");
+        }
     }
 }

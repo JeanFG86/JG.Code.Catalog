@@ -4,6 +4,7 @@ using FluentAssertions;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
 using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Domain.Exceptions;
+using System.Linq;
 
 namespace JG.Code.Catalog.UnitTests.Application.Genre.UpdateGenre;
 
@@ -166,5 +167,29 @@ public class UpdateGenreTest
         output.CreatedAt.Should().NotBeSameDateAs(default);
         output.Categories.Should().HaveCount(exampleCategoriesIdsList.Count);
         exampleCategoriesIdsList.ForEach(expectedId => output.Categories.Should().Contain(expectedId));
+    }
+
+    [Fact(DisplayName = nameof(ThrowWhenCategoryNotFound))]
+    [Trait("Application", "UpdateGenre - Use Cases")]
+    public async Task ThrowWhenCategoryNotFound()
+    {
+        var genreRepositoryMock = _fixture.GetGenreRepositoryMock();
+        var categoryRepositoryMock = _fixture.GetCategoryRepositoryMock();
+        var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
+        var exampleGenre = _fixture.GetExampleGenre(categoriesIds: _fixture.GetRandonIdsList());
+        var exampleNewCategoriesIdsList = _fixture.GetRandonIdsList();
+        var listReturnedByCategoryRepository = exampleNewCategoriesIdsList.GetRange(0, exampleNewCategoriesIdsList.Count - 2);
+        var idsNotReturnedByCategoryRepository = exampleNewCategoriesIdsList.GetRange(exampleNewCategoriesIdsList.Count -2, 2);
+        var newNameExample = _fixture.GetValidGenreName();
+        var newIsActive = !exampleGenre.IsActive;
+        genreRepositoryMock.Setup(x => x.Get(exampleGenre.Id, It.IsAny<CancellationToken>())).ReturnsAsync(exampleGenre);
+        categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync(listReturnedByCategoryRepository);
+        var useCase = new UseCase.UpdateGenre(genreRepositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
+        var input = new UseCase.UpdateGenreInput(exampleGenre.Id, newNameExample, newIsActive, exampleNewCategoriesIdsList);
+
+        var action = async() => await useCase.Handle(input, CancellationToken.None);
+
+        var notFoundIdsAsString = String.Join(", ", idsNotReturnedByCategoryRepository);
+        await action.Should().ThrowAsync<RelatedAggregateException>().WithMessage($"Related category id (or ids) not found: {notFoundIdsAsString}");
     }
 }
