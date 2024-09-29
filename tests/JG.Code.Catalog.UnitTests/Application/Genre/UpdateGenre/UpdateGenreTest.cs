@@ -123,6 +123,8 @@ public class UpdateGenreTest
         var newNameExample = _fixture.GetValidGenreName();
         var newIsActive = !exampleGenre.IsActive;
         genreRepositoryMock.Setup(x => x.Get(exampleGenre.Id, It.IsAny<CancellationToken>())).ReturnsAsync(exampleGenre);
+        categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync(exampleCategoriesIdsList);
+
         var useCase = new UseCase.UpdateGenre(genreRepositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
         var input = new UseCase.UpdateGenreInput(exampleGenre.Id, newNameExample, newIsActive, exampleCategoriesIdsList);
 
@@ -152,6 +154,7 @@ public class UpdateGenreTest
         var newNameExample = _fixture.GetValidGenreName();
         var newIsActive = !exampleGenre.IsActive;
         genreRepositoryMock.Setup(x => x.Get(exampleGenre.Id, It.IsAny<CancellationToken>())).ReturnsAsync(exampleGenre);
+        categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync(exampleCategoriesIdsList);
         var useCase = new UseCase.UpdateGenre(genreRepositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
         var input = new UseCase.UpdateGenreInput(exampleGenre.Id, newNameExample, newIsActive, exampleCategoriesIdsList);
 
