@@ -195,4 +195,33 @@ public class UpdateGenreTest
         var notFoundIdsAsString = String.Join(", ", idsNotReturnedByCategoryRepository);
         await action.Should().ThrowAsync<RelatedAggregateException>().WithMessage($"Related category id (or ids) not found: {notFoundIdsAsString}");
     }
+
+    [Fact(DisplayName = nameof(UpdateGenreWithoutCategoriesIds))]
+    [Trait("Application", "UpdateGenre - Use Cases")]
+    public async Task UpdateGenreWithoutCategoriesIds()
+    {
+        var genreRepositoryMock = _fixture.GetGenreRepositoryMock();
+        var categoryRepositoryMock = _fixture.GetCategoryRepositoryMock();
+        var unitOfWorkMock = _fixture.GetUnitOfWorkMock();
+        var exampleCategoriesIdsList = _fixture.GetRandonIdsList();
+        var exampleGenre = _fixture.GetExampleGenre(categoriesIds: exampleCategoriesIdsList);        
+        var newNameExample = _fixture.GetValidGenreName();
+        var newIsActive = !exampleGenre.IsActive;
+        genreRepositoryMock.Setup(x => x.Get(exampleGenre.Id, It.IsAny<CancellationToken>())).ReturnsAsync(exampleGenre);
+        var useCase = new UseCase.UpdateGenre(genreRepositoryMock.Object, unitOfWorkMock.Object, categoryRepositoryMock.Object);
+        var input = new UseCase.UpdateGenreInput(exampleGenre.Id, newNameExample, newIsActive);
+
+        GenreModelOutput output = await useCase.Handle(input, CancellationToken.None);
+
+        genreRepositoryMock.Verify(repository => repository.Get(exampleGenre.Id, It.IsAny<CancellationToken>()), Times.Once);
+        genreRepositoryMock.Verify(repository => repository.Update(exampleGenre, It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Once);
+        output.Should().NotBeNull();
+        output.Name.Should().Be(newNameExample);
+        output.IsActive.Should().Be(newIsActive);
+        output.Id.Should().NotBeEmpty();
+        output.CreatedAt.Should().NotBeSameDateAs(default);
+        output.Categories.Should().HaveCount(exampleCategoriesIdsList.Count);
+        exampleCategoriesIdsList.ForEach(expectedId => output.Categories.Should().Contain(expectedId));
+    }
 }
