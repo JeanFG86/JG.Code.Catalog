@@ -1,7 +1,6 @@
 ﻿using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
-using JG.Code.Catalog.Application.UseCases.Genre.CreateGenre;
 using JG.Code.Catalog.Domain.Repository;
 
 namespace JG.Code.Catalog.Application.UseCases.Genre.UpdateGenre;

@@ -4,7 +4,6 @@ using FluentAssertions;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
 using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Domain.Exceptions;
-using System.Linq;
 
 namespace JG.Code.Catalog.UnitTests.Application.Genre.UpdateGenre;
 
