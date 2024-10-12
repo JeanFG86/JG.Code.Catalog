@@ -1,5 +1,4 @@
 ﻿
-using JG.Code.Catalog.Application.UseCases.Category.Common;
 using JG.Code.Catalog.Domain.Repository;
 
 namespace JG.Code.Catalog.Application.UseCases.Category.ListCategories;
@@ -12,23 +11,9 @@ public class ListCategories : IListCategories
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<ListCategoriesOutput> Handle(ListCategoriesInput request, CancellationToken cancellationToken)
+    public async Task<ListCategoriesOutput> Handle(ListCategoriesInput input, CancellationToken cancellationToken)
     {
-        var searchOutput = await _categoryRepository.Search(
-            new(
-                request.Page,
-                request.PerPage,
-                request.Search,
-                request.Sort,
-                request.Dir
-                ),
-            cancellationToken
-        );
-        return new ListCategoriesOutput(
-            searchOutput.CurrentPage,
-            searchOutput.PerPage,
-            searchOutput.Total,
-            searchOutput.Items.Select(CategoryModelOutput.FromCategory).ToList()
-        );
+        var searchOutput = await _categoryRepository.Search(input.ToSearchInput(), cancellationToken);
+        return ListCategoriesOutput.FromSearchOutput(searchOutput);
     }
 }
