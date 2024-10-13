@@ -17,4 +17,5 @@ public class BaseFixture
         return dbContext;
     }
 
+    public bool GetRandomBoolean() => new Random().NextDouble() < 0.5;
 }
