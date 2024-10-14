@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Domain.Entity;
+﻿using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Repository;
 using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using JG.Code.Catalog.Infra.Data.EF.Models;
@@ -28,6 +29,7 @@ public class GenreRepository : IGenreRepository
     public async Task<Genre> Get(Guid id, CancellationToken cancellationToken)
     {
         var genre = await _genres.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        NotFoundException.ThrowIfNull(genre, $"Genre {id} not found.");
         var categoryIds = await _genresCategories.Where(x => x.GenreId == genre.Id).Select(x => x.CategoryId).ToListAsync(cancellationToken);
         categoryIds.ForEach(genre.AddCategory);
         return genre;
