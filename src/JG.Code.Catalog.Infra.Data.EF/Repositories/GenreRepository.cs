@@ -25,15 +25,18 @@ public class GenreRepository : IGenreRepository
         }
     }
 
+    public async Task<Genre> Get(Guid id, CancellationToken cancellationToken)
+    {
+        var genre = await _genres.FindAsync(id, cancellationToken);
+        var categoryIds = await _genresCategories.Where(x => x.GenreId == genre.Id).Select(x => x.CategoryId).ToListAsync();
+        categoryIds.ForEach(genre.AddCategory);
+        return genre;
+    }
+
     public Task Delete(Genre aggregate, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
-    }
-
-    public Task<Genre> Get(Guid id, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }    
+    }       
 
     public Task<SearchOutput<Genre>> Search(SearchInput input, CancellationToken cancellationToken)
     {
