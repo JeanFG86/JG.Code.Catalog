@@ -27,8 +27,8 @@ public class GenreRepository : IGenreRepository
 
     public async Task<Genre> Get(Guid id, CancellationToken cancellationToken)
     {
-        var genre = await _genres.FindAsync(id, cancellationToken);
-        var categoryIds = await _genresCategories.Where(x => x.GenreId == genre.Id).Select(x => x.CategoryId).ToListAsync();
+        var genre = await _genres.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        var categoryIds = await _genresCategories.Where(x => x.GenreId == genre.Id).Select(x => x.CategoryId).ToListAsync(cancellationToken);
         categoryIds.ForEach(genre.AddCategory);
         return genre;
     }
