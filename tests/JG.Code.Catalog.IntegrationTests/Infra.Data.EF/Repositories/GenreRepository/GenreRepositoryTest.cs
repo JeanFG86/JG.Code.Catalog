@@ -102,4 +102,33 @@ public class GenreRepositoryTest
 
         await action.Should().ThrowAsync<NotFoundException>().WithMessage($"Genre {exampleNotFoundGuid} not found.");
     }
+
+    [Fact(DisplayName = nameof(Delete))]
+    [Trait("Integration/Infra.Data", "GenreRepository - Repositories")]
+    public async Task Delete()
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleGenre = _fixture.GetExampleGenre();
+        var categoriesListExample = _fixture.GetExampleCategoriesList(3);
+        categoriesListExample.ForEach(category => exampleGenre.AddCategory(category.Id));
+        await dbContext.Categories.AddRangeAsync(categoriesListExample);
+        await dbContext.Genres.AddAsync(exampleGenre);
+        foreach (var categoryId in exampleGenre.Categories)
+        {
+            var relation = new GenresCategories(categoryId, exampleGenre.Id);
+            await dbContext.GenresCategories.AddAsync(relation);
+        }
+        await dbContext.SaveChangesAsync();
+
+        var repositoryDbContext = _fixture.CreateDbContext(true);
+        var genreRepository = new Repository.GenreRepository(repositoryDbContext);
+        await genreRepository.Delete(exampleGenre, CancellationToken.None);
+        await repositoryDbContext.SaveChangesAsync();
+
+        var assertDbContext = _fixture.CreateDbContext(true);
+        var dbGenre = assertDbContext.Genres.AsNoTracking().FirstOrDefault(x => x.Id == exampleGenre.Id);
+        dbGenre.Should().BeNull();
+        var categoriesIdsList = assertDbContext.GenresCategories.AsNoTracking().Where(x => x.GenreId == exampleGenre.Id).Select(x => x.CategoryId).ToList();
+        categoriesIdsList.Should().HaveCount(0);
+    }
 }

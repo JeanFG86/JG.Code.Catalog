@@ -35,9 +35,10 @@ public class GenreRepository : IGenreRepository
         return genre;
     }
 
-    public Task Delete(Genre aggregate, CancellationToken cancellationToken)
+    public Task Delete(Genre genre, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _genresCategories.RemoveRange(_genresCategories.Where(x => x.GenreId == genre.Id));
+        return Task.FromResult(_genres.Remove(genre));
     }       
 
     public Task<SearchOutput<Genre>> Search(SearchInput input, CancellationToken cancellationToken)
