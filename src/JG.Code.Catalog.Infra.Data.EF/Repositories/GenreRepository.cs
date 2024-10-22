@@ -41,10 +41,15 @@ public class GenreRepository : IGenreRepository
         return Task.FromResult(_genres.Remove(genre));
     }
 
-    public Task Update(Genre aggregate, CancellationToken cancellationToken)
+    public async Task Update(Genre genre, CancellationToken cancellationToken)
     {
-        _genres.Update(aggregate);
-        return Task.CompletedTask;
+        _genres.Update(genre);
+        _genresCategories.RemoveRange(_genresCategories.Where(x => x.GenreId == genre.Id));
+        if (genre.Categories.Any())
+        {
+            var relations = genre.Categories.Select(categoryId => new GenresCategories(categoryId, genre.Id));
+            await _genresCategories.AddRangeAsync(relations);
+        }
     }
 
     public Task<SearchOutput<Genre>> Search(SearchInput input, CancellationToken cancellationToken)
