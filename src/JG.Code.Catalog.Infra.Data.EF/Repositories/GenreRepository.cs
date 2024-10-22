@@ -39,15 +39,16 @@ public class GenreRepository : IGenreRepository
     {
         _genresCategories.RemoveRange(_genresCategories.Where(x => x.GenreId == genre.Id));
         return Task.FromResult(_genres.Remove(genre));
-    }       
-
-    public Task<SearchOutput<Genre>> Search(SearchInput input, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
     }
 
     public Task Update(Genre aggregate, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _genres.Update(aggregate);
+        return Task.CompletedTask;
     }
+
+    public Task<SearchOutput<Genre>> Search(SearchInput input, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }    
 }
