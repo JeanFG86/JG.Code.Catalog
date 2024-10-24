@@ -22,6 +22,11 @@ public class GenreRepositoryTestFixture : BaseFixture
         return genre;
     }
 
+    public List<DomainEntity.Genre> GetExampleListGenres(int count = 10)
+    {
+        return Enumerable.Range(1, count).Select(_ => GetExampleGenre()).ToList();
+    }
+
     public string GetValidCategoryName()
     {
         var categoryName = "";

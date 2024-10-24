@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.Infra.Data.EF.Models;
 using Microsoft.EntityFrameworkCore;
@@ -256,5 +257,34 @@ public class GenreRepositoryTest
             var expectedCategory = updateCategoriesListExample.FirstOrDefault(x => x.Id == r.CategoryId);
             expectedCategory.Should().NotBeNull();
         });
+    }
+
+    [Fact(DisplayName = nameof(ListReturnsItemsAndTotal))]
+    [Trait("Integration/Infra.Data", "GenreRepository - Repositories")]
+    public async Task ListReturnsItemsAndTotal()
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleGenresList = _fixture.GetExampleListGenres();       
+        await dbContext.Genres.AddRangeAsync(exampleGenresList);       
+        await dbContext.SaveChangesAsync();
+        var actDbContext = _fixture.CreateDbContext(true);
+        var genreRepository = new Repository.GenreRepository(actDbContext);
+        var searchInput = new SearchInput(1, 20, "", "", SearchOrder.Asc);
+       
+        var searchResult = await genreRepository.Search(searchInput, CancellationToken.None);
+
+        searchResult.Should().NotBeNull();
+        searchResult.CurrentPage.Should().Be(searchInput.Page);
+        searchResult.PerPage.Should().Be(searchInput.PerPage);
+        searchResult.Total.Should().Be(exampleGenresList.Count);
+        searchResult.Items.Should().HaveCount(exampleGenresList.Count);
+        foreach (var resultItem in searchResult.Items)
+        {
+            var exampleGenre = exampleGenresList.Find(x => x.Id == resultItem.Id);
+            exampleGenre.Should().NotBeNull();
+            resultItem.Name.Should().Be(resultItem.Name);
+            resultItem.IsActive.Should().Be(resultItem.IsActive);
+            resultItem.CreatedAt.Should().Be(resultItem.CreatedAt);
+        }
     }
 }
