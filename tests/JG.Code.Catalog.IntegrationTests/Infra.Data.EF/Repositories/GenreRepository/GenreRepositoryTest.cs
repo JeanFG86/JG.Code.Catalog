@@ -292,7 +292,7 @@ public class GenreRepositoryTest
     [Trait("Integration/Infra.Data", "GenreRepository - Repositories")]
     public async Task SearchReturnsEmptyWhenPersistenceIsEmpty()
     {
-        var actDbContext = _fixture.CreateDbContext(true);
+        var actDbContext = _fixture.CreateDbContext();
         var genreRepository = new Repository.GenreRepository(actDbContext);
         var searchInput = new SearchInput(1, 20, "", "", SearchOrder.Asc);
 
@@ -387,6 +387,72 @@ public class GenreRepositoryTest
         searchResult.PerPage.Should().Be(searchInput.PerPage);
         searchResult.Total.Should().Be(exampleGenresList.Count);
         searchResult.Items.Should().HaveCount(expectedQuantityItems);
+        foreach (var resultItem in searchResult.Items)
+        {
+            var exampleGenre = exampleGenresList.Find(x => x.Id == resultItem.Id);
+            exampleGenre.Should().NotBeNull();
+            resultItem.Name.Should().Be(resultItem.Name);
+            resultItem.IsActive.Should().Be(resultItem.IsActive);
+            resultItem.CreatedAt.Should().Be(resultItem.CreatedAt);
+            resultItem.Categories.Should().BeEquivalentTo(exampleGenre!.Categories);
+        }
+    }
+
+    [Theory(DisplayName = nameof(SearchByText))]
+    [Trait("Integration/Infra.Data", "GenreRepository - Repositories")]
+    [InlineData("Action", 1, 5, 1, 1)]
+    [InlineData("Horror", 1, 5, 3, 3)]
+    [InlineData("Horror", 2, 5, 0, 3)]
+    [InlineData("Sci-fi", 1, 5, 4, 4)]
+    [InlineData("Sci-fi", 1, 2, 2, 4)]
+    [InlineData("Sci-fi", 2, 3, 1, 4)]
+    [InlineData("Robots", 1, 5, 2, 2)]
+    [InlineData("Comedy", 2, 3, 0, 0)]
+    public async Task SearchByText(
+        string search,
+        int page,
+        int perPage,
+        int expectedQuantityItemsReturned,
+        int expectedQuantityTotalItems
+    )
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleGenresList = _fixture.GetExampleListGenresByNames(new List<string>{
+            "Action",
+            "Horror",
+            "Horror - Robots",
+            "Horror - Based onReal Facts",
+            "Drama",
+            "Sci-fi IA",
+            "Sci-fi Space",
+            "Sci-fi Robots",
+            "Sci-fi Future",
+        });
+        await dbContext.Genres.AddRangeAsync(exampleGenresList);
+        var random = new Random();
+        exampleGenresList.ForEach(exampleGenre =>
+        {
+            var categoriesListToRelation = _fixture.GetExampleCategoriesList(random.Next(0, 4));
+            if (categoriesListToRelation.Count > 0)
+            {
+                categoriesListToRelation.ForEach(category => exampleGenre.AddCategory(category.Id));
+                dbContext.Categories.AddRange(categoriesListToRelation);
+                var relationsToAdd = categoriesListToRelation.Select(category => new GenresCategories(category.Id, exampleGenre.Id)).ToList();
+                dbContext.GenresCategories.AddRange(relationsToAdd);
+            }
+        });
+        await dbContext.SaveChangesAsync();
+        var actDbContext = _fixture.CreateDbContext(true);
+        var genreRepository = new Repository.GenreRepository(actDbContext);
+        var searchInput = new SearchInput(page, perPage, search, "", SearchOrder.Asc);
+
+        var searchResult = await genreRepository.Search(searchInput, CancellationToken.None);
+
+        searchResult.Should().NotBeNull();
+        searchResult.CurrentPage.Should().Be(searchInput.Page);
+        searchResult.PerPage.Should().Be(searchInput.PerPage);
+        searchResult.Total.Should().Be(expectedQuantityTotalItems);
+        searchResult.Items.Should().HaveCount(expectedQuantityItemsReturned);
         foreach (var resultItem in searchResult.Items)
         {
             var exampleGenre = exampleGenresList.Find(x => x.Id == resultItem.Id);
