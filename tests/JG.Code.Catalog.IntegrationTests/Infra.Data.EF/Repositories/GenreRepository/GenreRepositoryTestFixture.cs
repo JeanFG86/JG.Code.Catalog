@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.Domain.Entity;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using JG.Code.Catalog.IntegrationTests.Common;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 
@@ -57,4 +58,20 @@ public class GenreRepositoryTestFixture : BaseFixture
 
     public List<Category> GetExampleCategoriesList(int length = 10)
         => Enumerable.Range(1, length).Select(_ => GetExampleCategory()).ToList();
+
+    public List<Genre> CloneGenresListOrdered(List<Genre> genresList, string orderBy, SearchOrder searchOrder)
+    {
+        var listClone = new List<Genre>(genresList);
+        var orderedEnumerable = (orderBy, searchOrder) switch
+        {
+            ("name", SearchOrder.Asc) => listClone.OrderBy(n => n.Name).ThenBy(x => x.Id),
+            ("name", SearchOrder.Desc) => listClone.OrderByDescending(n => n.Name).ThenByDescending(x => x.Id),
+            ("id", SearchOrder.Asc) => listClone.OrderBy(n => n.Id),
+            ("id", SearchOrder.Desc) => listClone.OrderByDescending(n => n.Id),
+            ("createdat", SearchOrder.Asc) => listClone.OrderBy(n => n.CreatedAt),
+            ("createdat", SearchOrder.Desc) => listClone.OrderByDescending(n => n.CreatedAt),
+            _ => listClone.OrderBy(n => n.Name).ThenBy(x => x.Id),
+        };
+        return orderedEnumerable.ToList();
+    }
 }
