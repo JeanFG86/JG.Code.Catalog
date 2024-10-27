@@ -35,7 +35,7 @@ public class GetGenreTest
         output.IsActive.Should().Be(exampleGenre.IsActive);
         output.CreatedAt.Should().BeSameDateAs(exampleGenre.CreatedAt);
         foreach (var expectedId in exampleGenre.Categories)        
-            output.Categories.Should().Contain(expectedId);        
+            output.Categories.Should().Contain(x => x.Id == expectedId);        
     }
 
     [Fact(DisplayName = nameof(ThrowWhenNotFound))]

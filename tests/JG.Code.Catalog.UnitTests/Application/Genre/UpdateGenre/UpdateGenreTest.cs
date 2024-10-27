@@ -138,7 +138,7 @@ public class UpdateGenreTest
         output.Id.Should().NotBeEmpty();
         output.CreatedAt.Should().NotBeSameDateAs(default);
         output.Categories.Should().HaveCount(exampleCategoriesIdsList.Count);
-        exampleCategoriesIdsList.ForEach(expectedId => output.Categories.Should().Contain(expectedId));
+        exampleCategoriesIdsList.ForEach(expectedId => output.Categories.Should().Contain(relation => relation.Id == expectedId));
     }
 
     [Fact(DisplayName = nameof(UpdateGenreReplacingCategoriesIds))]
@@ -168,7 +168,7 @@ public class UpdateGenreTest
         output.Id.Should().NotBeEmpty();
         output.CreatedAt.Should().NotBeSameDateAs(default);
         output.Categories.Should().HaveCount(exampleCategoriesIdsList.Count);
-        exampleCategoriesIdsList.ForEach(expectedId => output.Categories.Should().Contain(expectedId));
+        exampleCategoriesIdsList.ForEach(expectedId => output.Categories.Should().Contain(relation => relation.Id == expectedId));
     }
 
     [Fact(DisplayName = nameof(ThrowWhenCategoryNotFound))]
@@ -221,7 +221,7 @@ public class UpdateGenreTest
         output.Id.Should().NotBeEmpty();
         output.CreatedAt.Should().NotBeSameDateAs(default);
         output.Categories.Should().HaveCount(exampleCategoriesIdsList.Count);
-        exampleCategoriesIdsList.ForEach(expectedId => output.Categories.Should().Contain(expectedId));
+        exampleCategoriesIdsList.ForEach(expectedId => output.Categories.Should().Contain(relation => relation.Id == expectedId));
     }
 
     [Fact(DisplayName = nameof(UpdateGenreWithEmptyCategoriesIdsList))]

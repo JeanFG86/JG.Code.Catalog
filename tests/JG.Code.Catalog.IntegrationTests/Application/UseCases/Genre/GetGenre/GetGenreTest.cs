@@ -52,7 +52,7 @@ public class GetGenreTest
         var useCase = new UseCase.GetGenre(genreRepository);
         var input = new UseCase.GetGenreInput(randomGuid);
 
-        var action = async () =>  await useCase.Handle(input, CancellationToken.None);
+        var action = async () => await useCase.Handle(input, CancellationToken.None);
 
         await action.Should().ThrowAsync<NotFoundException>().WithMessage($"Genre {randomGuid} not found.");
     }
@@ -83,6 +83,10 @@ public class GetGenreTest
         outPut.IsActive.Should().Be(expectedGenre.IsActive);
         outPut.CreatedAt.Should().Be(expectedGenre.CreatedAt);
         outPut.Categories.Should().HaveCount(expectedGenre.Categories.Count);
-        outPut.Categories.ToList().ForEach(id => expectedGenre.Categories.Should().Contain(id));
+        outPut.Categories.ToList().ForEach(relationModel => 
+        {
+            expectedGenre.Categories.Should().Contain(relationModel.Id);
+            relationModel.Name.Should().BeNull();
+        });
     }
 }
