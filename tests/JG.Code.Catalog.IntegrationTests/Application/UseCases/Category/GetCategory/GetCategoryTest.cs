@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Application.Exceptions;
-using JG.Code.Catalog.Application.UseCases.Category.GetCategory;
 using JG.Code.Catalog.Infra.Data.EF.Repositories;
 using UseCase = JG.Code.Catalog.Application.UseCases.Category.GetCategory;
 
