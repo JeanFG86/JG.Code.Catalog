@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Infra.Data.EF.Repositories;
 using UseCase = JG.Code.Catalog.Application.UseCases.Genre.GetGenre;
 
@@ -35,5 +36,23 @@ public class GetGenreTest
         outPut.Name.Should().Be(expectedGenre.Name);
         outPut.IsActive.Should().Be(expectedGenre.IsActive);
         outPut.CreatedAt.Should().Be(expectedGenre.CreatedAt);
+    }
+
+    [Fact(DisplayName = nameof(ThrowsWhenNotFound))]
+    [Trait("Integration/Application", "GetGenre - Use Cases")]
+    public async Task ThrowsWhenNotFound()
+    {
+        var genresExampleList = _fixture.GetExampleListGenres();
+        var randomGuid = Guid.NewGuid();
+        var dbArragneContext = _fixture.CreateDbContext();
+        await dbArragneContext.Genres.AddRangeAsync(genresExampleList);
+        await dbArragneContext.SaveChangesAsync();
+        var genreRepository = new GenreRepository(_fixture.CreateDbContext(true));
+        var useCase = new UseCase.GetGenre(genreRepository);
+        var input = new UseCase.GetGenreInput(randomGuid);
+
+        var action = async () =>  await useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>().WithMessage($"Genre {randomGuid} not found.");
     }
 }
