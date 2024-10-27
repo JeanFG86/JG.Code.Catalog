@@ -28,6 +28,8 @@ public class GenreRepositoryTestFixture : BaseFixture
         return Enumerable.Range(1, count).Select(_ => GetExampleGenre()).ToList();
     }
 
+    public bool GetRandomBoolean() => new Random().NextDouble() < 0.5;
+
     public List<Genre> GetExampleListGenresByNames(List<string> names)
     {
         return names.Select(n => GetExampleGenre(name: n)).ToList();
@@ -49,9 +51,7 @@ public class GenreRepositoryTestFixture : BaseFixture
         if (categoryDescription.Length > 10_000)
             categoryDescription = categoryDescription[..10_000];
         return categoryDescription;
-    }
-
-    public bool GetRandomBoolean() => new Random().NextDouble() < 0.5;
+    }    
 
     public Category GetExampleCategory()
         => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
