@@ -6,6 +6,8 @@ using UseCase = JG.Code.Catalog.Application.UseCases.Genre.CreateGenre;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Infra.Data.EF.Models;
 using Microsoft.EntityFrameworkCore;
+using JG.Code.Catalog.Application.UseCases.Genre.Common;
+using JG.Code.Catalog.Application.Exceptions;
 
 namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.Genre.CreateGenre;
 
@@ -71,5 +73,25 @@ public class CreateGenreTest
         relations.Should().HaveCount(input.CategoriesIds.Count);
         List<Guid> categoriesIdsRelatedFromDb = relations.Select(relation => relation.CategoryId).ToList();
         categoriesIdsRelatedFromDb.Should().BeEquivalentTo(input.CategoriesIds);
+    }
+
+    [Fact(DisplayName = nameof(CreateGenreThrowsWhenCategoryDoesntExists))]
+    [Trait("Integration/Application", "CreateGenre - Use Cases")]
+    public async Task CreateGenreThrowsWhenCategoryDoesntExists()
+    {
+        List<DomainEntity.Category> exampleCategories = _fixture.GetExampleCategoriesList(5);
+        var arrangeDbContext = _fixture.CreateDbContext();
+        await arrangeDbContext.Categories.AddRangeAsync(exampleCategories);
+        await arrangeDbContext.SaveChangesAsync();
+        CreateGenreInput input = _fixture.GetExampleInput();
+        input.CategoriesIds = exampleCategories.Select(c => c.Id).ToList();
+        Guid randomGuid = Guid.NewGuid();
+        input.CategoriesIds.Add(randomGuid);
+        var actDbContext = _fixture.CreateDbContext(true);
+        var useCase = new UseCase.CreateGenre(new GenreRepository(actDbContext), new UnitOfWork(actDbContext), new CategoryRepository(actDbContext));
+
+        Func<Task<GenreModelOutput>> action = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<RelatedAggregateException>().WithMessage($"Related category id (or ids) not found: {randomGuid}");
     }
 }
