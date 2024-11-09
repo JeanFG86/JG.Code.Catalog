@@ -114,4 +114,23 @@ public class UpdateGenreTest
 
         await action.Should().ThrowAsync<RelatedAggregateException>().WithMessage($"Related category id (or ids) not found: {invalidCategoryId}");
     }
+
+    [Fact(DisplayName = nameof(UpdateGenreThrowsWhenNotFound))]
+    [Trait("Intregation/Application", "UpdateGenre - Use Cases")]
+    public async Task UpdateGenreThrowsWhenNotFound()
+    {
+        List<DomainEntity.Genre> exampleGenres = _fixture.GetExampleListGenres();
+        CodeCatalogDbContext arrangeDbContext = _fixture.CreateDbContext();
+        DomainEntity.Genre targetGenre = exampleGenres[5];
+        await arrangeDbContext.AddRangeAsync(exampleGenres);
+        await arrangeDbContext.SaveChangesAsync();
+        CodeCatalogDbContext actDbContext = _fixture.CreateDbContext(true);
+        UseCase.UpdateGenre updateGenre = new UseCase.UpdateGenre(new GenreRepository(actDbContext), new UnitOfWork(actDbContext), new CategoryRepository(actDbContext));
+        Guid randomGuid = Guid.NewGuid();
+        UpdateGenreInput input = new UpdateGenreInput(randomGuid, _fixture.GetValidGenreName(), true);
+
+        Func<Task<GenreModelOutput>> action = async () => await updateGenre.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>().WithMessage($"Genre {randomGuid} not found.");
+    }
 }
