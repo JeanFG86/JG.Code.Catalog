@@ -87,6 +87,45 @@ public class UpdateGenreTest
         relatedCategoryIdsFromDb.Should().BeEquivalentTo(input.CategoriesIds);
     }
 
+    [Fact(DisplayName = nameof(UpdateGenreWithoutNewRelations))]
+    [Trait("Intregation/Application", "UpdateGenre - Use Cases")]
+    public async Task UpdateGenreWithoutNewRelations()
+    {
+        List<DomainEntity.Category> exampleCategories = _fixture.GetExampleCategoriesList();
+        List<DomainEntity.Genre> exampleGenres = _fixture.GetExampleListGenres();
+        CodeCatalogDbContext arrangeDbContext = _fixture.CreateDbContext();
+        DomainEntity.Genre targetGenre = exampleGenres[5];
+        List<DomainEntity.Category> relatedCategories = exampleCategories.GetRange(0, 5);
+        relatedCategories.ForEach(category => targetGenre.AddCategory(category.Id));
+        List<GenresCategories> relations = targetGenre.Categories.Select(categoryId => new GenresCategories(categoryId, targetGenre.Id)).ToList();
+        await arrangeDbContext.AddRangeAsync(exampleGenres);
+        await arrangeDbContext.AddRangeAsync(exampleCategories);
+        await arrangeDbContext.AddRangeAsync(relations);
+        await arrangeDbContext.SaveChangesAsync();
+        CodeCatalogDbContext actDbContext = _fixture.CreateDbContext(true);
+        UseCase.UpdateGenre updateGenre = new UseCase.UpdateGenre(new GenreRepository(actDbContext), new UnitOfWork(actDbContext), new CategoryRepository(actDbContext));
+        UpdateGenreInput input = new UpdateGenreInput(targetGenre.Id, _fixture.GetValidGenreName(), !targetGenre.IsActive);
+
+        GenreModelOutput output = await updateGenre.Handle(input, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Id.Should().Be(targetGenre.Id);
+        output.Name.Should().Be(input.Name);
+        output.IsActive.Should().Be((bool)input.IsActive!);
+        output.Categories.Should().HaveCount(relatedCategories.Count);
+        List<Guid> expectedRelatedCategoryIds = relatedCategories.Select(c => c.Id).ToList();
+        List<Guid> relatedCategoriesIdsFromOutput = output.Categories.Select(x => x.Id).ToList();
+        relatedCategoriesIdsFromOutput.Should().BeEquivalentTo(expectedRelatedCategoryIds);
+        CodeCatalogDbContext assertDbContext = _fixture.CreateDbContext(true);
+        DomainEntity.Genre? genreFromDb = await assertDbContext.Genres.FindAsync(targetGenre.Id);
+        genreFromDb.Should().NotBeNull();
+        genreFromDb!.Id.Should().Be(targetGenre.Id);
+        genreFromDb.Name.Should().Be(input.Name);
+        genreFromDb.IsActive.Should().Be((bool)input.IsActive!);
+        List<Guid> relatedCategoryIdsFromDb = await assertDbContext.GenresCategories.AsNoTracking().Where(relation => relation.GenreId == input.Id).Select(relation => relation.CategoryId).ToListAsync();
+        relatedCategoryIdsFromDb.Should().BeEquivalentTo(expectedRelatedCategoryIds);
+    }
+
     [Fact(DisplayName = nameof(UpdateGenreThrowsWhenCategoryDoesntExists))]
     [Trait("Intregation/Application", "UpdateGenre - Use Cases")]
     public async Task UpdateGenreThrowsWhenCategoryDoesntExists()
