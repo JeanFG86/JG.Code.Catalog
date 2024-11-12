@@ -4,7 +4,6 @@ using JG.Code.Catalog.Infra.Data.EF.Models;
 using JG.Code.Catalog.Infra.Data.EF.Repositories;
 using UseCase = JG.Code.Catalog.Application.UseCases.Genre.GetGenre;
 
-
 namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.Genre.GetGenre;
 
 [Collection(nameof(GetGenreTestFixture))]
