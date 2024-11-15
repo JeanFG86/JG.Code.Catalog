@@ -42,4 +42,20 @@ public class ListGenresTest
             outputItem.IsActive.Should().Be(exampleItem.IsActive);
         });
     }
+
+    [Fact(DisplayName = nameof(ListGenresReturnsEmptyWhenPersistenceIsEmpty))]
+    [Trait("Integration/Application", "ListGenres - Use Cases")]
+    public async Task ListGenresReturnsEmptyWhenPersistenceIsEmpty()
+    {
+        UseCase.ListGenres useCase = new UseCase.ListGenres(new GenreRepository(_fixture.CreateDbContext()));
+        ListGenresInput input = new ListGenresInput(1, 20);
+
+        ListGenresOutput output = await useCase.Handle(input, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Page.Should().Be(input.Page);
+        output.PerPage.Should().Be(input.PerPage);
+        output.Total.Should().Be(0);
+        output.Items.Should().HaveCount(0);        
+    }
 }
