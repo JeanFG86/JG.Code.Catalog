@@ -32,6 +32,7 @@ public class ListGenresTest
         output.Should().NotBeNull();
         output.Page.Should().Be(input.Page);
         output.PerPage.Should().Be(input.PerPage);
+        output.Total.Should().Be(exampleGenres.Count);
         output.Items.Should().HaveCount(exampleGenres.Count);
         output.Items.ToList().ForEach(outputItem =>
         {
