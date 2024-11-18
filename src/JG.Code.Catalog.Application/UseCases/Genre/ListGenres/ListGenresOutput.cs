@@ -20,4 +20,15 @@ public class ListGenresOutput : PaginatedListOutput<GenreModelOutput>
            searchOutput.Items.Select(GenreModelOutput.FromGenre).ToList()
        );
     }
+
+    public void FillWithCategoryNames(IReadOnlyList<DomainEntity.Category> categories)
+    {
+        foreach (GenreModelOutput item in Items)
+        {
+            foreach (GenreModelOutputCategory categoryOutput in item.Categories)
+            {
+                categoryOutput.Name = categories.FirstOrDefault(category => category.Id == categoryOutput.Id)?.Name;
+            }
+        }
+    }
 }

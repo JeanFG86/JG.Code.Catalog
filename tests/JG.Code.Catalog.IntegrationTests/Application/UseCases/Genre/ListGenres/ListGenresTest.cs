@@ -25,7 +25,8 @@ public class ListGenresTest
         var arrangeDbContext = _fixture.CreateDbContext();
         await arrangeDbContext.AddRangeAsync(exampleGenres);
         await arrangeDbContext.SaveChangesAsync();
-        UseCase.ListGenres useCase = new UseCase.ListGenres(new GenreRepository(_fixture.CreateDbContext(true)));
+        var actDbContext = _fixture.CreateDbContext(true);
+        UseCase.ListGenres useCase = new UseCase.ListGenres(new GenreRepository(_fixture.CreateDbContext(true)), new CategoryRepository(actDbContext));
         ListGenresInput input = new ListGenresInput(1, 20);
 
         ListGenresOutput output = await useCase.Handle(input, CancellationToken.None);
@@ -48,7 +49,8 @@ public class ListGenresTest
     [Trait("Integration/Application", "ListGenres - Use Cases")]
     public async Task ListGenresReturnsEmptyWhenPersistenceIsEmpty()
     {
-        UseCase.ListGenres useCase = new UseCase.ListGenres(new GenreRepository(_fixture.CreateDbContext()));
+        var actDbContext = _fixture.CreateDbContext(true);
+        UseCase.ListGenres useCase = new UseCase.ListGenres(new GenreRepository(_fixture.CreateDbContext()), new CategoryRepository(actDbContext));
         ListGenresInput input = new ListGenresInput(1, 20);
 
         ListGenresOutput output = await useCase.Handle(input, CancellationToken.None);
@@ -85,7 +87,8 @@ public class ListGenresTest
         await arrangeDbContext.AddRangeAsync(exampleCategories);
         await arrangeDbContext.AddRangeAsync(genresCategories);
         await arrangeDbContext.SaveChangesAsync();
-        UseCase.ListGenres useCase = new UseCase.ListGenres(new GenreRepository(_fixture.CreateDbContext(true)));
+        var actDbContext = _fixture.CreateDbContext(true);
+        UseCase.ListGenres useCase = new UseCase.ListGenres(new GenreRepository(_fixture.CreateDbContext(true)), new CategoryRepository(actDbContext));
         ListGenresInput input = new ListGenresInput(1, 20);
 
         ListGenresOutput output = await useCase.Handle(input, CancellationToken.None);
@@ -103,6 +106,12 @@ public class ListGenresTest
             outputItem.IsActive.Should().Be(exampleItem.IsActive);
             List<Guid> outputItemCategoryIds = outputItem.Categories.Select(x => x.Id).ToList();
             outputItemCategoryIds.Should().BeEquivalentTo(exampleItem.Categories);
+            outputItem.Categories.ToList().ForEach(outputCategory => 
+            {
+                DomainEntity.Category? exampleCategory = exampleCategories.Find(x => x.Id == outputCategory.Id);
+                exampleCategory.Should().NotBeNull();
+                outputCategory.Name.Should().Be(exampleCategory!.Name);
+            });
         });
     }
 }
