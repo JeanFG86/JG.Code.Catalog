@@ -27,7 +27,7 @@ public class ListGenresOutput : PaginatedListOutput<GenreModelOutput>
         {
             foreach (GenreModelOutputCategory categoryOutput in item.Categories)
             {
-                categoryOutput.Name = categories.FirstOrDefault(category => category.Id == categoryOutput.Id)?.Name;
+                categoryOutput.Name = categories?.FirstOrDefault(category => category.Id == categoryOutput.Id)?.Name;
             }
         }
     }
