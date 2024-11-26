@@ -44,4 +44,9 @@ public class GenreUseCasesBaseFixture : BaseFixture
 
     public List<DomainEntity.Category> GetExampleCategoriesList(int length = 10)
         => Enumerable.Range(1, length).Select(_ => GetExampleCategory()).ToList();
+
+    public List<DomainEntity.Genre> GetExampleListGenresByNames(List<string> names)
+    {
+        return names.Select(n => GetExampleGenre(name: n)).ToList();
+    }
 }
