@@ -59,7 +59,7 @@ public class GetGenreApiTest
     public async Task GetGenreWithRelations()
     {
         List<DomainEntity.Genre> exampleGenres = _fixture.GetExampleListGenres(10);
-        var targetGenre = exampleGenres[5];
+        var targetGenre = exampleGenres[5]; 
         List<DomainEntity.Category> exampleCategories = _fixture.GetExampleCategoriesList(10);
         Random randon = new Random();
         exampleGenres.ForEach(genre =>
