@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.Infra.Data.EF;
+using JG.Code.Catalog.Infra.Data.EF.Models;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Genre.Common;
@@ -15,6 +16,12 @@ public class GenrePersistence
     public async Task InsertList(List<DomainEntity.Genre> genres)
     {
         await _context.AddRangeAsync(genres);
+        await _context.SaveChangesAsync();
+    }
+    
+    public async Task InsertGenresCategoriesRelationsList(List<GenresCategories> relations)
+    {
+        await _context.AddRangeAsync(relations);
         await _context.SaveChangesAsync();
     }
 }
