@@ -1,5 +1,6 @@
 ﻿using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.Infra.Data.EF.Models;
+using Microsoft.EntityFrameworkCore;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Genre.Common;
@@ -24,4 +25,6 @@ public class GenrePersistence
         await _context.AddRangeAsync(relations);
         await _context.SaveChangesAsync();
     }
+    
+    public async Task<DomainEntity.Genre?> GetById(Guid id) => await _context.Genres.AsNoTracking().FirstOrDefaultAsync(genre => genre.Id == id);
 }
