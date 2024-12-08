@@ -5,9 +5,9 @@ using JG.Code.Catalog.Application.UseCases.Genre.Common;
 using JG.Code.Catalog.Infra.Data.EF.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using DomainEntity = JG.Code.Catalog.Domain.Entity;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Genre.GetGenre;
-using DomainEntity = Domain.Entity;
 
 [Collection(nameof(GetGenreApiTestFixture))]
 public class GetGenreApiTest
@@ -75,7 +75,6 @@ public class GetGenreApiTest
         });
         List<GenresCategories> genresCategories = new List<GenresCategories>();
         exampleGenres.ForEach(genre => genre.Categories.ToList().ForEach(categoryId => genresCategories.Add(new GenresCategories(categoryId, genre.Id))));
-
         await _fixture.Persistence.InsertList(exampleGenres);
         await _fixture.CategoryPersistence.InsertList(exampleCategories);
         await _fixture.Persistence.InsertGenresCategoriesRelationsList(genresCategories);

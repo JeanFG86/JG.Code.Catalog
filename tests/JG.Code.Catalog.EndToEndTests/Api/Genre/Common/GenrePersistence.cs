@@ -27,4 +27,9 @@ public class GenrePersistence
     }
     
     public async Task<DomainEntity.Genre?> GetById(Guid id) => await _context.Genres.AsNoTracking().FirstOrDefaultAsync(genre => genre.Id == id);
+
+    public async Task<List<GenresCategories>> GetGenresCategoriesRelationsByGenreId(Guid targetGenreId)
+    {
+        return await _context.GenresCategories.AsNoTracking().Where(relation => relation.GenreId == targetGenreId).ToListAsync();
+    }
 }
