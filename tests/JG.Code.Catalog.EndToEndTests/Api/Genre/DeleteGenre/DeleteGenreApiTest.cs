@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Genre.DeleteGenre;
 
@@ -20,7 +21,7 @@ public class DeleteGenreApiTest
     {
         var exampleGenresList = _fixture.GetExampleListGenres(10);
         await _fixture.Persistence.InsertList(exampleGenresList);
-        var exampleGenre = exampleGenresList[10];
+        var exampleGenre = exampleGenresList[5];
 
         var (response, output) = await _fixture.ApiClient.Delete<object>($"/genres/{exampleGenre.Id}");
 
@@ -31,4 +32,20 @@ public class DeleteGenreApiTest
         pessistenceGenre.Should().BeNull();
     }
 
+    [Fact(DisplayName = nameof(WhenNotFound404))]
+    [Trait("EndToEnd/API", "Genre/Delete - Endpoints")]
+    public async Task WhenNotFound404()
+    {
+        var exampleGenresList = _fixture.GetExampleListGenres(10);
+        var randomGuid = Guid.NewGuid();
+        await _fixture.Persistence.InsertList(exampleGenresList);
+
+        var (response, output) = await _fixture.ApiClient.Delete<ProblemDetails>($"/genres/{randomGuid}");
+
+        response.Should().NotBeNull();
+        output.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status404NotFound);
+        output!.Type.Should().Be("NotFound");
+        output.Detail.Should().Be($"Genre {randomGuid} not found.");
+    }
 }
