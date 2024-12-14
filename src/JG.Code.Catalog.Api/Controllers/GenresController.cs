@@ -37,6 +37,7 @@ public class GenresController : ControllerBase
     [HttpPost()]
     [ProducesResponseType(typeof(ApiResponse<GenreModelOutput>),StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateGenre([FromBody] CreateGenreInput input, CancellationToken cancellationToken)
     {
         var output = await _mediator.Send(input, cancellationToken);

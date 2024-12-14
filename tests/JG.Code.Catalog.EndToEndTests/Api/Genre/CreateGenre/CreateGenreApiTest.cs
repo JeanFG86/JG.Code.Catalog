@@ -4,6 +4,7 @@ using JG.Code.Catalog.Api.ApiModels.Response;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
 using JG.Code.Catalog.Application.UseCases.Genre.CreateGenre;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.Genre.CreateGenre;
@@ -72,5 +73,26 @@ public class CreateGenreApiTest
         relationsFromDb!.Count().Should().Be(relatedCategories.Count);
         var relatedCategoriesIdsFromDb = relationsFromDb.Select(x => x.CategoryId).ToList();
         relatedCategoriesIdsFromDb.Should().BeEquivalentTo(relatedCategories);
+    }
+    
+    [Fact(DisplayName = nameof(ErrorWithInvalidRelations))]
+    [Trait("EndToEnd/API", "Genre/Create - Endpoints")]
+    public async Task ErrorWithInvalidRelations()
+    {
+        var exampleCategories = _fixture.GetExampleCategoriesList();
+        await _fixture.CategoryPersistence.InsertList(exampleCategories);
+        var relatedCategories = exampleCategories.Skip(3).Take(3).Select(x => x.Id).ToList();
+        var invalidCategoryId = Guid.NewGuid();
+        relatedCategories.Add(invalidCategoryId);
+        var apiInput = new CreateGenreInput(_fixture.GetValidCategoryName(), _fixture.GetRandomBoolean(), relatedCategories);
+        
+        var (response, output) = await _fixture.ApiClient
+            .Post<ProblemDetails>($"/genres", apiInput);
+
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status422UnprocessableEntity);
+        output.Should().NotBeNull();
+        output!.Type.Should().Be("RelatedAggregate");
+        output.Detail.Should().Be($"Related category id (or ids) not found: {invalidCategoryId}");
     }
 }
