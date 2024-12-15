@@ -1,8 +1,10 @@
+using JG.Code.Catalog.Api.ApiModels.Genre;
 using JG.Code.Catalog.Api.ApiModels.Response;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
 using JG.Code.Catalog.Application.UseCases.Genre.CreateGenre;
 using JG.Code.Catalog.Application.UseCases.Genre.DeleteGenre;
 using JG.Code.Catalog.Application.UseCases.Genre.GetGenre;
+using JG.Code.Catalog.Application.UseCases.Genre.UpdateGenre;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,13 +36,22 @@ public class GenresController : ControllerBase
         return NoContent();
     }
     
-    [HttpPost()]
+    [HttpPost("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<GenreModelOutput>),StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails),StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateGenre([FromBody] CreateGenreInput input, CancellationToken cancellationToken)
     {
         var output = await _mediator.Send(input, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = output.Id }, new ApiResponse<GenreModelOutput>(output));
+    }
+    
+    [HttpPut()]
+    [ProducesResponseType(typeof(ApiResponse<GenreModelOutput>),StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateGenre([FromBody] UpdateGenreApiInput apiInput, [FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var output = await _mediator.Send(new UpdateGenreInput(id, apiInput.Name, apiInput.IsActive, apiInput.CategoriesIds), cancellationToken);
+        return Ok(new ApiResponse<GenreModelOutput>(output));
     }
 }
