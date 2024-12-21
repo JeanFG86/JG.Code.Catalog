@@ -46,7 +46,7 @@ public class GenresController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = output.Id }, new ApiResponse<GenreModelOutput>(output));
     }
     
-    [HttpPut()]
+    [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<GenreModelOutput>),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateGenre([FromBody] UpdateGenreApiInput apiInput, [FromRoute] Guid id, CancellationToken cancellationToken)
