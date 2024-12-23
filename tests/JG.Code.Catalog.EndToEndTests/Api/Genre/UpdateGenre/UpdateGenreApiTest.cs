@@ -115,4 +115,24 @@ public class UpdateGenreApiTest
         var relatedCategoriesIdsFromDb = genresCategoriesFromDb.Select(x => x.CategoryId).ToList();
         relatedCategoriesIdsFromDb.Should().BeEquivalentTo(relatedCategoriesIdsFromOutput);
     }
+    
+    [Fact(DisplayName = nameof(ErrorWhenInvalidRelation))]
+    [Trait("EndToEnd/API", "Genre/Update - Endpoints")]
+    public async Task ErrorWhenInvalidRelation()
+    {
+        List<DomainEntity.Genre> exampleGenres = _fixture.GetExampleListGenres(10);
+        var targetGenre = exampleGenres[5];
+        var randomGuid = Guid.NewGuid();
+        await _fixture.Persistence.InsertList(exampleGenres);
+        var input = new UpdateGenreApiInput(_fixture.GetValidGenreName(), _fixture.GetRandomBoolean(), new List<Guid>{randomGuid});
+
+        var (response, output) = await _fixture.ApiClient.Put<ProblemDetails>($"/genres/{targetGenre.Id}", input);
+
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status422UnprocessableEntity);
+        output.Should().NotBeNull();
+        output!.Type.Should().Be("RelatedAggregate");
+        output.Detail.Should().Be($"Related category id (or ids) not found: {randomGuid}");
+    }
+    
 }
