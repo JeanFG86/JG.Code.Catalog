@@ -4,7 +4,9 @@ using JG.Code.Catalog.Application.UseCases.Genre.Common;
 using JG.Code.Catalog.Application.UseCases.Genre.CreateGenre;
 using JG.Code.Catalog.Application.UseCases.Genre.DeleteGenre;
 using JG.Code.Catalog.Application.UseCases.Genre.GetGenre;
+using JG.Code.Catalog.Application.UseCases.Genre.ListGenres;
 using JG.Code.Catalog.Application.UseCases.Genre.UpdateGenre;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,10 +50,39 @@ public class GenresController : ControllerBase
     
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<GenreModelOutput>),StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateGenre([FromBody] UpdateGenreApiInput apiInput, [FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var output = await _mediator.Send(new UpdateGenreInput(id, apiInput.Name, apiInput.IsActive, apiInput.CategoriesIds), cancellationToken);
         return Ok(new ApiResponse<GenreModelOutput>(output));
+    }
+    
+    [HttpGet]
+    [ProducesResponseType(typeof(GenreModelOutput), StatusCodes.Status200OK)]
+    public async Task<IActionResult> List(CancellationToken cancellationToken,
+        [FromQuery] int? page = null,
+        [FromQuery(Name = "per_page")] int? perPage = null,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sort = null,
+        [FromQuery] SearchOrder? dir = null)
+    {
+        var input = new ListGenresInput();
+        if (page != null)
+            input.Page = page.Value;
+
+        if (perPage != null)
+            input.PerPage = perPage.Value;
+
+        if (!string.IsNullOrWhiteSpace(search))
+            input.Search = search;
+
+        if (!string.IsNullOrWhiteSpace(sort))
+            input.Sort = sort;
+
+        if (dir != null)
+            input.Dir = dir.Value;
+        var output = await _mediator.Send(input, cancellationToken);
+        return Ok(new ApiResponseList<GenreModelOutput>(output));
     }
 }
