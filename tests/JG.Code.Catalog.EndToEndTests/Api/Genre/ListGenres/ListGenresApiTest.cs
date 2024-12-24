@@ -42,7 +42,7 @@ public class ListGenresApiTest
         output!.Meta!.Total.Should().Be(exampleGenres.Count);
         output!.Meta.CurrentPage.Should().Be(input.Page);
         output!.Meta.PerPage.Should().Be(input.PerPage);
-        output.Data!.Count().Should().Be(exampleGenres.Count);
+        output.Data!.Count.Should().Be(exampleGenres.Count);
         output.Data!.ToList().ForEach(outputItem =>
         {
             var exampleItem = exampleGenres.Find(x => x.Id == outputItem.Id);
@@ -51,5 +51,24 @@ public class ListGenresApiTest
             outputItem.IsActive.Should().Be(exampleItem.IsActive);
             outputItem.CreatedAt.TrimMillisseconds().Should().Be(exampleItem.CreatedAt.TrimMillisseconds());
         });
+    }
+    
+    [Fact(DisplayName = nameof(EmptyWhenThereAreNoItems))]
+    [Trait("EndToEnd/API", "Genre/ListGenres - Endpoints")]
+    public async Task EmptyWhenThereAreNoItems()
+    {
+        var input = new ListGenresInput();
+        input.Page = 1;
+        input.PerPage = 15;
+        
+        var (reponse, output) = await _fixture.ApiClient.Get<TestApiResponseList<GenreModelOutput>>("/genres", input);
+
+        reponse.Should().NotBeNull();
+        reponse!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
+        output.Should().NotBeNull();
+        output!.Meta.Should().NotBeNull();
+        output.Data.Should().NotBeNull();
+        output!.Meta!.Total.Should().Be(0);
+        output.Data!.Count.Should().Be(0);
     }
 }
