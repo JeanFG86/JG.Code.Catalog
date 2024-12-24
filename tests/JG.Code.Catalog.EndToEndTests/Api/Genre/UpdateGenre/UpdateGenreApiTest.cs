@@ -113,7 +113,7 @@ public class UpdateGenreApiTest
         genreFromDb.IsActive.Should().Be((bool)input.IsActive);
         var genresCategoriesFromDb = await _fixture.Persistence.GetGenresCategoriesRelationsByGenreId(targetGenre.Id);
         var relatedCategoriesIdsFromDb = genresCategoriesFromDb.Select(x => x.CategoryId).ToList();
-        relatedCategoriesIdsFromDb.Should().BeEquivalentTo(relatedCategoriesIdsFromOutput);
+        relatedCategoriesIdsFromDb.Should().BeEquivalentTo(newRelationsCategoriesIds);
     }
     
     [Fact(DisplayName = nameof(ErrorWhenInvalidRelation))]
@@ -133,6 +133,52 @@ public class UpdateGenreApiTest
         output.Should().NotBeNull();
         output!.Type.Should().Be("RelatedAggregate");
         output.Detail.Should().Be($"Related category id (or ids) not found: {randomGuid}");
+    }
+    
+     [Fact(DisplayName = nameof(UpdateGenrePersistsRelationsWhenNotPresentInInput))]
+    [Trait("EndToEnd/API", "Genre/Update - Endpoints")]
+    public async Task UpdateGenrePersistsRelationsWhenNotPresentInInput()
+    {
+        List<DomainEntity.Genre> exampleGenres = _fixture.GetExampleListGenres(10);
+        var targetGenre = exampleGenres[5];
+        List<DomainEntity.Category> exampleCategories = _fixture.GetExampleCategoriesList(10);
+        Random randon = new Random();
+        exampleGenres.ForEach(genre =>
+        {
+            int relationsCount = randon.Next(2, exampleCategories.Count -1);
+            for (int i = 0; i < relationsCount; i++)
+            {
+                int selectedCategoryIndex = randon.Next(0, exampleCategories.Count - 1);
+                DomainEntity.Category selected = exampleCategories[selectedCategoryIndex];
+                if (genre.Categories.Contains(selected.Id))
+                    genre.AddCategory(selected.Id);
+            }
+        });
+        List<GenresCategories> genresCategories = new List<GenresCategories>();
+        exampleGenres.ForEach(genre => genre.Categories.ToList().ForEach(categoryId => genresCategories.Add(new GenresCategories(categoryId, genre.Id))));
+        
+        await _fixture.Persistence.InsertList(exampleGenres);
+        await _fixture.CategoryPersistence.InsertList(exampleCategories);
+        await _fixture.Persistence.InsertGenresCategoriesRelationsList(genresCategories);
+        var input = new UpdateGenreApiInput(_fixture.GetValidGenreName(), _fixture.GetRandomBoolean());
+
+        var (response, output) = await _fixture.ApiClient.Put<ApiResponse<GenreModelOutput>>($"/genres/{targetGenre.Id}", input);
+
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
+        output.Should().NotBeNull();
+        output!.Data.Id.Should().Be(targetGenre.Id);
+        output.Data.Name.Should().Be(input.Name);
+        output.Data.IsActive.Should().Be((bool)input.IsActive!);
+        List<Guid> relatedCategoriesIdsFromOutput = output.Data.Categories.Select(c => c.Id).ToList();
+        relatedCategoriesIdsFromOutput.Should().BeEquivalentTo(targetGenre.Categories);
+        var genreFromDb = await _fixture.Persistence.GetById(output!.Data.Id);
+        genreFromDb.Should().NotBeNull();
+        genreFromDb!.Name.Should().Be(input.Name);
+        genreFromDb.IsActive.Should().Be((bool)input.IsActive);
+        var genresCategoriesFromDb = await _fixture.Persistence.GetGenresCategoriesRelationsByGenreId(targetGenre.Id);
+        var relatedCategoriesIdsFromDb = genresCategoriesFromDb.Select(x => x.CategoryId).ToList();
+        relatedCategoriesIdsFromDb.Should().BeEquivalentTo(targetGenre.Categories);
     }
     
 }
