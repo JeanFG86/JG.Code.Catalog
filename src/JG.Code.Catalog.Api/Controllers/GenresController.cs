@@ -38,7 +38,7 @@ public class GenresController : ControllerBase
         return NoContent();
     }
     
-    [HttpPost("{id:guid}")]
+    [HttpPost()]
     [ProducesResponseType(typeof(ApiResponse<GenreModelOutput>),StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails),StatusCodes.Status422UnprocessableEntity)]

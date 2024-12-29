@@ -83,8 +83,7 @@ public class ListGenresApiTest : IDisposable
         int perPage,
         int expectedQuantityItems)
     {
-        List<DomainEntity.Genre> exampleGenres = _fixture.GetExampleListGenres(10);
-        var targetGenre = exampleGenres[5];
+        List<DomainEntity.Genre> exampleGenres = _fixture.GetExampleListGenres(quantityToGenerate);
         await _fixture.Persistence.InsertList(exampleGenres);
 
         var input = new ListGenresInput();
@@ -102,6 +101,63 @@ public class ListGenresApiTest : IDisposable
         output!.Meta.CurrentPage.Should().Be(input.Page);
         output!.Meta.PerPage.Should().Be(input.PerPage);
         output.Data!.Count.Should().Be(expectedQuantityItems);
+        output.Data!.ToList().ForEach(outputItem =>
+        {
+            var exampleItem = exampleGenres.Find(x => x.Id == outputItem.Id);
+            exampleItem.Should().NotBeNull();
+            outputItem.Name.Should().Be(exampleItem!.Name);
+            outputItem.IsActive.Should().Be(exampleItem.IsActive);
+            outputItem.CreatedAt.TrimMillisseconds().Should().Be(exampleItem.CreatedAt.TrimMillisseconds());
+        });
+    }
+
+    [Theory(DisplayName = nameof(SearchByText))]
+    [Trait("EndToEnd/API", "Genre/ListGenres - Endpoints")]
+    [InlineData("Action", 1, 5, 1, 1)]
+    [InlineData("Horror", 1, 5, 3, 3)]
+    [InlineData("Horror", 2, 5, 0, 3)]
+    [InlineData("Sci-fi", 1, 5, 4, 4)]
+    [InlineData("Sci-fi", 1, 2, 2, 4)]
+    [InlineData("Sci-fi", 2, 3, 1, 4)]
+    [InlineData("Robots", 1, 5, 2, 2)]
+    [InlineData("Comedy", 2, 3, 0, 0)]
+    public async Task SearchByText(
+        string search,
+        int page,
+        int perPage,
+        int expectedQuantityItemsReturned,
+        int expectedQuantityTotalItems
+    )
+    {
+        var exampleGenres = _fixture.GetExampleListGenresByNames(new List<string>
+        {
+            "Action",
+            "Horror",
+            "Horror - Robots",
+            "Horror - Based onReal Facts",
+            "Drama",
+            "Sci-fi IA",
+            "Sci-fi Space",
+            "Sci-fi Robots",
+            "Sci-fi Future",
+        });
+        await _fixture.Persistence.InsertList(exampleGenres);
+        var input = new ListGenresInput();
+        input.Page = page;
+        input.PerPage = perPage;
+        input.Search = search;
+        
+        var (reponse, output) = await _fixture.ApiClient.Get<TestApiResponseList<GenreModelOutput>>("/genres", input);
+
+        reponse.Should().NotBeNull();
+        reponse!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
+        output.Should().NotBeNull();
+        output!.Meta.Should().NotBeNull();
+        output.Data.Should().NotBeNull();
+        output!.Meta!.Total.Should().Be(expectedQuantityTotalItems);
+        output!.Meta.CurrentPage.Should().Be(input.Page);
+        output!.Meta.PerPage.Should().Be(input.PerPage);
+        output.Data!.Count.Should().Be(expectedQuantityItemsReturned);
         output.Data!.ToList().ForEach(outputItem =>
         {
             var exampleItem = exampleGenres.Find(x => x.Id == outputItem.Id);
