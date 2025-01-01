@@ -3,6 +3,7 @@ using FluentAssertions;
 using JG.Code.Catalog.Api.ApiModels.Response;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
 using JG.Code.Catalog.Application.UseCases.Genre.ListGenres;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using JG.Code.Catalog.EndToEndTests.Extensions.DateTime;
 using JG.Code.Catalog.EndToEndTests.Models;
 using Microsoft.AspNetCore.Http;
@@ -166,6 +167,52 @@ public class ListGenresApiTest : IDisposable
             outputItem.IsActive.Should().Be(exampleItem.IsActive);
             outputItem.CreatedAt.TrimMillisseconds().Should().Be(exampleItem.CreatedAt.TrimMillisseconds());
         });
+    }
+    
+    [Theory(DisplayName = nameof(Ordered))]
+    [Trait("EndToEnd/API", "Genre/ListGenres - Endpoints")]
+    [InlineData("name", "asc")]
+    [InlineData("name", "desc")]
+    [InlineData("id", "asc")]
+    [InlineData("id", "desc")]
+    [InlineData("createdat", "asc")]
+    [InlineData("createdat", "desc")]
+    [InlineData("", "asc")]
+    public async Task Ordered(
+        string orderBy,
+        string order
+    )
+    {
+        var exampleGenres = _fixture.GetExampleListGenres(10);
+        await _fixture.Persistence.InsertList(exampleGenres);
+        var input = new ListGenresInput();
+        input.Page = 1;
+        input.PerPage = 10;
+        var orderEnum = order == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+        input.Dir = orderEnum;
+        input.Sort = orderBy;
+        
+        var (reponse, output) = await _fixture.ApiClient.Get<TestApiResponseList<GenreModelOutput>>("/genres", input);
+
+        reponse.Should().NotBeNull();
+        reponse!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status200OK);
+        output.Should().NotBeNull();
+        output!.Meta.Should().NotBeNull();
+        output.Data.Should().NotBeNull();
+        output!.Meta!.Total.Should().Be(10);
+        output!.Meta.CurrentPage.Should().Be(input.Page);
+        output!.Meta.PerPage.Should().Be(input.PerPage);
+        output.Data!.Count.Should().Be(10);
+        var expectedOrderList = _fixture.CloneGenresListOrdered(exampleGenres, orderBy, orderEnum);
+        for (int i = 0; i < expectedOrderList.Count; i++)
+        {
+            var outputItem = output.Data[i];
+            var exampleItem = exampleGenres.Find(x => x.Id == outputItem.Id);
+            exampleItem.Should().NotBeNull();
+            outputItem.Name.Should().Be(exampleItem!.Name);
+            outputItem.IsActive.Should().Be(exampleItem.IsActive);
+            outputItem.CreatedAt.TrimMillisseconds().Should().Be(exampleItem.CreatedAt.TrimMillisseconds());
+        };
     }
 
     public void Dispose() => _fixture.CleanPersistence();
