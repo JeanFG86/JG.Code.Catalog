@@ -1,6 +1,7 @@
 ﻿using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using FluentAssertions;
 using JG.Code.Catalog.Domain.Enum;
+using JG.Code.Catalog.Domain.Exceptions;
 
 namespace JG.Code.Catalog.UnitTests.Domain.Entity.CastMember;
 
@@ -19,8 +20,8 @@ public class CastMemberTest
     public void Instantiate()
     {
         var datetimeBefore = DateTime.Now;
-        var name = "Jorge Lucas";
-        var type = CastMemberType.Director;
+        var name = _fixture.GetValidName();
+        var type = _fixture.GetRandomCastMemberType();
         
         DomainEntity.CastMember castMember = new DomainEntity.CastMember(name, type);
         var datetimeAfter = DateTime.Now.AddSeconds(1);
@@ -31,5 +32,19 @@ public class CastMemberTest
         castMember.CreatedAt.Should().NotBeSameDateAs(default(DateTime));
         (castMember.CreatedAt >= datetimeBefore).Should().BeTrue();
         (castMember.CreatedAt <= datetimeAfter).Should().BeTrue();
+    }
+    
+    [Theory(DisplayName = nameof(ThrowErrorWhenNameIsInvalid))]
+    [Trait("Domain", "CastMember - Aggregates")]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(null)]
+    public void ThrowErrorWhenNameIsInvalid(string? name)
+    {
+        var type = _fixture.GetRandomCastMemberType();
+        
+        var action = () =>  new DomainEntity.CastMember(name!, type);
+
+        action.Should().Throw<EntityValidationException>().WithMessage($"Name should not be empty or null");
     }
 }

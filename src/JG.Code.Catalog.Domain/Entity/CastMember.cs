@@ -1,5 +1,6 @@
 ﻿using JG.Code.Catalog.Domain.Enum;
 using JG.Code.Catalog.Domain.SeedWork;
+using JG.Code.Catalog.Domain.Validation;
 
 namespace JG.Code.Catalog.Domain.Entity;
 
@@ -14,5 +15,11 @@ public class CastMember : AggregateRoot
         Name = name;
         Type = type;
         CreatedAt = DateTime.Now;
+        Validate();
+    }
+
+    private void Validate()
+    {
+        DomainValidation.NotNullOrEmpty(Name, nameof(Name));
     }
 }
