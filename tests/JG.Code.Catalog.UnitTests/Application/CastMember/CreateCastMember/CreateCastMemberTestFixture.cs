@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.UnitTests.Application.CastMember.Common;
+﻿using JG.Code.Catalog.Domain.Enum;
+using JG.Code.Catalog.UnitTests.Application.CastMember.Common;
 
 namespace JG.Code.Catalog.UnitTests.Application.CastMember.CreateCastMember;
 
@@ -9,5 +10,6 @@ public class CreateCastMemberTestFixtureCollection : ICollectionFixture<CreateCa
 
 public class CreateCastMemberTestFixture : CastMemberUseCasesBaseFixture
 {
-    
+    public string GetValidName() => Faker.Name.FullName();
+    public CastMemberType GetRandomCastMemberType() => (CastMemberType)(new Random()).Next(1,2);
 }
