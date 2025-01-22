@@ -21,6 +21,6 @@ public class CreateCastMember : ICreateCastMember
         var castMember = new Domain.Entity.CastMember(request.Name, request.Type);
         await _castMemberRepository.Insert(castMember, cancellationToken);
         await _unitOfWork.Commit(cancellationToken);
-        return new CastMemberModelOutput(castMember.Id, castMember.Name, castMember.Type, castMember.CreatedAt);
+        return CastMemberModelOutput.FromCastMember(castMember);
     }
 }
