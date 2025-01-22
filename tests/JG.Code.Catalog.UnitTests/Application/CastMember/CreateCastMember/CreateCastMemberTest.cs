@@ -4,6 +4,7 @@ using JG.Code.Catalog.Application.UseCases.CastMember.CreateCastMember;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using UsesCases = JG.Code.Catalog.Application.UseCases.CastMember.CreateCastMember;
 using JG.Code.Catalog.Domain.Enum;
+using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using Moq;
 
@@ -37,5 +38,22 @@ public class CreateCastMemberTest
         output.CreatedAt.Should().NotBeSameDateAs(default);
         repositoryMock.Verify(repository => repository.Insert(It.Is<DomainEntity.CastMember>(x => x.Name == input.Name), It.IsAny<CancellationToken>()), Times.Once);
         unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Once);
+    }
+    
+    [Theory(DisplayName = nameof(ThrowsWhenInvalidName))]
+    [Trait("Application", "CreateCastMember - Use Cases")]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(null)]
+    public async Task ThrowsWhenInvalidName(string? name)
+    {
+        var input = new CreateCastMemberInput(name, _fixture.GetRandomCastMemberType());
+        var repositoryMock = new Mock<ICastMemberRepository>();
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        var useCase = new UsesCases.CreateCastMember(repositoryMock.Object, unitOfWorkMock.Object);
+        
+        var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<EntityValidationException>().WithMessage("Name should not be empty or null");
     }
 }
