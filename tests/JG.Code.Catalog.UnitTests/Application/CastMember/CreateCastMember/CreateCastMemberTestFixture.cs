@@ -10,6 +10,5 @@ public class CreateCastMemberTestFixtureCollection : ICollectionFixture<CreateCa
 
 public class CreateCastMemberTestFixture : CastMemberUseCasesBaseFixture
 {
-    public string GetValidName() => Faker.Name.FullName();
-    public CastMemberType GetRandomCastMemberType() => (CastMemberType)(new Random()).Next(1,2);
+    
 }
