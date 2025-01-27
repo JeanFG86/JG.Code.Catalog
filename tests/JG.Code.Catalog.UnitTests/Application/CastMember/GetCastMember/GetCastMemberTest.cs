@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 using UseCase = JG.Code.Catalog.Application.UseCases.CastMember.GetCastMember;
 using JG.Code.Catalog.Application.UseCases.CastMember.Common;
 using JG.Code.Catalog.Domain.Repository;
@@ -34,5 +35,19 @@ public class GetCastMemberTest
         output.Type.Should().Be(castMemberExample.Type);
         output.Id.Should().Be(castMemberExample.Id);
         output.CreatedAt.Should().Be(castMemberExample.CreatedAt);
+    }
+    
+    [Fact(DisplayName = nameof(ThrowIfNotFound))]
+    [Trait("Application", "CreateCastMember - Use Cases")]
+    public async Task ThrowIfNotFound()
+    {
+        var repositoryMock = new Mock<ICastMemberRepository>();
+        repositoryMock.Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ThrowsAsync(new NotFoundException("notfound"));
+        var input = new UseCase.GetCastMemberInput(Guid.NewGuid());
+        var useCase = new UseCase.GetCastMember(repositoryMock.Object);
+        
+        var action = async () =>await useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>();
     }
 }
