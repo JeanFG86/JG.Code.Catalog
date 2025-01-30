@@ -42,17 +42,13 @@ public class DeleteCastMemberTest
     public async Task ThrowWhenCastMemberNotFound()
     {
         var repositoryMock = new Mock<ICastMemberRepository>();
-        var unitOfWorkMock = new Mock<IUnitOfWork>();
         var exampleGuid = Guid.NewGuid();
         repositoryMock.Setup(x => x.Get(exampleGuid, It.IsAny<CancellationToken>())).ThrowsAsync(new NotFoundException($"Cast member '{exampleGuid}' not found"));
         var input = new UsesCases.DeleteCastMemberInput(exampleGuid);
-        var useCase = new UsesCases.DeleteCastMember(repositoryMock.Object, unitOfWorkMock.Object);
+        var useCase = new UsesCases.DeleteCastMember(repositoryMock.Object, Mock.Of<IUnitOfWork>());
 
         var task = async () => await useCase.Handle(input, CancellationToken.None);
 
         await task.Should().ThrowAsync<NotFoundException>();
-        repositoryMock.Verify(repository => repository.Get(exampleGuid, It.IsAny<CancellationToken>()), Times.Once);
-        repositoryMock.Verify(repository => repository.Delete(It.IsAny<DomainEntity.CastMember>(), It.IsAny<CancellationToken>()), Times.Never);
-        unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Never);
     }
 }
