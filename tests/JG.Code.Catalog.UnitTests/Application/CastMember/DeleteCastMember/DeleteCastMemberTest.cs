@@ -29,8 +29,9 @@ public class DeleteCastMemberTest
         var input = new UsesCases.DeleteCastMemberInput(castMemberExample.Id);
         var useCase = new UsesCases.DeleteCastMember(repositoryMock.Object, unitOfWorkMock.Object);
 
-        await useCase.Handle(input, CancellationToken.None);
+        var action = async () => await useCase.Handle(input, CancellationToken.None);
 
+        await action.Should().NotThrowAsync();
         repositoryMock.Verify(repository => repository.Get(castMemberExample.Id, It.IsAny<CancellationToken>()), Times.Once);
         repositoryMock.Verify(repository => repository.Delete(castMemberExample, It.IsAny<CancellationToken>()), Times.Once);
         unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Once);
