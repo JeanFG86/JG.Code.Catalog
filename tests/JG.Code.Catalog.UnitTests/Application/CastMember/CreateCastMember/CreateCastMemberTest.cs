@@ -3,7 +3,6 @@ using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Application.UseCases.CastMember.CreateCastMember;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using UsesCases = JG.Code.Catalog.Application.UseCases.CastMember.CreateCastMember;
-using JG.Code.Catalog.Domain.Enum;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using Moq;
