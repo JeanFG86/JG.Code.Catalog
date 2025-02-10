@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Application.UseCases.CastMember.Common;
 using JG.Code.Catalog.Domain.Repository;
@@ -41,5 +42,24 @@ public class UpdateCastMemberTest
         output.Id.Should().NotBeEmpty();
         output.Name.Should().Be(input.Name);
         output.CreatedAt.Should().NotBeSameDateAs(default);
+    }
+    
+    [Fact(DisplayName = nameof(ThrowWhenCastMemberNotFound))]
+    [Trait("Application", "UpdateCastMember - Use Cases")]
+    public async Task ThrowWhenCastMemberNotFound()
+    {
+        var repositoryMock = new Mock<ICastMemberRepository>();
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        var input = _fixture.GetValidInput();
+        repositoryMock.Setup(x => x.Get(input.Id, It.IsAny<CancellationToken>())).ThrowsAsync(new NotFoundException($"castmember '{input.Id}' not found"));
+        var useCase = new UseCase.UpdateCastMember(repositoryMock.Object, unitOfWorkMock.Object);
+
+
+        var task = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await task.Should().ThrowAsync<NotFoundException>();
+        repositoryMock.Verify(repository => repository.Get(input.Id, It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(repository => repository.Update(It.IsAny<DomainEntity.CastMember>(), It.IsAny<CancellationToken>()), Times.Never);
+        unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Never);
     }
 }
