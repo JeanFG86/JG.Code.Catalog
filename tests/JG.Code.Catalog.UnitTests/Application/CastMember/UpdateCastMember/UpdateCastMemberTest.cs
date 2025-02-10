@@ -2,6 +2,7 @@
 using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Application.UseCases.CastMember.Common;
+using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using UseCase = JG.Code.Catalog.Application.UseCases.CastMember.UpdateCastMember;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
@@ -58,6 +59,25 @@ public class UpdateCastMemberTest
         var task = async () => await useCase.Handle(input, CancellationToken.None);
 
         await task.Should().ThrowAsync<NotFoundException>();
+        repositoryMock.Verify(repository => repository.Get(input.Id, It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(repository => repository.Update(It.IsAny<DomainEntity.CastMember>(), It.IsAny<CancellationToken>()), Times.Never);
+        unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Never);
+    }
+    
+    [Fact(DisplayName = nameof(ThrowWhenInvalidName))]
+    [Trait("Application", "UpdateCastMember - Use Cases")]
+    public async Task ThrowWhenInvalidName()
+    {
+        var repositoryMock = new Mock<ICastMemberRepository>();
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        var castMemberExample = _fixture.GetExampleCastMember();
+        repositoryMock.Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(castMemberExample);
+        var input = new UseCase.UpdateCastMemberInput(Guid.NewGuid(), null!, _fixture.GetRandomCastMemberType());
+        var useCase = new UseCase.UpdateCastMember(repositoryMock.Object, unitOfWorkMock.Object);
+        
+        var task = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await task.Should().ThrowAsync<EntityValidationException>().WithMessage("Name should not be empty or null");
         repositoryMock.Verify(repository => repository.Get(input.Id, It.IsAny<CancellationToken>()), Times.Once);
         repositoryMock.Verify(repository => repository.Update(It.IsAny<DomainEntity.CastMember>(), It.IsAny<CancellationToken>()), Times.Never);
         unitOfWorkMock.Verify(uow => uow.Commit(It.IsAny<CancellationToken>()), Times.Never);
