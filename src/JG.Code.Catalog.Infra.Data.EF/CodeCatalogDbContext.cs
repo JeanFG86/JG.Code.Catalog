@@ -7,6 +7,7 @@ namespace JG.Code.Catalog.Infra.Data.EF;
 public class CodeCatalogDbContext : DbContext
 {
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<CastMember> CastMembers => Set<CastMember>();
     public DbSet<Genre> Genres => Set<Genre>();
     public DbSet<GenresCategories> GenresCategories => Set<GenresCategories>();
     public CodeCatalogDbContext(DbContextOptions<CodeCatalogDbContext> options) : base(options)
@@ -16,6 +17,7 @@ public class CodeCatalogDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new CastMemberConfiguration());
         modelBuilder.ApplyConfiguration(new GenreConfiguration());
         modelBuilder.ApplyConfiguration(new GenresCategoriesConfiguration());
     }
