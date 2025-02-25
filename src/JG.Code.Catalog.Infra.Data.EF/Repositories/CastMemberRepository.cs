@@ -23,9 +23,9 @@ public class CastMemberRepository : ICastMemberRepository
 
     public async Task<CastMember> Get(Guid id, CancellationToken cancellationToken)
     {
-        var category = await _castMembers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
-        NotFoundException.ThrowIfNull(category, $"CastMember '{id}' not found.");        
-        return category!;
+        var castMember = await _castMembers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        NotFoundException.ThrowIfNull(castMember, $"CastMember '{id}' not found.");        
+        return castMember!;
     }
 
     public Task Delete(CastMember aggregate, CancellationToken cancellationToken)
