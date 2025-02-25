@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Infra.Data.EF;
 using Repository = JG.Code.Catalog.Infra.Data.EF.Repositories;
 
@@ -26,11 +27,11 @@ public class CastMemberRepositoryTest
         await castMemberRepository.Insert(exampleCastMember, CancellationToken.None);
         await dbContext.SaveChangesAsync();
 
-        var dbCategory = await (_fixture.CreateDbContext(true)).CastMembers.FindAsync(exampleCastMember.Id);
-        dbCategory.Should().NotBeNull();
-        dbCategory!.Name.Should().Be(exampleCastMember.Name);
-        dbCategory.Type.Should().Be(exampleCastMember.Type);
-        dbCategory.CreatedAt.Should().Be(exampleCastMember.CreatedAt);
+        var dbCastMember = await (_fixture.CreateDbContext(true)).CastMembers.FindAsync(exampleCastMember.Id);
+        dbCastMember.Should().NotBeNull();
+        dbCastMember!.Name.Should().Be(exampleCastMember.Name);
+        dbCastMember.Type.Should().Be(exampleCastMember.Type);
+        dbCastMember.CreatedAt.Should().Be(exampleCastMember.CreatedAt);
     }
     
     [Fact(DisplayName = nameof(Get))]
@@ -45,12 +46,27 @@ public class CastMemberRepositoryTest
         await dbContext.SaveChangesAsync(CancellationToken.None);
         var categoryRepository = new Repository.CastMemberRepository(_fixture.CreateDbContext(true));        
 
-        var dbCategory = await categoryRepository.Get(exampleCastMember.Id, CancellationToken.None);
+        var dbCastMember = await categoryRepository.Get(exampleCastMember.Id, CancellationToken.None);
 
-        dbCategory.Should().NotBeNull();
-        dbCategory!.Id.Should().Be(exampleCastMember.Id);
-        dbCategory!.Name.Should().Be(exampleCastMember.Name);
-        dbCategory.Type.Should().Be(exampleCastMember.Type);
-        dbCategory.CreatedAt.Should().Be(exampleCastMember.CreatedAt);
+        dbCastMember.Should().NotBeNull();
+        dbCastMember!.Id.Should().Be(exampleCastMember.Id);
+        dbCastMember!.Name.Should().Be(exampleCastMember.Name);
+        dbCastMember.Type.Should().Be(exampleCastMember.Type);
+        dbCastMember.CreatedAt.Should().Be(exampleCastMember.CreatedAt);
+    }
+    
+    [Fact(DisplayName = nameof(GetThrowIfNotFound))]
+    [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+    public async Task GetThrowIfNotFound()
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleId = Guid.NewGuid();
+        await dbContext.AddRangeAsync(_fixture.GetExampleCastMembersList(15));
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var castMemberRepository = new Repository.CastMemberRepository(dbContext);
+
+        var task = async () => await castMemberRepository.Get(exampleId, CancellationToken.None);
+
+        await task.Should().ThrowAsync<NotFoundException>().WithMessage($"CastMember '{exampleId}' not found.");
     }
 }

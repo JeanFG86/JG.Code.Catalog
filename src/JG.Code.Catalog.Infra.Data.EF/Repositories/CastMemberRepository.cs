@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Domain.Entity;
+﻿using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Domain.Entity;
 using JG.Code.Catalog.Domain.Repository;
 using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,9 @@ public class CastMemberRepository : ICastMemberRepository
 
     public async Task<CastMember> Get(Guid id, CancellationToken cancellationToken)
     {
-        return await _castMembers.FindAsync(id, cancellationToken);
+        var category = await _castMembers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        NotFoundException.ThrowIfNull(category, $"CastMember '{id}' not found.");        
+        return category!;
     }
 
     public Task Delete(CastMember aggregate, CancellationToken cancellationToken)
