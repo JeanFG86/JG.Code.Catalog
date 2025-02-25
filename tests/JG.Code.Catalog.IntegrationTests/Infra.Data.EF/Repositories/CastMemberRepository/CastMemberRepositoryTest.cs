@@ -32,4 +32,25 @@ public class CastMemberRepositoryTest
         dbCategory.Type.Should().Be(exampleCastMember.Type);
         dbCategory.CreatedAt.Should().Be(exampleCastMember.CreatedAt);
     }
+    
+    [Fact(DisplayName = nameof(Get))]
+    [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+    public async Task Get()
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleCastMember = _fixture.GetExampleCastMember();
+        var exampleCastMembersList = _fixture.GetExampleCastMembersList(15);
+        exampleCastMembersList.Add(exampleCastMember);
+        await dbContext.AddRangeAsync(exampleCastMembersList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var categoryRepository = new Repository.CastMemberRepository(_fixture.CreateDbContext(true));        
+
+        var dbCategory = await categoryRepository.Get(exampleCastMember.Id, CancellationToken.None);
+
+        dbCategory.Should().NotBeNull();
+        dbCategory!.Id.Should().Be(exampleCastMember.Id);
+        dbCategory!.Name.Should().Be(exampleCastMember.Name);
+        dbCategory.Type.Should().Be(exampleCastMember.Type);
+        dbCategory.CreatedAt.Should().Be(exampleCastMember.CreatedAt);
+    }
 }

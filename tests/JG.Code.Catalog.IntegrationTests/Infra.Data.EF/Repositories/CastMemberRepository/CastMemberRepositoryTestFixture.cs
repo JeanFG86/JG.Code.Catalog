@@ -17,4 +17,7 @@ public class CastMemberRepositoryTestFixture : BaseFixture
 
     public CastMember GetExampleCastMember()
         => new(GetValidName(), GetRandomCastMemberType());
+    
+    public List<CastMember> GetExampleCastMembersList(int length = 10)
+        => Enumerable.Range(1, length).Select(_ => GetExampleCastMember()).ToList();
 }

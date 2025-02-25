@@ -20,9 +20,9 @@ public class CastMemberRepository : ICastMemberRepository
         await _castMembers.AddAsync(aggregate, cancellationToken);
     }
 
-    public Task<CastMember> Get(Guid id, CancellationToken cancellationToken)
+    public async Task<CastMember> Get(Guid id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return await _castMembers.FindAsync(id, cancellationToken);
     }
 
     public Task Delete(CastMember aggregate, CancellationToken cancellationToken)
