@@ -80,12 +80,37 @@ public class CastMemberRepositoryTest
         exampleCastMembersList.Add(exampleCastMember);
         await dbContext.AddRangeAsync(exampleCastMembersList);
         await dbContext.SaveChangesAsync(CancellationToken.None);
-        var categoryRepository = new Repository.CastMemberRepository(dbContext);
+        var castMemberRepository = new Repository.CastMemberRepository(dbContext);
         
-        await categoryRepository.Delete(exampleCastMember, CancellationToken.None);
+        await castMemberRepository.Delete(exampleCastMember, CancellationToken.None);
         await dbContext.SaveChangesAsync();
 
-        var dbCategory = await (_fixture.CreateDbContext(true)).Categories.FindAsync(exampleCastMember.Id);
-        dbCategory.Should().BeNull();      
+        var dbCastMember = await (_fixture.CreateDbContext(true)).CastMembers.FindAsync(exampleCastMember.Id);
+        dbCastMember.Should().BeNull();      
+    }
+    
+    [Fact(DisplayName = nameof(Update))]
+    [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+    public async Task Update()
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleCastMember = _fixture.GetExampleCastMember();
+        var newCastMemberValues = _fixture.GetExampleCastMember();
+        var exampleCastMembersList = _fixture.GetExampleCastMembersList(15);
+        exampleCastMembersList.Add(exampleCastMember);
+        await dbContext.AddRangeAsync(exampleCastMembersList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var castMemberRepository = new Repository.CastMemberRepository(dbContext);
+
+        exampleCastMember.Update(newCastMemberValues.Name, newCastMemberValues.Type);
+        await castMemberRepository.Update(exampleCastMember, CancellationToken.None);
+        await dbContext.SaveChangesAsync();
+
+        var dbCastMember = await (_fixture.CreateDbContext(true)).CastMembers.FindAsync(exampleCastMember.Id);
+        dbCastMember.Should().NotBeNull();
+        dbCastMember!.Id.Should().Be(exampleCastMember.Id);
+        dbCastMember!.Name.Should().Be(exampleCastMember.Name);
+        dbCastMember.Type.Should().Be(exampleCastMember.Type);
+        dbCastMember.CreatedAt.Should().Be(exampleCastMember.CreatedAt);
     }
 }

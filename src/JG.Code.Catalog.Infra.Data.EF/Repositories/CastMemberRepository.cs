@@ -36,7 +36,8 @@ public class CastMemberRepository : ICastMemberRepository
 
     public Task Update(CastMember aggregate, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _castMembers.Update(aggregate);
+        return Task.CompletedTask;
     }
 
     public Task<SearchOutput<CastMember>> Search(SearchInput input, CancellationToken cancellationToken)
