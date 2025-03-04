@@ -69,4 +69,23 @@ public class CastMemberRepositoryTest
 
         await task.Should().ThrowAsync<NotFoundException>().WithMessage($"CastMember '{exampleId}' not found.");
     }
+    
+    [Fact(DisplayName = nameof(Delete))]
+    [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+    public async Task Delete()
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleCastMember = _fixture.GetExampleCastMember();
+        var exampleCastMembersList = _fixture.GetExampleCastMembersList(15);
+        exampleCastMembersList.Add(exampleCastMember);
+        await dbContext.AddRangeAsync(exampleCastMembersList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var categoryRepository = new Repository.CastMemberRepository(dbContext);
+        
+        await categoryRepository.Delete(exampleCastMember, CancellationToken.None);
+        await dbContext.SaveChangesAsync();
+
+        var dbCategory = await (_fixture.CreateDbContext(true)).Categories.FindAsync(exampleCastMember.Id);
+        dbCategory.Should().BeNull();      
+    }
 }

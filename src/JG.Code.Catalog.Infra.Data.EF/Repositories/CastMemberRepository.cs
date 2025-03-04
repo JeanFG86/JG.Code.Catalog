@@ -30,7 +30,8 @@ public class CastMemberRepository : ICastMemberRepository
 
     public Task Delete(CastMember aggregate, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _castMembers.Remove(aggregate);
+        return Task.CompletedTask;
     }
 
     public Task Update(CastMember aggregate, CancellationToken cancellationToken)
