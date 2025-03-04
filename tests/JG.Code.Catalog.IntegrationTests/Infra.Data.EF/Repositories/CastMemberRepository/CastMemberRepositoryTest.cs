@@ -1,5 +1,7 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Domain.Entity;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using JG.Code.Catalog.Infra.Data.EF;
 using Repository = JG.Code.Catalog.Infra.Data.EF.Repositories;
 
@@ -112,5 +114,34 @@ public class CastMemberRepositoryTest
         dbCastMember!.Name.Should().Be(exampleCastMember.Name);
         dbCastMember.Type.Should().Be(exampleCastMember.Type);
         dbCastMember.CreatedAt.Should().Be(exampleCastMember.CreatedAt);
+    }
+    
+    [Fact(DisplayName = nameof(SearchReturnsListAndTotal))]
+    [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+    public async Task SearchReturnsListAndTotal()
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleCastMembersList = _fixture.GetExampleCastMembersList(15);
+        await dbContext.AddRangeAsync(exampleCastMembersList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var castMemberRepository = new Repository.CastMemberRepository(dbContext);
+        var searchInput = new SearchInput(1, 20, "", "", SearchOrder.Asc);
+
+        var output = await castMemberRepository.Search(searchInput, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Items.Should().NotBeNull();
+        output.CurrentPage.Should().Be(searchInput.Page);
+        output.PerPage.Should().Be(searchInput.PerPage);
+        output.Total.Should().Be(exampleCastMembersList.Count);
+        output.Items.Should().HaveCount(exampleCastMembersList.Count);
+        foreach (CastMember outputIem in output.Items)
+        {
+            var exampleItem = exampleCastMembersList.Find(CastMember => CastMember.Id == outputIem.Id);
+            exampleItem.Should().NotBeNull();
+            outputIem!.Name.Should().Be(exampleItem!.Name);
+            outputIem.Type.Should().Be(exampleItem.Type);
+            outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+        }        
     }
 }
