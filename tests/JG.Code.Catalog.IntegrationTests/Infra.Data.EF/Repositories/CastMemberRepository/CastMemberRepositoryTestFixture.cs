@@ -20,4 +20,12 @@ public class CastMemberRepositoryTestFixture : BaseFixture
     
     public List<CastMember> GetExampleCastMembersList(int length = 10)
         => Enumerable.Range(1, length).Select(_ => GetExampleCastMember()).ToList();
+    
+    public List<CastMember> GetExampleCastMembersListWithNames(List<string> names) 
+        => names.Select(name => 
+        { 
+            var castMember = GetExampleCastMember();
+            castMember.Update(name, castMember.Type);
+            return castMember;
+        }).ToList();
 }

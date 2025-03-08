@@ -201,4 +201,57 @@ public class CastMemberRepositoryTest
             outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
         }
     }
+    
+     [Theory(DisplayName = nameof(SearchByText))]
+    [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+    [InlineData("Action", 1, 5, 1, 1)]
+    [InlineData("Horror", 1, 5, 3, 3)]
+    [InlineData("Horror", 2, 5, 0, 3)]
+    [InlineData("Sci-fi", 1, 5, 4, 4)]
+    [InlineData("Sci-fi", 1, 2, 2, 4)]
+    [InlineData("Sci-fi", 2, 3, 1, 4)]
+    [InlineData("Robots", 1, 5, 2, 2)]
+    [InlineData("Comedy", 2, 3, 0, 0)]
+    public async Task SearchByText(
+        string search,
+        int page,
+        int perPage,
+        int expectedQuantityItemsReturned,
+        int expectedQuantityTotalItems
+    )
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleCastMembersList = _fixture.GetExampleCastMembersListWithNames([
+            "Action",
+            "Horror",
+            "Horror - Robots",
+            "Horror - Based onReal Facts",
+            "Drama",
+            "Sci-fi IA",
+            "Sci-fi Space",
+            "Sci-fi Robots",
+            "Sci-fi Future"
+        ]);
+        await dbContext.AddRangeAsync(exampleCastMembersList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var castMemberRepository = new Repository.CastMemberRepository(dbContext);
+        var searchInput = new SearchInput(page, perPage, search, "", SearchOrder.Asc);
+
+        var output = await castMemberRepository.Search(searchInput, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Items.Should().NotBeNull();
+        output.CurrentPage.Should().Be(searchInput.Page);
+        output.PerPage.Should().Be(searchInput.PerPage);
+        output.Total.Should().Be(expectedQuantityTotalItems);
+        output.Items.Should().HaveCount(expectedQuantityItemsReturned);
+        foreach (CastMember outputIem in output.Items)
+        {
+            var exampleItem = exampleCastMembersList.Find(category => category.Id == outputIem.Id);
+            exampleItem.Should().NotBeNull();
+            outputIem!.Name.Should().Be(exampleItem!.Name);
+            outputIem.Type.Should().Be(exampleItem.Type);
+            outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+        }
+    }
 }
