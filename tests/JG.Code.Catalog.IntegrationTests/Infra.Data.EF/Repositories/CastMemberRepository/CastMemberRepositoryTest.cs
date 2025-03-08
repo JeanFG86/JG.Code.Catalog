@@ -144,4 +144,23 @@ public class CastMemberRepositoryTest
             outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
         }        
     }
+    
+    [Fact(DisplayName = nameof(SearchReturnsEmptyWhenPersistenceIsEmpry))]
+    [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+    public async Task SearchReturnsEmptyWhenPersistenceIsEmpry()
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var castMemberRepository = new Repository.CastMemberRepository(dbContext);
+        var searchInput = new SearchInput(1, 20, "", "", SearchOrder.Asc);
+
+        var output = await castMemberRepository.Search(searchInput, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Items.Should().NotBeNull();
+        output.CurrentPage.Should().Be(searchInput.Page);
+        output.PerPage.Should().Be(searchInput.PerPage);
+        output.Total.Should().Be(0);
+        output.Items.Should().HaveCount(0);        
+    }
 }
