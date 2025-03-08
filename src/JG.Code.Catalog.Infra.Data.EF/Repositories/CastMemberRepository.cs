@@ -42,7 +42,33 @@ public class CastMemberRepository : ICastMemberRepository
 
     public async Task<SearchOutput<CastMember>> Search(SearchInput input, CancellationToken cancellationToken)
     {
-        var items = await _castMembers.AsNoTracking().ToListAsync();
-        return new SearchOutput<CastMember>(input.Page, input.PerPage, items.Count, items.AsReadOnly());
+        var toSkip = (input.Page - 1) * input.PerPage;
+        var query = _castMembers.AsNoTracking();
+        query = AddOrderToQuery(query, input.OrderBy, input.Order);
+        if (!String.IsNullOrWhiteSpace(input.Search))
+            query = query.Where(x => x.Name.Contains(input.Search));
+
+        var total = await query.CountAsync(cancellationToken: cancellationToken);
+        var items = await query
+            .Skip(toSkip)
+            .Take(input.PerPage)
+            .ToListAsync(cancellationToken: cancellationToken);
+        return new SearchOutput<CastMember>(input.Page, input.PerPage, total, items);
+    }
+    
+    private IQueryable<CastMember> AddOrderToQuery(IQueryable<CastMember> query, string orderProperty, SearchOrder order)
+    {
+        var orderedQuery = (orderProperty.ToLower(), order) switch
+        {
+            ("name", SearchOrder.Asc) => query.OrderBy(x => x.Name).ThenBy(x => x.Id),
+            ("name", SearchOrder.Desc) => query.OrderByDescending(x => x.Name).ThenByDescending(x => x.Id),
+            ("id", SearchOrder.Asc) => query.OrderBy(x => x.Id),
+            ("id", SearchOrder.Desc) => query.OrderByDescending(x => x.Id),
+            ("createdat", SearchOrder.Asc) => query.OrderBy(x => x.CreatedAt),
+            ("createdat", SearchOrder.Desc) => query.OrderByDescending(x => x.CreatedAt),
+            _ => query.OrderBy(x => x.Name).ThenBy(x => x.Id)
+        };
+
+        return orderedQuery;
     }
 }

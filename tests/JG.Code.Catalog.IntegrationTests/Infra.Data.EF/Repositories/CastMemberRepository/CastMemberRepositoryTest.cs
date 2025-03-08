@@ -163,4 +163,42 @@ public class CastMemberRepositoryTest
         output.Total.Should().Be(0);
         output.Items.Should().HaveCount(0);        
     }
+    
+    [Theory(DisplayName = nameof(SearchReturnsPaginated))]
+    [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+    [InlineData(10, 1, 5, 5)]
+    [InlineData(10, 2, 5, 5)]
+    [InlineData(7, 2, 5, 2)]
+    [InlineData(7, 3, 5, 0)]
+    public async Task SearchReturnsPaginated(
+        int quantityCastMembersToGenerate,
+        int page,
+        int perPage,
+        int expectedQuantityItems
+    )
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleCastMembesList = _fixture.GetExampleCastMembersList(quantityCastMembersToGenerate);
+        await dbContext.AddRangeAsync(exampleCastMembesList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var castMemberRepository = new Repository.CastMemberRepository(dbContext);
+        var searchInput = new SearchInput(page, perPage, "", "", SearchOrder.Asc);
+
+        var output = await castMemberRepository.Search(searchInput, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Items.Should().NotBeNull();
+        output.CurrentPage.Should().Be(searchInput.Page);
+        output.PerPage.Should().Be(searchInput.PerPage);
+        output.Total.Should().Be(quantityCastMembersToGenerate);
+        output.Items.Should().HaveCount(expectedQuantityItems);
+        foreach (CastMember outputIem in output.Items)
+        {
+            var exampleItem = exampleCastMembesList.Find(castMember => castMember.Id == outputIem.Id);
+            exampleItem.Should().NotBeNull();
+            outputIem!.Name.Should().Be(exampleItem!.Name);
+            outputIem.Type.Should().Be(exampleItem.Type);
+            outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+        }
+    }
 }
