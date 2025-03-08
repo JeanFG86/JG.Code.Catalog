@@ -254,4 +254,47 @@ public class CastMemberRepositoryTest
             outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
         }
     }
+    
+     [Theory(DisplayName = nameof(SearchOrdered))]
+    [Trait("Integration/Infra.Data", "CastMemberRepository - Repositories")]
+    [InlineData("name", "asc")]
+    [InlineData("name", "desc")]
+    [InlineData("id", "asc")]
+    [InlineData("id", "desc")]
+    [InlineData("createdat", "asc")]
+    [InlineData("createdat", "desc")]
+    public async Task SearchOrdered(
+        string orderBy,
+        string order
+    )
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleCastMemberList = _fixture.GetExampleCastMembersList(10);
+        await dbContext.AddRangeAsync(exampleCastMemberList);
+        await dbContext.SaveChangesAsync();
+        var castMemberRepository = new Repository.CastMemberRepository(dbContext);
+        var searchOrder = order == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+        var searchInput = new SearchInput(1, 20, "", orderBy, searchOrder);
+
+        var output = await castMemberRepository.Search(searchInput, CancellationToken.None);
+        var expectedOrderList = _fixture.CloneCastMembersListOrdered(exampleCastMemberList, orderBy, searchOrder);
+
+        output.Should().NotBeNull();
+        output.Items.Should().NotBeNull();
+        output.CurrentPage.Should().Be(searchInput.Page);
+        output.PerPage.Should().Be(searchInput.PerPage);
+        output.Total.Should().Be(exampleCastMemberList.Count);
+        output.Items.Should().HaveCount(exampleCastMemberList.Count);
+        for (int i = 0; i < expectedOrderList.Count; i++)
+        {
+            var expectedItem = expectedOrderList[i];
+            var outputItem = output.Items[i];
+            expectedItem.Should().NotBeNull();
+            outputItem.Should().NotBeNull();
+            outputItem!.Name.Should().Be(expectedItem!.Name);
+            outputItem!.Id.Should().Be(expectedItem!.Id);
+            outputItem!.CreatedAt.Should().Be(expectedItem!.CreatedAt);
+            outputItem.Type.Should().Be(expectedItem.Type);
+        }
+    }
 }
