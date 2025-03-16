@@ -10,4 +10,7 @@ public class CastMemberUseCasesBaseFixture : BaseFixture
 
     public Domain.Entity.CastMember GetExampleCastMember()
         => new(GetValidName(), GetRandomCastMemberType());
+    
+    public List<Domain.Entity.CastMember> GetExampleCastMembersList(int length = 10)
+        => Enumerable.Range(1, length).Select(_ => GetExampleCastMember()).ToList();
 }
