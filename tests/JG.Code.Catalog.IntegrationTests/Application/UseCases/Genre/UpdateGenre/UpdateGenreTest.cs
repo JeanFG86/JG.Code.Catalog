@@ -198,7 +198,6 @@ public class UpdateGenreTest
     {
         List<DomainEntity.Genre> exampleGenres = _fixture.GetExampleListGenres();
         CodeCatalogDbContext arrangeDbContext = _fixture.CreateDbContext();
-        DomainEntity.Genre targetGenre = exampleGenres[5];
         await arrangeDbContext.AddRangeAsync(exampleGenres);
         await arrangeDbContext.SaveChangesAsync();
         CodeCatalogDbContext actDbContext = _fixture.CreateDbContext(true);

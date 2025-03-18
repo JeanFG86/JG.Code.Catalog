@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.UseCases.CastMember.Common;
 using JG.Code.Catalog.Application.UseCases.Genre.Common;
+using JG.Code.Catalog.Domain.Enum;
 using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.Infra.Data.EF.Repositories;
 
@@ -43,5 +45,23 @@ public class UpdateCastMemberTest
         genreFromDb.Should().NotBeNull();
         genreFromDb!.Id.Should().Be(targetCastMember.Id);
         genreFromDb.Name.Should().Be(input.Name);
+    }
+    
+    [Fact(DisplayName = nameof(UpdateCastMemberThrowsWhenNotFound))]
+    [Trait("Intregation/Application", "UpdateCastMember - Use Cases")]
+    public async Task UpdateCastMemberThrowsWhenNotFound()
+    {
+        List<DomainEntity.CastMember> exampleCastMembers = _fixture.GetExampleCastMembersList();
+        CodeCatalogDbContext arrangeDbContext = _fixture.CreateDbContext();
+        await arrangeDbContext.AddRangeAsync(exampleCastMembers);
+        await arrangeDbContext.SaveChangesAsync();
+        CodeCatalogDbContext actDbContext = _fixture.CreateDbContext(true);
+        UseCase.UpdateCastMember updateGenre = new UseCase.UpdateCastMember(new CastMemberRepository(actDbContext), new UnitOfWork(actDbContext));
+        Guid randomGuid = Guid.NewGuid();
+        UseCase.UpdateCastMemberInput input = new UseCase.UpdateCastMemberInput(randomGuid, _fixture.GetValidName(), CastMemberType.Actor);
+
+        Func<Task<CastMemberModelOutput>> action = async () => await updateGenre.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>().WithMessage($"CastMember '{randomGuid}' not found.");
     }
 }
