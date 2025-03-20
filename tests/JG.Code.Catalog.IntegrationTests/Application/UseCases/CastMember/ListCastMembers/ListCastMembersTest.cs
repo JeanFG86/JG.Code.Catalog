@@ -59,4 +59,43 @@ public class ListCastMembersTest
         output.Total.Should().Be(0);
         output.Items.Should().HaveCount(0);
     }
+    
+    [Theory(DisplayName = nameof(SearchReturnsPaginated))]
+    [Trait("Integration/Application", "ListCastMembers - Use Cases")]
+    [InlineData(10, 1, 5, 5)]
+    [InlineData(10, 2, 5, 5)]
+    [InlineData(7, 2, 5, 2)]
+    [InlineData(7, 3, 5, 0)]
+    public async Task SearchReturnsPaginated(
+        int quantityCastMembersToGenerate,
+        int page,
+        int perPage,
+        int expectedQuantityItems
+    )
+    {
+        var dbContext = _fixture.CreateDbContext();
+        var exampleCastMembersListList = _fixture.GetExampleCastMembersList(quantityCastMembersToGenerate);
+        await dbContext.AddRangeAsync(exampleCastMembersListList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var castMemberRepository = new CastMemberRepository(dbContext);
+        var input = new UseCase.ListCastMembersInput(page, perPage);
+        var useCase = new UseCase.ListCastMembers(castMemberRepository);
+
+        var output = await useCase.Handle(input, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Items.Should().NotBeNull();
+        output.Page.Should().Be(input.Page);
+        output.PerPage.Should().Be(input.PerPage);
+        output.Total.Should().Be(exampleCastMembersListList.Count);
+        output.Items.Should().HaveCount(expectedQuantityItems);
+        foreach (var outputIem in output.Items)
+        {
+            var exampleItem = exampleCastMembersListList.Find(c => c.Id == outputIem.Id);
+            exampleItem.Should().NotBeNull();
+            outputIem!.Name.Should().Be(exampleItem!.Name);
+            outputIem.Type.Should().Be(exampleItem.Type);
+            outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+        }
+    }
 }
