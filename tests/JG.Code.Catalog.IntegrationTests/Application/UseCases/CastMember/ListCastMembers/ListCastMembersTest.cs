@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.Infra.Data.EF.Repositories;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
@@ -149,6 +150,50 @@ public class ListCastMembersTest
         {
             var exampleItem = exampleCastMembersList.Find(c => c.Id == outputIem.Id);
             exampleItem.Should().NotBeNull();
+            outputIem!.Name.Should().Be(exampleItem!.Name);
+            outputIem.Type.Should().Be(exampleItem.Type);
+            outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+        }
+    }
+    
+    [Theory(DisplayName = nameof(SearchOrdered))]
+    [Trait("Integration/Application", "ListCastMembers - Use Cases")]
+    [InlineData("name", "asc")]
+    [InlineData("name", "desc")]
+    [InlineData("id", "asc")]
+    [InlineData("id", "desc")]
+    [InlineData("createdat", "asc")]
+    [InlineData("createdat", "desc")]
+    [InlineData("", "asc")]
+    public async Task SearchOrdered(
+        string orderBy,
+        string order
+    )
+    {
+        var dbContext = _fixture.CreateDbContext();
+        var exampleCastMembersList = _fixture.GetExampleCastMembersList(15);
+        await dbContext.AddRangeAsync(exampleCastMembersList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var castMemberRepository = new CastMemberRepository(dbContext);
+        var searchOrder = order.ToLower() == "asc" ? SearchOrder.Asc : SearchOrder.Desc;
+        var input = new UseCase.ListCastMembersInput(1, 20, "", orderBy, searchOrder);
+        var useCase = new UseCase.ListCastMembers(castMemberRepository);
+
+        var output = await useCase.Handle(input, CancellationToken.None);
+
+        var expectedOrderedList = _fixture.CloneCastMembersListOrdered(exampleCastMembersList, input.Sort, input.Dir);
+        output.Should().NotBeNull();
+        output.Items.Should().NotBeNull();
+        output.Page.Should().Be(input.Page);
+        output.PerPage.Should().Be(input.PerPage);
+        output.Total.Should().Be(exampleCastMembersList.Count);
+        output.Items.Should().HaveCount(exampleCastMembersList.Count);
+        for (var indice = 0; indice < expectedOrderedList.Count; indice++)
+        {
+            var outputIem = output.Items[indice];
+            var exampleItem = expectedOrderedList[indice];
+            exampleItem.Should().NotBeNull();
+            outputIem.Id.Should().Be(exampleItem!.Id);
             outputIem!.Name.Should().Be(exampleItem!.Name);
             outputIem.Type.Should().Be(exampleItem.Type);
             outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
