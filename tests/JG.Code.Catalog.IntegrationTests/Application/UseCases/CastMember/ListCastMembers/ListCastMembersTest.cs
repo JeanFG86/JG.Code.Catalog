@@ -1,10 +1,11 @@
 ﻿using FluentAssertions;
-using JG.Code.Catalog.Application.UseCases.Genre.ListGenres;
+using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.Infra.Data.EF.Repositories;
-
-namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.CastMember.ListCastMembers;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using UseCase = JG.Code.Catalog.Application.UseCases.CastMember.ListCastMembers;
+
+namespace JG.Code.Catalog.IntegrationTests.Application.UseCases.CastMember.ListCastMembers;
+
 
 
 [Collection(nameof(ListCastMembersTestFixture))]
@@ -92,6 +93,61 @@ public class ListCastMembersTest
         foreach (var outputIem in output.Items)
         {
             var exampleItem = exampleCastMembersListList.Find(c => c.Id == outputIem.Id);
+            exampleItem.Should().NotBeNull();
+            outputIem!.Name.Should().Be(exampleItem!.Name);
+            outputIem.Type.Should().Be(exampleItem.Type);
+            outputIem.CreatedAt.Should().Be(exampleItem.CreatedAt);
+        }
+    }
+    
+     [Theory(DisplayName = nameof(SearchByText))]
+    [Trait("Integration/Application", "ListCastMembers - Use Cases")]
+    [InlineData("Action", 1, 5, 1, 1)]
+    [InlineData("Horror", 1, 5, 3, 3)]
+    [InlineData("Horror", 2, 5, 0, 3)]
+    [InlineData("Sci-fi", 1, 5, 4, 4)]
+    [InlineData("Sci-fi", 1, 2, 2, 4)]
+    [InlineData("Sci-fi", 2, 3, 1, 4)]
+    [InlineData("Robots", 1, 5, 2, 2)]
+    [InlineData("Comedy", 2, 3, 0, 0)]
+    public async Task SearchByText(
+        string search,
+        int page,
+        int perPage,
+        int expectedQuantityItemsReturned,
+        int expectedQuantityTotalItems
+    )
+    {
+        var castMembersNamesList = new List<string>{
+            "Action",
+            "Horror",
+            "Horror - Robots",
+            "Horror - Based onReal Facts",
+            "Drama",
+            "Sci-fi IA",
+            "Sci-fi Space",
+            "Sci-fi Robots",
+            "Sci-fi Future",
+        };
+        var dbContext = _fixture.CreateDbContext();
+        var exampleCastMembersList = _fixture.GetExampleCastMembersListWithNames(castMembersNamesList);
+        await dbContext.AddRangeAsync(exampleCastMembersList);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+        var castMemberRepository = new CastMemberRepository(dbContext);
+        var input = new UseCase.ListCastMembersInput(page, perPage, search);
+        var useCase = new UseCase.ListCastMembers(castMemberRepository);
+
+        var output = await useCase.Handle(input, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Items.Should().NotBeNull();
+        output.Page.Should().Be(input.Page);
+        output.PerPage.Should().Be(input.PerPage);
+        output.Total.Should().Be(expectedQuantityTotalItems);
+        output.Items.Should().HaveCount(expectedQuantityItemsReturned);
+        foreach (var outputIem in output.Items)
+        {
+            var exampleItem = exampleCastMembersList.Find(c => c.Id == outputIem.Id);
             exampleItem.Should().NotBeNull();
             outputIem!.Name.Should().Be(exampleItem!.Name);
             outputIem.Type.Should().Be(exampleItem.Type);
