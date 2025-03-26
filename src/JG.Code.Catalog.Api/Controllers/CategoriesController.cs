@@ -11,6 +11,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JG.Code.Catalog.Api.Controllers;
+
 [ApiController]
 [Route("[controller]")]
 public class CategoriesController : ControllerBase

@@ -5,6 +5,13 @@ namespace JG.Code.Catalog.EndToEndTests.Api.CastMember.Common;
 
 public class CastMemberBaseFixture : BaseFixture
 {
+    public CastMemberPersistence Persistence;
+
+    public CastMemberBaseFixture() : base()
+    {
+        Persistence = new CastMemberPersistence(CreateDbContext());
+    }
+    
     public string GetValidName() => Faker.Name.FullName();
     public CastMemberType GetRandomCastMemberType() => (CastMemberType)(new Random()).Next(1,2);
 
