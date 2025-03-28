@@ -31,6 +31,25 @@ public class DeleteCastMemberApiTest : IDisposable
         var pessistenceCategory = await _fixture.Persistence.GetById(exampleCastMember.Id);
         pessistenceCategory.Should().BeNull();
     }
+    
+    [Fact(DisplayName = nameof(ErrorWhenNotFound))]
+    [Trait("EndToEnd/API", "CastMember/Delete - Endpoints")]
+    public async Task ErrorWhenNotFound()
+    {
+        var exampleCastMembersList = _fixture.GetExampleCastMembersList(20);
+        await _fixture.Persistence.InsertList(exampleCastMembersList);
+        var exampleRandonGuid = Guid.NewGuid();
+
+        var (response, output) = await _fixture.ApiClient.Delete<ProblemDetails>($"/castmembers/{exampleRandonGuid}");
+
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status404NotFound);
+        output.Should().NotBeNull();
+        output!.Status.Should().Be(StatusCodes.Status404NotFound);
+        output.Title.Should().Be("Not Found");
+        output.Detail.Should().Be($"CastMember '{exampleRandonGuid}' not found.");
+        output.Type.Should().Be("NotFound");
+    }
 
     public void Dispose()
     {
