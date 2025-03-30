@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.CastMember.CreateCastMember;
 
-[Collection(nameof(CreateCastMemberTestFixture))]
+[Collection(nameof(CreateCastMemberApiTestFixture))]
 public class CreateCastMemberTest : IDisposable
 {
-    private readonly CreateCastMemberTestFixture _fixture;
+    private readonly CreateCastMemberApiTestFixture _fixture;
 
-    public CreateCastMemberTest(CreateCastMemberTestFixture fixture)
+    public CreateCastMemberTest(CreateCastMemberApiTestFixture fixture)
     {
         _fixture = fixture;
     }

@@ -1,8 +1,10 @@
-﻿using JG.Code.Catalog.Api.ApiModels.Response;
+﻿using JG.Code.Catalog.Api.ApiModels.CastMember;
+using JG.Code.Catalog.Api.ApiModels.Response;
 using JG.Code.Catalog.Application.UseCases.CastMember.Common;
 using JG.Code.Catalog.Application.UseCases.CastMember.CreateCastMember;
 using JG.Code.Catalog.Application.UseCases.CastMember.DeleteCastMember;
 using JG.Code.Catalog.Application.UseCases.CastMember.GetCastMember;
+using JG.Code.Catalog.Application.UseCases.CastMember.UpdateCastMember;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +28,18 @@ public class CastMembersController : ControllerBase
     {
         var output = await _mediator.Send(input, cancellationToken);
         return CreatedAtAction(nameof(Create), new { output.Id }, new ApiResponse<CastMemberModelOutput>(output));
+    }
+    
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<CastMemberModelOutput>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Update([FromBody] UpdateCastMemberApiInput apiInput, [FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var input = new UpdateCastMemberInput(id, apiInput.Name, apiInput.Type);
+        var output = await _mediator.Send(input, cancellationToken);
+        return Ok(new ApiResponse<CastMemberModelOutput>(output));
     }
     
     [HttpGet("{id:guid}")]

@@ -3,11 +3,11 @@ using JG.Code.Catalog.EndToEndTests.Common;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.CastMember.Common;
 
-public class CastMemberBaseFixture : BaseFixture
+public class CastMemberApiBaseFixture : BaseFixture
 {
     public CastMemberPersistence Persistence;
 
-    public CastMemberBaseFixture() : base()
+    public CastMemberApiBaseFixture() : base()
     {
         Persistence = new CastMemberPersistence(CreateDbContext());
     }

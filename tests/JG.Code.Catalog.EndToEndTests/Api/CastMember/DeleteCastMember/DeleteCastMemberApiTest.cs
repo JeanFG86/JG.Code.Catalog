@@ -5,12 +5,12 @@ using System.Net;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.CastMember.DeleteCastMember;
 
-[Collection(nameof(DeleteCastMemberApiTestFixture))]
+[Collection(nameof(DeleteCastMemberApiApiTestFixture))]
 public class DeleteCastMemberApiTest : IDisposable
 {
-    private readonly DeleteCastMemberApiTestFixture _fixture;
+    private readonly DeleteCastMemberApiApiTestFixture _fixture;
 
-    public DeleteCastMemberApiTest(DeleteCastMemberApiTestFixture fixture)
+    public DeleteCastMemberApiTest(DeleteCastMemberApiApiTestFixture fixture)
     {
         _fixture = fixture;
     }

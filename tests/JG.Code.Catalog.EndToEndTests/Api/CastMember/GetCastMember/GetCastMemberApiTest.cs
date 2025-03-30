@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.CastMember.GetCastMember;
 
-[Collection(nameof(GetCastMemberApiTestFixture))]
+[Collection(nameof(GetCastMemberApiApiTestFixture))]
 public class GetCastMemberApiTest : IDisposable
 {
-    private readonly GetCastMemberApiTestFixture _fixture;
+    private readonly GetCastMemberApiApiTestFixture _fixture;
 
-    public GetCastMemberApiTest(GetCastMemberApiTestFixture fixture)
+    public GetCastMemberApiTest(GetCastMemberApiApiTestFixture fixture)
     {
         _fixture = fixture;
     }
