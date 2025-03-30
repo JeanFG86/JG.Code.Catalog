@@ -4,6 +4,7 @@ using JG.Code.Catalog.Api.ApiModels.Response;
 using JG.Code.Catalog.Application.UseCases.CastMember.Common;
 using JG.Code.Catalog.Application.UseCases.CastMember.CreateCastMember;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.CastMember.CreateCastMember;
 
@@ -36,6 +37,22 @@ public class CreateCastMemberTest : IDisposable
         var castMemberFromDb = await _fixture.Persistence.GetById(output!.Data.Id);
         castMemberFromDb.Should().NotBeNull();
         castMemberFromDb!.Name.Should().Be(apiInput.Name);
+    }
+    
+    [Fact(DisplayName = nameof(ThrowWhenNameIsEmpty))]
+    [Trait("EndToEnd/API", "CastMember/Create - Endpoints")]
+    public async Task ThrowWhenNameIsEmpty()
+    {
+        var exemple = _fixture.GetExampleCastMember();
+        
+        var (response, output) = await _fixture.ApiClient
+            .Post<ProblemDetails>($"/castmembers", new CreateCastMemberInput("", exemple.Type));
+
+        response.Should().NotBeNull();
+        response!.StatusCode.Should().Be((HttpStatusCode)StatusCodes.Status422UnprocessableEntity);
+        output.Should().NotBeNull();
+        output!.Title.Should().Be("One or more validation errors occurred");
+        output!.Detail.Should().Be("Name should not be empty or null");
     }
     
     public void Dispose()

@@ -24,7 +24,7 @@ public class ApiGlobalExceptionFilter : IExceptionFilter
 
         if(exception is EntityValidationException)
         {
-            details.Title = "One or more validation errors ocurred";
+            details.Title = "One or more validation errors occurred";
             details.Status = StatusCodes.Status422UnprocessableEntity;
             details.Type = "UnprocessableEntity";
             details.Detail = exception!.Message;
