@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.EndToEndTests.Api.CastMember.Common;
+﻿using JG.Code.Catalog.Api.ApiModels.CastMember;
+using JG.Code.Catalog.EndToEndTests.Api.CastMember.Common;
 
 namespace JG.Code.Catalog.EndToEndTests.Api.CastMember.UpdateCastMember;
 
@@ -8,5 +9,8 @@ public class UpdateCastMemberApiTestFixtureCollection : ICollectionFixture<Updat
 
 public class UpdateCastMemberApiTestFixture : CastMemberApiBaseFixture
 {
-    
+    public UpdateCastMemberApiInput GetExampleInput()
+    {
+        return new UpdateCastMemberApiInput(GetValidName() , GetRandomCastMemberType());        
+    }
 }
