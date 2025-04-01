@@ -4,7 +4,9 @@ using JG.Code.Catalog.Application.UseCases.CastMember.Common;
 using JG.Code.Catalog.Application.UseCases.CastMember.CreateCastMember;
 using JG.Code.Catalog.Application.UseCases.CastMember.DeleteCastMember;
 using JG.Code.Catalog.Application.UseCases.CastMember.GetCastMember;
+using JG.Code.Catalog.Application.UseCases.CastMember.ListCastMembers;
 using JG.Code.Catalog.Application.UseCases.CastMember.UpdateCastMember;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -58,5 +60,33 @@ public class CastMembersController : ControllerBase
     {
         await _mediator.Send(new DeleteCastMemberInput(id), cancellationToken);
         return NoContent();
+    }
+    
+    [HttpGet]
+    [ProducesResponseType(typeof(CastMemberModelOutput), StatusCodes.Status200OK)]
+    public async Task<IActionResult> List(CancellationToken cancellationToken,
+        [FromQuery] int? page = null,
+        [FromQuery(Name = "per_page")] int? perPage = null,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sort = null,
+        [FromQuery] SearchOrder? dir = null)
+    {
+        var input = new ListCastMembersInput();
+        if (page != null)
+            input.Page = page.Value;
+
+        if (perPage != null)
+            input.PerPage = perPage.Value;
+
+        if (!string.IsNullOrWhiteSpace(search))
+            input.Search = search;
+
+        if (!string.IsNullOrWhiteSpace(sort))
+            input.Sort = sort;
+
+        if (dir != null)
+            input.Dir = dir.Value;
+        var output = await _mediator.Send(input, cancellationToken);
+        return Ok(new ApiResponseList<CastMemberModelOutput>(output));
     }
 }
