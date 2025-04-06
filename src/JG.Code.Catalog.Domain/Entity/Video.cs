@@ -12,7 +12,7 @@ public class Video: AggregateRoot
     public int YearLaunched { get; private set; }
     public int Duration { get; private set; }
 
-    public Video(string title, string description, bool opened, bool published, int yearLaunched, int duration)
+    public Video(string title, string description, int yearLaunched, bool opened, bool published, int duration)
     {
         Title = title;
         Description = description;

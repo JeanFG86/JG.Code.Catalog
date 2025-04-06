@@ -17,15 +17,22 @@ public class VideoTest
     [Trait("Domain", "Video - Aggregates")]
     public void Instantiate()
     {
-        var video = new DomainEntity.Video("Title", "Description", true, true, 2001, 180);
+        var expectedTitle = _fixture.GetValidTitle();
+        var expectedDescription = _fixture.GetValidDescription();
+        var expectedYearLaunched = _fixture.GetValidYearLaunched();
+        var expectedDuration = _fixture.GetValidDuration();
+        var expectedOpened = _fixture.GetRandomBoolean();
+        var expectedPublished = _fixture.GetRandomBoolean();
+        
+        var video = new DomainEntity.Video(expectedTitle, expectedDescription, expectedYearLaunched, expectedOpened, expectedPublished, expectedDuration);
 
         video.Should().NotBeNull();
-        video.Title.Should().Be("Title");
-        video.Description.Should().Be("Description");
-        video.Opened.Should().Be(true);
-        video.Published.Should().Be(true);
-        video.YearLaunched.Should().Be(2001);
-        video.Duration.Should().Be(180);
+        video.Title.Should().Be(expectedTitle);
+        video.Description.Should().Be(expectedDescription);
+        video.Opened.Should().Be(expectedOpened);
+        video.Published.Should().Be(expectedPublished);
+        video.YearLaunched.Should().Be(expectedYearLaunched);
+        video.Duration.Should().Be(expectedDuration);
 
     }
 }

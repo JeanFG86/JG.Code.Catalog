@@ -10,6 +10,16 @@ public class VideoTestFixture : BaseFixture
 {
     public DomainEntity.Video GetValidVideo()
     {
-        return new DomainEntity.Video("Title", "Description", true, true, 2001, 180);
+        return new DomainEntity.Video(GetValidTitle(), GetValidDescription(), GetValidYearLaunched(), GetRandomBoolean(), GetRandomBoolean(), GetValidDuration());
     }
+
+    public string GetValidTitle() => Faker.Lorem.Letter(100);
+
+    public string GetValidDescription() => Faker.Commerce.ProductDescription();
+
+    public int GetValidYearLaunched() => Faker.Random.Int(1950, 2100);
+
+    public int GetValidDuration() => Faker.Random.Int(100, 300);
+
+    public string GetTooLongTitle() => Faker.Lorem.Letter(400);
 }
