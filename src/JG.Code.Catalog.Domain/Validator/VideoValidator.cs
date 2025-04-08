@@ -7,6 +7,7 @@ public class VideoValidator : Validation.Validator
 {
     private readonly Video _video;
     private const int TitleMaxLength = 255;
+    private const int DescriptionMaxLength = 4_000;
     
     public VideoValidator(Video video, ValidationHandler handler) : base(handler)
     {
@@ -19,6 +20,9 @@ public class VideoValidator : Validation.Validator
         
         if(string.IsNullOrWhiteSpace(_video.Description))
             _handler.HandleError($"'{nameof(_video.Description)}' is required.");
+        
+        if(_video.Description.Length > 4_000)
+            _handler.HandleError($"'{nameof(_video.Description)}' should be less or equal {DescriptionMaxLength} characters long.");
     }
 
     private void ValidateTitle()
