@@ -1,4 +1,7 @@
-﻿using JG.Code.Catalog.Domain.SeedWork;
+﻿using JG.Code.Catalog.Domain.Exceptions;
+using JG.Code.Catalog.Domain.SeedWork;
+using JG.Code.Catalog.Domain.Validation;
+using JG.Code.Catalog.Domain.Validator;
 
 namespace JG.Code.Catalog.Domain.Entity;
 
@@ -11,6 +14,7 @@ public class Video: AggregateRoot
     public bool Published { get; private set; }
     public int YearLaunched { get; private set; }
     public int Duration { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
     public Video(string title, string description, int yearLaunched, bool opened, bool published, int duration)
     {
@@ -20,5 +24,19 @@ public class Video: AggregateRoot
         Published = published;
         YearLaunched = yearLaunched;
         Duration = duration;
+        CreatedAt = DateTime.Now;
+
+        Validate();
+    }
+
+    private void Validate()
+    {
+        var notificationHandler = new NotificationValidationHandler();
+        var validator = new VideoValidator(this, notificationHandler);
+        validator.Validate();
+        if (notificationHandler.HasErrors())
+        {
+            throw new EntityValidationException("Validation errors");
+        };
     }
 }
