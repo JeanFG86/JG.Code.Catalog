@@ -25,18 +25,5 @@ public class Video: AggregateRoot
         YearLaunched = yearLaunched;
         Duration = duration;
         CreatedAt = DateTime.Now;
-
-        Validate();
-    }
-
-    private void Validate()
-    {
-        var notificationHandler = new NotificationValidationHandler();
-        var validator = new VideoValidator(this, notificationHandler);
-        validator.Validate();
-        if (notificationHandler.HasErrors())
-        {
-            throw new EntityValidationException("Validation errors");
-        };
     }
 }
