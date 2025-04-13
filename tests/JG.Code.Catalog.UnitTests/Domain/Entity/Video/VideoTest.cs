@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentValidation.Results;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Validation;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
@@ -47,5 +48,23 @@ public class VideoTest
         validVideo.Validate(notificationValidationHandler);
 
         notificationValidationHandler.HasErrors().Should().BeFalse();
+    }
+    
+    [Fact(DisplayName = nameof(ValidateWithErrorWhenInvalidState))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void ValidateWithErrorWhenInvalidState()
+    {
+        var invalidVideo = new DomainEntity.Video(_fixture.GetTooLongTitle(), _fixture.GetTooLongDescription(), _fixture.GetValidYearLaunched(), 
+            _fixture.GetRandomBoolean(), _fixture.GetRandomBoolean(), _fixture.GetValidDuration());
+        var notificationValidationHandler = new NotificationValidationHandler();
+
+        invalidVideo.Validate(notificationValidationHandler);
+
+        notificationValidationHandler.HasErrors().Should().BeTrue();
+        notificationValidationHandler.Errors.Should().BeEquivalentTo(new List<ValidationError>()
+        {
+            new ValidationError("'Title' should be less or equal 255 characters long."),
+            new ValidationError("'Description' should be less or equal 4000 characters long."),
+        });
     }
 }
