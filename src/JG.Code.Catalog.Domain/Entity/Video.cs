@@ -26,4 +26,8 @@ public class Video: AggregateRoot
         Duration = duration;
         CreatedAt = DateTime.Now;
     }
+
+    public void Validate(ValidationHandler handler)
+        => (new VideoValidator(this, handler)).Validate();
+    
 }

@@ -36,4 +36,16 @@ public class VideoTest
         video.YearLaunched.Should().Be(expectedYearLaunched);
         video.Duration.Should().Be(expectedDuration);
     }
+    
+    [Fact(DisplayName = nameof(ValidateWhenValidState))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void ValidateWhenValidState()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var notificationValidationHandler = new NotificationValidationHandler();
+
+        validVideo.Validate(notificationValidationHandler);
+
+        notificationValidationHandler.HasErrors().Should().BeFalse();
+    }
 }
