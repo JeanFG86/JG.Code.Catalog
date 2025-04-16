@@ -67,4 +67,27 @@ public class VideoTest
             new ValidationError("'Description' should be less or equal 4000 characters long."),
         });
     }
+    
+    [Fact(DisplayName = nameof(Update))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void Update()
+    {
+        var expectedTitle = _fixture.GetValidTitle();
+        var expectedDescription = _fixture.GetValidDescription();
+        var expectedYearLaunched = _fixture.GetValidYearLaunched();
+        var expectedDuration = _fixture.GetValidDuration();
+        var expectedOpened = _fixture.GetRandomBoolean();
+        var expectedPublished = _fixture.GetRandomBoolean();
+        var video = _fixture.GetValidVideo();
+        
+        video.Update(expectedTitle, expectedDescription, expectedYearLaunched, expectedOpened, expectedPublished, expectedDuration);
+
+        video.Should().NotBeNull();
+        video.Title.Should().Be(expectedTitle);
+        video.Description.Should().Be(expectedDescription);
+        video.Opened.Should().Be(expectedOpened);
+        video.Published.Should().Be(expectedPublished);
+        video.YearLaunched.Should().Be(expectedYearLaunched);
+        video.Duration.Should().Be(expectedDuration);
+    }
 }
