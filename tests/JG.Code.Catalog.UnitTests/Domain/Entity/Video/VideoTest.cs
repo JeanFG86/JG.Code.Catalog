@@ -90,4 +90,23 @@ public class VideoTest
         video.YearLaunched.Should().Be(expectedYearLaunched);
         video.Duration.Should().Be(expectedDuration);
     }
+    
+    [Fact(DisplayName = nameof(ValidateStillValidatingAfterUpdateToValidState))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void ValidateStillValidatingAfterUpdateToValidState()
+    {
+        var expectedTitle = _fixture.GetValidTitle();
+        var expectedDescription = _fixture.GetValidDescription();
+        var expectedYearLaunched = _fixture.GetValidYearLaunched();
+        var expectedDuration = _fixture.GetValidDuration();
+        var expectedOpened = _fixture.GetRandomBoolean();
+        var expectedPublished = _fixture.GetRandomBoolean();
+        var video = _fixture.GetValidVideo();
+        
+        video.Update(expectedTitle, expectedDescription, expectedYearLaunched, expectedOpened, expectedPublished, expectedDuration);
+        var notificationValidationHandler = new NotificationValidationHandler();
+        video.Validate(notificationValidationHandler);
+
+        notificationValidationHandler.HasErrors().Should().BeFalse();
+    }
 }
