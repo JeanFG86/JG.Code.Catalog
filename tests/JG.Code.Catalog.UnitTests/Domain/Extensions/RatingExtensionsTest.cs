@@ -27,4 +27,18 @@ public class RatingExtensionsTest
         var action = () => "Invalid".ToRating();
         action.Should().Throw<ArgumentOutOfRangeException>();
     }
+    
+    [Theory(DisplayName = nameof(StringToRating))]
+    [Trait("Domain", "Rating - Extensions")]
+    [InlineData( Rating.ER, "ER")]
+    [InlineData( Rating.L, "L")]
+    [InlineData( Rating.Rate10, "10")]
+    [InlineData( Rating.Rate12, "12")]
+    [InlineData( Rating.Rate14, "14")]
+    [InlineData( Rating.Rate16, "16")]
+    [InlineData( Rating.Rate18, "18")]
+    public void RatingToString(Rating rating, string expectedString)
+    {
+        rating.ToStringSignal().Should().Be(expectedString);
+    }
 }
