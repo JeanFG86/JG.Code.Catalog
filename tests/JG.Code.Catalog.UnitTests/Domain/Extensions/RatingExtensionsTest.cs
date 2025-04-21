@@ -19,4 +19,12 @@ public class RatingExtensionsTest
     {
         enumString.ToRating().Should().Be(expectedRating);
     }
+    
+    [Fact(DisplayName = nameof(ThrowsExceptionWhenInvalidStringIsGiven))]
+    [Trait("Domain", "Rating - Extensions")]
+    public void ThrowsExceptionWhenInvalidStringIsGiven()
+    {
+        var action = () => "Invalid".ToRating();
+        action.Should().Throw<ArgumentOutOfRangeException>();
+    }
 }
