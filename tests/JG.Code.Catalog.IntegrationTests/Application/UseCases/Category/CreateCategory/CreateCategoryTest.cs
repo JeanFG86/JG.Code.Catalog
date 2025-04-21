@@ -106,7 +106,6 @@ public class CreateCategoryTest
         var repository = new CategoryRepository(dbContext);
         var unitOfWork = new UnitOfWork(dbContext);
         var useCase = new UsesCases.CreateCategory(repository, unitOfWork);
-        var exampleInput = _fixture.GetInput();
 
         var task = async () => await useCase.Handle(input, CancellationToken.None);
 

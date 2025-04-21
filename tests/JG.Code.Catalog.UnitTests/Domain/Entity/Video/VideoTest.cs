@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using FluentValidation.Results;
+using JG.Code.Catalog.Domain.Enum;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Validation;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
@@ -26,8 +27,9 @@ public class VideoTest
         var expectedDuration = _fixture.GetValidDuration();
         var expectedOpened = _fixture.GetRandomBoolean();
         var expectedPublished = _fixture.GetRandomBoolean();
+        var expectedRating = Rating.ER;
         
-        var video = new DomainEntity.Video(expectedTitle, expectedDescription, expectedYearLaunched, expectedOpened, expectedPublished, expectedDuration);
+        var video = new DomainEntity.Video(expectedTitle, expectedDescription, expectedYearLaunched, expectedOpened, expectedPublished, expectedDuration, expectedRating);
 
         video.Should().NotBeNull();
         video.Title.Should().Be(expectedTitle);
@@ -55,7 +57,7 @@ public class VideoTest
     public void ValidateWithErrorWhenInvalidState()
     {
         var invalidVideo = new DomainEntity.Video(_fixture.GetTooLongTitle(), _fixture.GetTooLongDescription(), _fixture.GetValidYearLaunched(), 
-            _fixture.GetRandomBoolean(), _fixture.GetRandomBoolean(), _fixture.GetValidDuration());
+            _fixture.GetRandomBoolean(), _fixture.GetRandomBoolean(), _fixture.GetValidDuration(), _fixture.GetRandomRating());
         var notificationValidationHandler = new NotificationValidationHandler();
 
         invalidVideo.Validate(notificationValidationHandler);
