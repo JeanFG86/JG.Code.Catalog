@@ -29,4 +29,18 @@ public class ImageTest : BaseFixture
 
         isItEquals.Should().BeTrue();
     }
+    
+    [Fact(DisplayName = nameof(DiffenrentByPath))]
+    [Trait("Domain", "Image - ValueObjects")]
+    public void DiffenrentByPath()
+    {
+        var path = Faker.Image.PicsumUrl();
+        var differentPath = Faker.Image.PicsumUrl();
+        var image = new Image(path);
+        var sameImage = new Image(differentPath);
+
+        var isItDifferent = image != sameImage;
+
+        isItDifferent.Should().BeTrue();
+    }
 }
