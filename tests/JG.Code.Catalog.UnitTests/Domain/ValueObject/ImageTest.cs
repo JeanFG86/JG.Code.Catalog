@@ -12,8 +12,21 @@ public class ImageTest : BaseFixture
     {
         var path = Faker.Image.PicsumUrl();
         
-        var imagem = new Image(path);
+        var image = new Image(path);
 
-        imagem.Path.Should().Be(path);
+        image.Path.Should().Be(path);
+    }
+    
+    [Fact(DisplayName = nameof(EqualsByPath))]
+    [Trait("Domain", "Image - ValueObjects")]
+    public void EqualsByPath()
+    {
+        var path = Faker.Image.PicsumUrl();
+        var image = new Image(path);
+        var sameImage = new Image(path);
+
+        var isItEquals = image == sameImage;
+
+        isItEquals.Should().BeTrue();
     }
 }
