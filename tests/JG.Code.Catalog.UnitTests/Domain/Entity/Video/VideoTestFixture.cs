@@ -32,4 +32,5 @@ public class VideoTestFixture : BaseFixture
     public string GetTooLongTitle() => Faker.Lorem.Letter(400);
     
     public string GetTooLongDescription() => Faker.Lorem.Letter(4001);
+    public string GetValidImagePath() => Faker.Image.PlaceImgUrl();
 }

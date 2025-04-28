@@ -1,8 +1,8 @@
 ﻿using JG.Code.Catalog.Domain.Enum;
-using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.SeedWork;
 using JG.Code.Catalog.Domain.Validation;
 using JG.Code.Catalog.Domain.Validator;
+using JG.Code.Catalog.Domain.ValueObject;
 
 namespace JG.Code.Catalog.Domain.Entity;
 
@@ -16,6 +16,9 @@ public class Video: AggregateRoot
     public int YearLaunched { get; private set; }
     public int Duration { get; private set; }
     public Rating Rating { get; private set; }
+    public Image? Thumb { get; private set; }
+    public Image? ThumbHalf { get; private set; }
+    public Image? Banner { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     public Video(string title, string description, int yearLaunched, bool opened, bool published, int duration, Rating rating)
@@ -42,5 +45,7 @@ public class Video: AggregateRoot
         Published = published;
         Duration = duration;
     }
+
+    public void UpdateThumb(string path) => Thumb = new Image(path);
     
 }

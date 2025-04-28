@@ -38,6 +38,9 @@ public class VideoTest
         video.Published.Should().Be(expectedPublished);
         video.YearLaunched.Should().Be(expectedYearLaunched);
         video.Duration.Should().Be(expectedDuration);
+        video.Thumb.Should().BeNull();
+        video.ThumbHalf.Should().BeNull();
+        video.Banner.Should().BeNull();
     }
     
     [Fact(DisplayName = nameof(ValidateWhenValidState))]
@@ -134,5 +137,18 @@ public class VideoTest
             new ("'Title' should be less or equal 255 characters long."),
             new ("'Description' should be less or equal 4000 characters long."),
         });
+    }
+    
+    [Fact(DisplayName = nameof(UpdateThumb))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void UpdateThumb()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var validImagePath = _fixture.GetValidImagePath();
+        
+        validVideo.UpdateThumb(validImagePath);
+        
+        validVideo.Thumb.Should().NotBeNull();
+        validVideo.Thumb!.Path.Should().Be(validImagePath);
     }
 }
