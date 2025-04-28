@@ -164,4 +164,17 @@ public class VideoTest
         validVideo.ThumbHalf.Should().NotBeNull();
         validVideo.ThumbHalf!.Path.Should().Be(validImagePath);
     }
+    
+    [Fact(DisplayName = nameof(UpdateBanner))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void UpdateBanner()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var validImagePath = _fixture.GetValidImagePath();
+        
+        validVideo.UpdateBanner(validImagePath);
+        
+        validVideo.Banner.Should().NotBeNull();
+        validVideo.Banner!.Path.Should().Be(validImagePath);
+    }
 }
