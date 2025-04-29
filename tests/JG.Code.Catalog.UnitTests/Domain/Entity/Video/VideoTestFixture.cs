@@ -47,4 +47,6 @@ public class VideoTestFixture : BaseFixture
         var random = new Random();
         return exampleMedias[random.Next(exampleMedias.Length)];
     }
+
+    public DomainEntity.Media GetValidMedia() => new (GetValidMediaPath());
 }

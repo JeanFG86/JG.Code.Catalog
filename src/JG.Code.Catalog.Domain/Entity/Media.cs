@@ -13,4 +13,9 @@ public class Media
         FilePath = filePath;
         Status = MediaStatus.Pending;
     }
+
+    public void UpdateAsSentToEncode()
+    {
+        Status = MediaStatus.Processing;
+    }
 }
