@@ -19,6 +19,8 @@ public class Video: AggregateRoot
     public Image? Thumb { get; private set; }
     public Image? ThumbHalf { get; private set; }
     public Image? Banner { get; private set; }
+    public Media? Media { get; private set; }
+    public Media? Trailer { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     public Video(string title, string description, int yearLaunched, bool opened, bool published, int duration, Rating rating)

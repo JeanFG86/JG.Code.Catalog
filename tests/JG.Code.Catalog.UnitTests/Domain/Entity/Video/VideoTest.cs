@@ -41,6 +41,8 @@ public class VideoTest
         video.Thumb.Should().BeNull();
         video.ThumbHalf.Should().BeNull();
         video.Banner.Should().BeNull();
+        video.Media.Should().BeNull();
+        video.Trailer.Should().BeNull();
     }
     
     [Fact(DisplayName = nameof(ValidateWhenValidState))]
