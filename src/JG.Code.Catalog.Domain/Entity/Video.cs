@@ -51,5 +51,5 @@ public class Video: AggregateRoot
     public void UpdateThumb(string path) => Thumb = new Image(path);
     public void UpdateThumbHalf(string path) => ThumbHalf = new Image(path);
     public void UpdateBanner(string path) => Banner = new Image(path);
-    
+    public void UpdateMedia(string validPath) => Media = new Media(validPath);
 }
