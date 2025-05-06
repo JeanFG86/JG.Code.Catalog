@@ -192,4 +192,17 @@ public class VideoTest
         validVideo.Media.Should().NotBeNull();
         validVideo.Media!.FilePath.Should().Be(validPath);
     }
+    
+    [Fact(DisplayName = nameof(UpdateTrailer))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void UpdateTrailer()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var validPath = _fixture.GetValidMediaPath();
+        
+        validVideo.UpdateTrailer(validPath);
+        
+        validVideo.Trailer.Should().NotBeNull();
+        validVideo.Trailer!.FilePath.Should().Be(validPath);
+    }
 }
