@@ -18,4 +18,10 @@ public class Media
     {
         Status = MediaStatus.Processing;
     }
+
+    public void UpdateAsEncoded(string encodedPath)
+    {
+        Status = MediaStatus.Completed;
+        EncodedPath = encodedPath;
+    }
 }
