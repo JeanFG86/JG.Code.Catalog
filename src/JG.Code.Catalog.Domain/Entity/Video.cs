@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.Domain.Enum;
+using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.SeedWork;
 using JG.Code.Catalog.Domain.Validation;
 using JG.Code.Catalog.Domain.Validator;
@@ -53,5 +54,11 @@ public class Video: AggregateRoot
     public void UpdateBanner(string path) => Banner = new Image(path);
     public void UpdateMedia(string validPath) => Media = new Media(validPath);
     public void UpdateTrailer(string validPath) => Trailer = new Media(validPath);
-    public void UpdateAsSendToEncode() => Media?.UpdateAsSentToEncode();
+
+    public void UpdateAsSendToEncode()
+    {
+        if(Media is null)
+            throw new EntityValidationException("There is no Media");
+        Media.UpdateAsSentToEncode();
+    } 
 }

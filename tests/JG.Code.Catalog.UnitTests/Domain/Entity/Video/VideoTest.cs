@@ -206,16 +206,14 @@ public class VideoTest
         validVideo.Trailer!.FilePath.Should().Be(validPath);
     }
     
-    [Fact(DisplayName = nameof(UpdateAsSendToEncode))]
+    [Fact(DisplayName = nameof(UpdateAsSendToEncodeThrowsWhenThereIsNoMedia))]
     [Trait("Domain", "Video - Aggregates")]
-    public void UpdateAsSendToEncode()
+    public void UpdateAsSendToEncodeThrowsWhenThereIsNoMedia()
     {
         var validVideo = _fixture.GetValidVideo();
-        var validPath = _fixture.GetValidMediaPath();
-        validVideo.UpdateMedia(validPath);
         
-        validVideo.UpdateAsSendToEncode();
+        var action = () => validVideo.UpdateAsSendToEncode();
 
-        validVideo.Media!.Status.Should().Be(MediaStatus.Processing);
+        action.Should().Throw<EntityValidationException>().WithMessage("There is no Media");
     }
 }
