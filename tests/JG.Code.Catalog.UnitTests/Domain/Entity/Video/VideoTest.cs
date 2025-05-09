@@ -205,4 +205,17 @@ public class VideoTest
         validVideo.Trailer.Should().NotBeNull();
         validVideo.Trailer!.FilePath.Should().Be(validPath);
     }
+    
+    [Fact(DisplayName = nameof(UpdateAsSendToEncode))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void UpdateAsSendToEncode()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var validPath = _fixture.GetValidMediaPath();
+        validVideo.UpdateMedia(validPath);
+        
+        validVideo.UpdateAsSendToEncode();
+
+        validVideo.Media!.Status.Should().Be(MediaStatus.Processing);
+    }
 }

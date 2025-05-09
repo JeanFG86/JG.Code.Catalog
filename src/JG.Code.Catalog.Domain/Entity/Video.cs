@@ -53,4 +53,5 @@ public class Video: AggregateRoot
     public void UpdateBanner(string path) => Banner = new Image(path);
     public void UpdateMedia(string validPath) => Media = new Media(validPath);
     public void UpdateTrailer(string validPath) => Trailer = new Media(validPath);
+    public void UpdateAsSendToEncode() => Media?.UpdateAsSentToEncode();
 }
