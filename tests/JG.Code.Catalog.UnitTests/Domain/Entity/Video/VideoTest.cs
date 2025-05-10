@@ -244,4 +244,16 @@ public class VideoTest
         validVideo.Media!.Status.Should().Be(MediaStatus.Completed);
         validVideo.Media!.EncodedPath.Should().Be(validEncodedPath);
     }
+    
+    [Fact(DisplayName = nameof(UpdateAsEncodedThrowsWhenThereIsNoMedia))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void UpdateAsEncodedThrowsWhenThereIsNoMedia()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var validEncodedPath = _fixture.GetValidMediaPath();
+        
+        var action = () => validVideo.UpdateAsEncoded(validEncodedPath);
+
+        action.Should().Throw<EntityValidationException>().WithMessage("There is no Media");
+    }
 }
