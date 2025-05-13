@@ -329,4 +329,19 @@ public class VideoTest
         validVideo.Genres.Should().HaveCount(1);
         validVideo.Genres[0].Should().Be(genreIdExample2);
     }
+    
+    [Fact(DisplayName = nameof(RemoveAllGenres))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void RemoveAllGenres()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var genreIdExample = Guid.NewGuid();
+        var genreIdExample2 = Guid.NewGuid();
+        validVideo.AddGenre(genreIdExample);
+        validVideo.AddGenre(genreIdExample2);
+        
+        validVideo.RemoveAllGenres();
+
+        validVideo.Genres.Should().HaveCount(0);
+    }
 }
