@@ -86,4 +86,6 @@ public class Video: AggregateRoot
     public void RemoveAllCategories() => _categories = new();
     
     public void AddGenre(Guid genreId) => _genres.Add(genreId);
+    
+    public void RemoveGenre(Guid genreId) => _genres.Remove(genreId);
 }
