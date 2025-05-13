@@ -269,4 +269,20 @@ public class VideoTest
         validVideo.Categories.Should().HaveCount(1);
         validVideo.Categories[0].Should().Be(categoryIdExample);
     }
+    
+    [Fact(DisplayName = nameof(RemoveCategory))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void RemoveCategory()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var categoryIdExample = Guid.NewGuid();
+        var categoryIdExample2 = Guid.NewGuid();
+        validVideo.AddCategory(categoryIdExample);
+        validVideo.AddCategory(categoryIdExample2);
+        
+        validVideo.RemoveCategory(categoryIdExample);
+
+        validVideo.Categories.Should().HaveCount(1);
+        validVideo.Categories[0].Should().Be(categoryIdExample2);
+    }
 }
