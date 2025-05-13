@@ -256,4 +256,17 @@ public class VideoTest
 
         action.Should().Throw<EntityValidationException>().WithMessage("There is no Media");
     }
+    
+    [Fact(DisplayName = nameof(AddCategory))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void AddCategory()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var categoryIdExample = Guid.NewGuid();
+        
+        validVideo.AddCategory(categoryIdExample);
+
+        validVideo.Categories.Should().HaveCount(1);
+        validVideo.Categories[0].Should().Be(categoryIdExample);
+    }
 }
