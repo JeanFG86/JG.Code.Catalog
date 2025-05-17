@@ -344,4 +344,17 @@ public class VideoTest
 
         validVideo.Genres.Should().HaveCount(0);
     }
+    
+    [Fact(DisplayName = nameof(AddCastMember))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void AddCastMember()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var castMemberIdExample = Guid.NewGuid();
+        
+        validVideo.AddCastMember(castMemberIdExample);
+
+        validVideo.CastMembers.Should().HaveCount(1);
+        validVideo.CastMembers[0].Should().Be(castMemberIdExample);
+    }
 }
