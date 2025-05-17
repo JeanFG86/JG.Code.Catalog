@@ -85,7 +85,7 @@ public class Video: AggregateRoot
 
     public void AddCategory(Guid categoryId) => _categories.Add(categoryId);
 
-    public void RemoveCategory(Guid categoryIdExample) => _categories.Remove(categoryIdExample);
+    public void RemoveCategory(Guid categoryId) => _categories.Remove(categoryId);
 
     public void RemoveAllCategories() => _categories = new();
     
@@ -96,4 +96,6 @@ public class Video: AggregateRoot
     public void RemoveAllGenres() => _genres = new();
 
     public void AddCastMember(Guid castMemberId) => _castMembers.Add(castMemberId);
+
+    public void RemoveCastMember(Guid castMemberId) => _castMembers.Remove(castMemberId);
 }
