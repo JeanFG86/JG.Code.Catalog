@@ -373,4 +373,19 @@ public class VideoTest
         validVideo.CastMembers.Should().HaveCount(1);
         validVideo.CastMembers[0].Should().Be(castMemberIdExample2);
     }
+    
+    [Fact(DisplayName = nameof(RemoveAllCastMembers))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void RemoveAllCastMembers()
+    {
+        var validVideo = _fixture.GetValidVideo();
+        var castMemberIdExample = Guid.NewGuid();
+        var castMemberIdExample2 = Guid.NewGuid();
+        validVideo.AddCastMember(castMemberIdExample);
+        validVideo.AddCastMember(castMemberIdExample2);
+        
+        validVideo.RemoveAllCastMembers(castMemberIdExample);
+
+        validVideo.CastMembers.Should().HaveCount(0);
+    }
 }
