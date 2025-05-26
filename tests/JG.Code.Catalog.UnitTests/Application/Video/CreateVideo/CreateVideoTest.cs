@@ -1,6 +1,7 @@
 ﻿using JG.Code.Catalog.Application.Interfaces;
 using Moq;
 using FluentAssertions;
+using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using UseCase = JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
@@ -53,5 +54,31 @@ public class CreateVideoTest
         output.Published.Should().Be(input.Published);
         output.Duration.Should().Be(input.Duration);
         output.Rating.Should().Be(input.Rating);
+    }
+    
+    [Fact(DisplayName = nameof(CreateVideoThrowsWithInvalidInput))]
+    [Trait("Application", "CreateVideo - Use Cases")]
+    public async Task CreateVideoThrowsWithInvalidInput()
+    {
+        var repositoryMock = new Mock<IVideoRepository>();
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        var useCase = new UseCase.CreateVideo(unitOfWorkMock.Object, repositoryMock.Object);
+        var input = new UseCase.CreateVideoInput(
+            "", 
+            _fixture.GetValidDescription(), 
+            _fixture.GetRandomBoolean(), 
+            _fixture.GetRandomBoolean(),
+            _fixture.GetValidYearLaunched(), 
+            _fixture.GetValidDuration(), 
+            _fixture.GetRandomRating()
+        );
+        
+        var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<EntityValidationException>().WithMessage($"There are validation errors");
+        repositoryMock.Verify(
+            x => x.Insert(It.IsAny<DomainEntity.Video>(), It.IsAny<CancellationToken>()), 
+            Times.Never);
+        //return Task.CompletedTask;
     }
 }
