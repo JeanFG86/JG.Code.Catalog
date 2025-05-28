@@ -3,6 +3,7 @@ using Moq;
 using FluentAssertions;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
+using JG.Code.Catalog.Domain.Validation;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using UseCase = JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
 
@@ -75,10 +76,11 @@ public class CreateVideoTest
         
         var action = async () => await useCase.Handle(input, CancellationToken.None);
 
-        await action.Should().ThrowAsync<EntityValidationException>().WithMessage($"There are validation errors");
+        var exceptionAssertion = await action.Should().ThrowAsync<EntityValidationException>();
+        exceptionAssertion.WithMessage($"There are validation errors")
+            .Which.Errors.ToList()[0].Message.Should().Be("'Title' is required.");
         repositoryMock.Verify(
             x => x.Insert(It.IsAny<DomainEntity.Video>(), It.IsAny<CancellationToken>()), 
             Times.Never);
-        //return Task.CompletedTask;
     }
 }
