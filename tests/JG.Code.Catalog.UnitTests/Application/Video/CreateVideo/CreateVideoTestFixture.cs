@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.UnitTests.Common.Fixtures;
+﻿using JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
+using JG.Code.Catalog.UnitTests.Common.Fixtures;
 
 namespace JG.Code.Catalog.UnitTests.Application.Video.CreateVideo;
 
@@ -7,5 +8,14 @@ public class CreateVideoTestFixtureCollection : ICollectionFixture<CreateVideoTe
 
 public class CreateVideoTestFixture : VideoTestFixtureBase
 {
-    
+    public CreateVideoInput CreateValidVideoInput() =>
+        new(
+            GetValidTitle(), 
+            GetValidDescription(), 
+            GetRandomBoolean(), 
+            GetRandomBoolean(),
+            GetValidYearLaunched(), 
+            GetValidDuration(), 
+            GetRandomRating()
+        );
 }
