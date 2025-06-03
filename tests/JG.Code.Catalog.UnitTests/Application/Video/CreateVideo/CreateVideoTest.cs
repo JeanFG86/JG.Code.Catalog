@@ -51,7 +51,7 @@ public class CreateVideoTest
     
     [Theory(DisplayName = nameof(CreateVideoThrowsWithInvalidInput))]
     [Trait("Application", "CreateVideo - Use Cases")]
-    [MemberData(nameof(CreateVideoTestDataGenerator.GetInvalidInputs), parameters: 2, MemberType = typeof(CreateVideoTestDataGenerator))]
+    [ClassData(typeof(CreateVideoTestDataGenerator))]
     public async Task CreateVideoThrowsWithInvalidInput(UseCase.CreateVideoInput input, string expectedValidationError)
     {
         var repositoryMock = new Mock<IVideoRepository>();
@@ -60,8 +60,9 @@ public class CreateVideoTest
         
         var action = async () => await useCase.Handle(input, CancellationToken.None);
 
-        var exceptionAssertion = await action.Should().ThrowAsync<EntityValidationException>();
-        exceptionAssertion.WithMessage($"There are validation errors");
+        var exceptionAssertion = await action.Should()
+            .ThrowAsync<EntityValidationException>().WithMessage("There are validation errors");
+        exceptionAssertion.Which.Errors!.ToList()[0].Message.Should().Be(expectedValidationError);
         repositoryMock.Verify(
             x => x.Insert(It.IsAny<DomainEntity.Video>(), It.IsAny<CancellationToken>()), 
             Times.Never);
