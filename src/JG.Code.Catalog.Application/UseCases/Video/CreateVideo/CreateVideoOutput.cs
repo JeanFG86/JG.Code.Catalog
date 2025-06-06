@@ -2,4 +2,20 @@
 
 namespace JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
 
-public record CreateVideoOutput(Guid Id, DateTime CreatedAt, string Title, bool Published, string Description, Rating Rating, int YearLaunched, int Duration, bool Opened);
+public record CreateVideoOutput(
+    Guid Id,
+    DateTime CreatedAt,
+    string Title,
+    bool Published,
+    string Description,
+    Rating Rating,
+    int YearLaunched,
+    int Duration,
+    bool Opened)
+{
+    public static CreateVideoOutput FromVideo(Domain.Entity.Video video)
+    {
+        return new CreateVideoOutput(video.Id, video.CreatedAt, video.Title, video.Published, video.Description, video.Rating, video.YearLaunched,video.Duration, video.Opened);
+    }
+}
+

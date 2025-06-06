@@ -26,6 +26,6 @@ public class CreateVideo : ICreateVideo
             throw new EntityValidationException("There are validation errors", validationHandler.Errors);
         await _videoRepository.Insert(video, cancellationToken);
         await _unitOfWork.Commit(cancellationToken);
-        return new CreateVideoOutput(video.Id, video.CreatedAt, video.Title, video.Published, video.Description, video.Rating, video.YearLaunched,video.Duration, video.Opened);
+        return CreateVideoOutput.FromVideo(video);
     }
 }
