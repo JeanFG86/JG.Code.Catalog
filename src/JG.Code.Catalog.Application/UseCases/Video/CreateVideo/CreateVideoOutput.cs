@@ -11,11 +11,12 @@ public record CreateVideoOutput(
     Rating Rating,
     int YearLaunched,
     int Duration,
-    bool Opened)
+    bool Opened,
+    IReadOnlyCollection<Guid> CategoriesIds)
 {
     public static CreateVideoOutput FromVideo(Domain.Entity.Video video)
     {
-        return new CreateVideoOutput(video.Id, video.CreatedAt, video.Title, video.Published, video.Description, video.Rating, video.YearLaunched,video.Duration, video.Opened);
+        return new CreateVideoOutput(video.Id, video.CreatedAt, video.Title, video.Published, video.Description, video.Rating, video.YearLaunched,video.Duration, video.Opened, video.Categories);
     }
 }
 

@@ -24,6 +24,9 @@ public class CreateVideo : ICreateVideo
         video.Validate(validationHandler);
         if (validationHandler.HasErrors())
             throw new EntityValidationException("There are validation errors", validationHandler.Errors);
+        if ((input.CategoriesIds?.Count ?? 0) > 0)
+            input.CategoriesIds!.ToList().ForEach(video.AddCategory);
+        
         await _videoRepository.Insert(video, cancellationToken);
         await _unitOfWork.Commit(cancellationToken);
         return CreateVideoOutput.FromVideo(video);

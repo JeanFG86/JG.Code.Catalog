@@ -8,7 +8,7 @@ public class CreateVideoTestFixtureCollection : ICollectionFixture<CreateVideoTe
 
 public class CreateVideoTestFixture : VideoTestFixtureBase
 {
-    public CreateVideoInput CreateValidVideoInput() =>
+    public CreateVideoInput CreateValidVideoInput(List<Guid>? categoriesIds = null) =>
         new(
             GetValidTitle(), 
             GetValidDescription(), 
@@ -16,6 +16,7 @@ public class CreateVideoTestFixture : VideoTestFixtureBase
             GetRandomBoolean(),
             GetValidYearLaunched(), 
             GetValidDuration(), 
-            GetRandomRating()
+            GetRandomRating(),
+            categoriesIds
         );
 }

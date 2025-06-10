@@ -67,4 +67,37 @@ public class CreateVideoTest
             x => x.Insert(It.IsAny<DomainEntity.Video>(), It.IsAny<CancellationToken>()), 
             Times.Never);
     }
+    
+    [Fact(DisplayName = nameof(CreateVideoWithCategoriesIds))]
+    [Trait("Application", "CreateVideo - Use Cases")]
+    public async Task CreateVideoWithCategoriesIds()
+    {
+        var repositoryMock = new Mock<IVideoRepository>();
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        var useCase = new UseCase.CreateVideo(unitOfWorkMock.Object, repositoryMock.Object);
+        var exampleCategoriesIds = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
+        var input = _fixture.CreateValidVideoInput(exampleCategoriesIds);
+        
+        var output =await useCase.Handle(input, CancellationToken.None);
+        
+        unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
+        output.Id.Should().NotBeEmpty();
+        output.CreatedAt.Should().NotBe(default);
+        output.Title.Should().Be(input.Title);
+        output.Description.Should().Be(input.Description);
+        output.YearLaunched.Should().Be(input.YearLaunched);
+        output.Opened.Should().Be(input.Opened);
+        output.Published.Should().Be(input.Published);
+        output.Duration.Should().Be(input.Duration);
+        output.Rating.Should().Be(input.Rating);
+        output.CategoriesIds.Should().BeEquivalentTo(exampleCategoriesIds);
+        repositoryMock.Verify(x => x.Insert(It.Is<DomainEntity.Video>(video 
+            => video.Id != Guid.Empty &&
+               video.Title == input.Title &&
+               video.Published == input.Published &&
+               video.Description == input.Description &&
+               video.YearLaunched == input.YearLaunched &&
+               video.Categories.All(categoryId => exampleCategoriesIds.Contains(categoryId))
+        ), It.IsAny<CancellationToken>()));
+    }
 }
