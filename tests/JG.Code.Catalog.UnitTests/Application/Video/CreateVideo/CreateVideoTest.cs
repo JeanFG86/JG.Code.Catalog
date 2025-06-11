@@ -1,9 +1,9 @@
 ﻿using JG.Code.Catalog.Application.Interfaces;
 using Moq;
 using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
-using JG.Code.Catalog.Domain.Validation;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using UseCase = JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
 
@@ -99,5 +99,27 @@ public class CreateVideoTest
                video.YearLaunched == input.YearLaunched &&
                video.Categories.All(categoryId => exampleCategoriesIds.Contains(categoryId))
         ), It.IsAny<CancellationToken>()));
+    }
+    
+    [Fact(DisplayName = nameof(ThrowsWhenCategoryIdInvalid))]
+    [Trait("Application", "CreateVideo - Use Cases")]
+    public async Task ThrowsWhenCategoryIdInvalid()
+    {
+        var videoRepositoryMock = new Mock<IVideoRepository>();
+        var categoryRepositoryMock = new Mock<ICategoryRepository>();
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        var exampleCategoriesIds = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
+        var removedCategoryId = exampleCategoriesIds[2];
+        categoryRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(exampleCategoriesIds.FindAll(x => x != removedCategoryId).AsReadOnly());
+        var useCase = new UseCase.CreateVideo(videoRepositoryMock.Object, categoryRepositoryMock.Object, unitOfWorkMock.Object);
+        
+        var input = _fixture.CreateValidVideoInput(exampleCategoriesIds);
+        
+        var action =  () => useCase.Handle(input, CancellationToken.None);
+        await action.Should().ThrowAsync<RelatedAggregateException>().WithMessage(
+            $"Related category id (or ids) not found: {removedCategoryId}");
+
+
     }
 }
