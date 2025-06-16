@@ -102,6 +102,7 @@ public class CreateVideoTest
                video.YearLaunched == input.YearLaunched &&
                video.Categories.All(categoryId => exampleCategoriesIds.Contains(categoryId))
         ), It.IsAny<CancellationToken>()));
+        categoryRepositoryMock.VerifyAll();
     }
     
     [Fact(DisplayName = nameof(ThrowsWhenCategoryIdInvalid))]
