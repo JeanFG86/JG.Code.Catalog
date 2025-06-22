@@ -10,18 +10,19 @@ public class CreateVideo : ICreateVideo
 {
     private readonly IVideoRepository _videoRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IGenreRepository _genreRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateVideo(IUnitOfWork unitOfWork,IVideoRepository videoRepository, ICategoryRepository categoryRepository)
+    public CreateVideo(IUnitOfWork unitOfWork,IVideoRepository videoRepository, ICategoryRepository categoryRepository, IGenreRepository genreRepository)
     {
         _videoRepository = videoRepository;
         _categoryRepository = categoryRepository;
+        _genreRepository = genreRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<CreateVideoOutput> Handle(CreateVideoInput input, CancellationToken cancellationToken)
     {
-
         var video = new Domain.Entity.Video(input.Title, input.Description, input.YearLaunched, input.Opened, input.Published, input.Duration, input.Rating);
         var validationHandler = new NotificationValidationHandler();
         video.Validate(validationHandler);
@@ -36,6 +37,11 @@ public class CreateVideo : ICreateVideo
                 throw new RelatedAggregateException($"Related category id (or ids) not found: {string.Join(',', notFoundIds)}");
             }
             input.CategoriesIds!.ToList().ForEach(video.AddCategory);  
+        }
+
+        if ((input.GenresIds?.Count ?? 0) > 0)
+        {
+            input.GenresIds!.ToList().ForEach(video.AddGenre); 
         }
         
         await _videoRepository.Insert(video, cancellationToken);
