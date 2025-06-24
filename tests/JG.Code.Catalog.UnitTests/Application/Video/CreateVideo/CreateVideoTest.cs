@@ -125,7 +125,7 @@ public class CreateVideoTest
             $"Related category id (or ids) not found: {removedCategoryId}");
     }
     
-     [Fact(DisplayName = nameof(CreateVideoWithGenresIds))]
+    [Fact(DisplayName = nameof(CreateVideoWithGenresIds))]
     [Trait("Application", "CreateVideo - Use Cases")]
     public async Task CreateVideoWithGenresIds()
     {
@@ -162,5 +162,26 @@ public class CreateVideoTest
                video.Genres.All(id => exampleGenresIds.Contains(id))
         ), It.IsAny<CancellationToken>()));
         genreRepositoryMock.VerifyAll();
+    }
+    
+    [Fact(DisplayName = nameof(ThrowsWhenInvalidGenreId))]
+    [Trait("Application", "CreateVideo - Use Cases")]
+    public async Task ThrowsWhenInvalidGenreId()
+    {
+        var exampleGenresIds = Enumerable.Range(1, 5).Select(_ => Guid.NewGuid()).ToList();
+        var removedId = exampleGenresIds[2];
+        var repositoryMock = new Mock<IVideoRepository>();
+        var categoryRepositoryMock = new Mock<ICategoryRepository>();
+        var genreRepositoryMock = new Mock<IGenreRepository>();
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        genreRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync(exampleGenresIds.FindAll(id => id != removedId));;
+        var useCase = new UseCase.CreateVideo(unitOfWorkMock.Object, repositoryMock.Object, categoryRepositoryMock.Object, genreRepositoryMock.Object);
+        
+        var input = _fixture.CreateValidVideoInput(genresIds: exampleGenresIds);
+        
+        var action = () => useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<RelatedAggregateException>()
+            .WithMessage($"Related genre id (or ids) not found: {removedId}");
     }
 }

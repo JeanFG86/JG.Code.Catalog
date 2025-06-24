@@ -41,7 +41,13 @@ public class CreateVideo : ICreateVideo
 
         if ((input.GenresIds?.Count ?? 0) > 0)
         {
-            input.GenresIds!.ToList().ForEach(video.AddGenre); 
+            var persistenceIds = await _genreRepository.GetIdsListByIds(input.GenresIds!.ToList(), cancellationToken);
+            if (persistenceIds.Count < input.GenresIds!.Count)
+            {
+                var notFoundIds = input.GenresIds!.ToList().FindAll(categoryId => !persistenceIds.Contains(categoryId));
+                throw new RelatedAggregateException($"Related genre id (or ids) not found: {string.Join(',', notFoundIds)}");
+            }
+            input.GenresIds!.ToList().ForEach(video.AddCategory);  
         }
         
         await _videoRepository.Insert(video, cancellationToken);

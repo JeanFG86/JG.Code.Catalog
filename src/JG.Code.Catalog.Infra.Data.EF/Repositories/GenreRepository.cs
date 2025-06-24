@@ -88,4 +88,9 @@ public class GenreRepository : IGenreRepository
 
         return orderedQuery;
     }
+    
+    public async Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> ids, CancellationToken cancellationToken)
+    {
+        return await _genres.AsNoTracking().Where(category => ids.Contains(category.Id)).Select(c => c.Id).ToListAsync();
+    }
 }
