@@ -11,7 +11,8 @@ public record CreateVideoInput(string Title,
     int Duration,
     Rating Rating,
     IReadOnlyCollection<Guid>? CategoriesIds = null,
-    IReadOnlyCollection<Guid>? GenresIds = null) : IRequest<CreateVideoOutput>
+    IReadOnlyCollection<Guid>? GenresIds = null,
+    IReadOnlyCollection<Guid>? CastMembersIds = null) : IRequest<CreateVideoOutput>
 {
    
 }

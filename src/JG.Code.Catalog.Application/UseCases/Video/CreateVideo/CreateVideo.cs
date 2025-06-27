@@ -11,13 +11,15 @@ public class CreateVideo : ICreateVideo
     private readonly IVideoRepository _videoRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly IGenreRepository _genreRepository;
+    private readonly ICastMemberRepository _castMemberRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateVideo(IUnitOfWork unitOfWork,IVideoRepository videoRepository, ICategoryRepository categoryRepository, IGenreRepository genreRepository)
+    public CreateVideo(IUnitOfWork unitOfWork,IVideoRepository videoRepository, ICategoryRepository categoryRepository, IGenreRepository genreRepository, ICastMemberRepository castMemberRepository)
     {
         _videoRepository = videoRepository;
         _categoryRepository = categoryRepository;
         _genreRepository = genreRepository;
+        _castMemberRepository = castMemberRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -44,10 +46,15 @@ public class CreateVideo : ICreateVideo
             var persistenceIds = await _genreRepository.GetIdsListByIds(input.GenresIds!.ToList(), cancellationToken);
             if (persistenceIds.Count < input.GenresIds!.Count)
             {
-                var notFoundIds = input.GenresIds!.ToList().FindAll(categoryId => !persistenceIds.Contains(categoryId));
+                var notFoundIds = input.GenresIds!.ToList().FindAll(genreId => !persistenceIds.Contains(genreId));
                 throw new RelatedAggregateException($"Related genre id (or ids) not found: {string.Join(',', notFoundIds)}");
             }
-            input.GenresIds!.ToList().ForEach(video.AddCategory);  
+            input.GenresIds!.ToList().ForEach(video.AddGenre);  
+        }
+
+        if ((input.CastMembersIds?.Count ?? 0) > 0)
+        {
+            input.CastMembersIds!.ToList().ForEach(video.AddCastMember);
         }
         
         await _videoRepository.Insert(video, cancellationToken);
