@@ -55,7 +55,12 @@ public class CastMemberRepository : ICastMemberRepository
             .ToListAsync(cancellationToken: cancellationToken);
         return new SearchOutput<CastMember>(input.Page, input.PerPage, total, items);
     }
-    
+
+    public async Task<IReadOnlyList<Guid>> GetIdsListByIds(List<Guid> ids, CancellationToken cancellationToken)
+    {
+        return await _castMembers.AsNoTracking().Where(category => ids.Contains(category.Id)).Select(c => c.Id).ToListAsync();
+    }
+
     private IQueryable<CastMember> AddOrderToQuery(IQueryable<CastMember> query, string orderProperty, SearchOrder order)
     {
         var orderedQuery = (orderProperty.ToLower(), order) switch

@@ -54,6 +54,12 @@ public class CreateVideo : ICreateVideo
 
         if ((input.CastMembersIds?.Count ?? 0) > 0)
         {
+            var persistenceIds = await _castMemberRepository.GetIdsListByIds(input.CastMembersIds!.ToList(), cancellationToken);
+            if (persistenceIds.Count < input.CastMembersIds!.Count)
+            {
+                var notFoundIds = input.CastMembersIds!.ToList().FindAll(genreId => !persistenceIds.Contains(genreId));
+                throw new RelatedAggregateException($"Related cast member id (or ids) not found: {string.Join(',', notFoundIds)}");
+            }
             input.CastMembersIds!.ToList().ForEach(video.AddCastMember);
         }
         
