@@ -190,6 +190,7 @@ public class CreateVideoTest
         var repositoryMock = new Mock<IVideoRepository>();
         var castMemberRepositoryMock = new Mock<ICastMemberRepository>();
         var unitOfWorkMock = new Mock<IUnitOfWork>();
+        castMemberRepositoryMock.Setup(x => x.GetIdsListByIds(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync(exampleCastMembersIds);
         var useCase = new UseCase.CreateVideo(unitOfWorkMock.Object, repositoryMock.Object, Mock.Of<ICategoryRepository>(), Mock.Of<IGenreRepository>(), castMemberRepositoryMock.Object);
         var input = _fixture.CreateValidVideoInput(castMembersIds: exampleCastMembersIds);
         
