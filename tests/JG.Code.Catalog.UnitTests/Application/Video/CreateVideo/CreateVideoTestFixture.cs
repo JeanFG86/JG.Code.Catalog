@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
+using JG.Code.Catalog.Application.UseCases.Video.Common;
 using JG.Code.Catalog.UnitTests.Common.Fixtures;
 
 namespace JG.Code.Catalog.UnitTests.Application.Video.CreateVideo;
@@ -8,7 +9,7 @@ public class CreateVideoTestFixtureCollection : ICollectionFixture<CreateVideoTe
 
 public class CreateVideoTestFixture : VideoTestFixtureBase
 {
-    public CreateVideoInput CreateValidVideoInput(List<Guid>? categoriesIds = null, List<Guid>? genresIds = null, List<Guid>? castMembersIds = null) =>
+    public CreateVideoInput CreateValidVideoInput(List<Guid>? categoriesIds = null, List<Guid>? genresIds = null, List<Guid>? castMembersIds = null, FileInput? thumb = null) =>
         new(
             GetValidTitle(), 
             GetValidDescription(), 
@@ -19,6 +20,7 @@ public class CreateVideoTestFixture : VideoTestFixtureBase
             GetRandomRating(),
             categoriesIds,
             genresIds,
-            castMembersIds
+            castMembersIds,
+            thumb
         );
 }

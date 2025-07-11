@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Domain.Enum;
+﻿using JG.Code.Catalog.Application.UseCases.Video.Common;
+using JG.Code.Catalog.Domain.Enum;
 using MediatR;
 
 namespace JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
@@ -12,7 +13,8 @@ public record CreateVideoInput(string Title,
     Rating Rating,
     IReadOnlyCollection<Guid>? CategoriesIds = null,
     IReadOnlyCollection<Guid>? GenresIds = null,
-    IReadOnlyCollection<Guid>? CastMembersIds = null) : IRequest<CreateVideoOutput>
+    IReadOnlyCollection<Guid>? CastMembersIds = null,
+    FileInput? Thumb = null) : IRequest<CreateVideoOutput>
 {
    
 }

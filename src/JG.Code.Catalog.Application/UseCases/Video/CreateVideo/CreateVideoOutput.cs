@@ -14,12 +14,13 @@ public record CreateVideoOutput(
     bool Opened,
     IReadOnlyCollection<Guid> CategoriesIds,
     IReadOnlyCollection<Guid> GenresIds,
-    IReadOnlyCollection<Guid> CastMembersIds)
+    IReadOnlyCollection<Guid> CastMembersIds,
+    string? Thumb = null)
 {
     public static CreateVideoOutput FromVideo(Domain.Entity.Video video)
     {
         return new CreateVideoOutput(video.Id, video.CreatedAt, video.Title, video.Published, video.Description, video.Rating, 
-            video.YearLaunched,video.Duration, video.Opened, video.Categories, video.Genres, video.CastMembers);
+            video.YearLaunched,video.Duration, video.Opened, video.Categories, video.Genres, video.CastMembers, video.Thumb?.Path);
     }
 }
 
