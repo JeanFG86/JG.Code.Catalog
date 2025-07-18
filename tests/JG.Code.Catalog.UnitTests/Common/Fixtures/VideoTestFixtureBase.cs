@@ -1,4 +1,6 @@
-﻿using JG.Code.Catalog.Domain.Enum;
+﻿using System.Text;
+using JG.Code.Catalog.Application.UseCases.Video.Common;
+using JG.Code.Catalog.Domain.Enum;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 
 namespace JG.Code.Catalog.UnitTests.Common.Fixtures;
@@ -45,4 +47,11 @@ public abstract class VideoTestFixtureBase : BaseFixture
     }
 
     public DomainEntity.Media GetValidMedia() => new (GetValidMediaPath());
+    
+    public FileInput GetValidImageFileInput()
+    {
+        var exampleStream = new MemoryStream(Encoding.ASCII.GetBytes("test"));
+        var fileInput = new FileInput("jpg", exampleStream);
+        return fileInput;
+    }
 }

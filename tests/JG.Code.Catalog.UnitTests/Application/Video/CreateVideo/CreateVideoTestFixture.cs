@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
+﻿using System.Text;
+using JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
 using JG.Code.Catalog.Application.UseCases.Video.Common;
 using JG.Code.Catalog.UnitTests.Common.Fixtures;
 

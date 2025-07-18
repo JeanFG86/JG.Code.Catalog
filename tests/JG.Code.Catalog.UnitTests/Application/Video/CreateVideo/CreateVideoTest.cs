@@ -58,12 +58,11 @@ public class CreateVideoTest
         var repositoryMock = new Mock<IVideoRepository>();
         var unitOfWorkMock = new Mock<IUnitOfWork>();
         var storageServiceMock = new Mock<IStorageService>();
-        var exampleStream = new MemoryStream(Encoding.ASCII.GetBytes("teste"));
-        var thumbFileInput = new FileInput("jpg", exampleStream);
-        var expectedThumbName = $"thumb.{thumbFileInput.Extension}";
+        
+        var expectedThumbName = $"thumb.jpg";
         storageServiceMock.Setup(x => x.Upload(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>())).ReturnsAsync(expectedThumbName);
         var useCase = new UseCase.CreateVideo(unitOfWorkMock.Object, repositoryMock.Object, Mock.Of<ICategoryRepository>(), Mock.Of<IGenreRepository>(), Mock.Of<ICastMemberRepository>(), storageServiceMock.Object);
-        var input = _fixture.CreateValidVideoInput(thumb: thumbFileInput);
+        var input = _fixture.CreateValidVideoInput(thumb: _fixture.GetValidImageFileInput());
         
         var output = await useCase.Handle(input, CancellationToken.None);
         
