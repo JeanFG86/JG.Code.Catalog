@@ -32,21 +32,15 @@ public class CreateVideo : ICreateVideo
         video.Validate(validationHandler);
         if (validationHandler.HasErrors())
             throw new EntityValidationException("There are validation errors", validationHandler.Errors);
-        if ((input.CategoriesIds?.Count ?? 0) > 0)
-        {
-            await ValidateCategoryIds(input, cancellationToken);
-            input.CategoriesIds!.ToList().ForEach(video.AddCategory);
-        }
-        if ((input.GenresIds?.Count ?? 0) > 0)
-        {
-            await ValidateAndRetrieveGenreIds(input, cancellationToken);
-            input.GenresIds!.ToList().ForEach(video.AddGenre);
-        }
-        if ((input.CastMembersIds?.Count ?? 0) > 0)
-        {
-            await ValidateCastMemberIds(input, cancellationToken);
-            input.CastMembersIds!.ToList().ForEach(video.AddCastMember);
-        }
+        await ValidateAndAddRelations(input, cancellationToken, video);
+        await UploadVideoAssets(input, cancellationToken, video);
+        await _videoRepository.Insert(video, cancellationToken);
+        await _unitOfWork.Commit(cancellationToken);
+        return CreateVideoOutput.FromVideo(video);
+    }
+
+    private async Task UploadVideoAssets(CreateVideoInput input, CancellationToken cancellationToken, Domain.Entity.Video video)
+    {
         if (input.Thumb is not null)
         {
             var thumbUrl = await _storageService.Upload($"{video.Id}-thumb.{input.Thumb.Extension}", input.Thumb.FileStream, cancellationToken);
@@ -62,9 +56,25 @@ public class CreateVideo : ICreateVideo
             var thumbHalfUrl = await _storageService.Upload($"{video.Id}-thumbhalf.{input.ThumbHalf.Extension}", input.ThumbHalf.FileStream, cancellationToken);
             video.UpdateThumbHalf(thumbHalfUrl);
         }
-        await _videoRepository.Insert(video, cancellationToken);
-        await _unitOfWork.Commit(cancellationToken);
-        return CreateVideoOutput.FromVideo(video);
+    }
+
+    private async Task ValidateAndAddRelations(CreateVideoInput input, CancellationToken cancellationToken, Domain.Entity.Video video)
+    {
+        if ((input.CategoriesIds?.Count ?? 0) > 0)
+        {
+            await ValidateCategoryIds(input, cancellationToken);
+            input.CategoriesIds!.ToList().ForEach(video.AddCategory);
+        }
+        if ((input.GenresIds?.Count ?? 0) > 0)
+        {
+            await ValidateAndRetrieveGenreIds(input, cancellationToken);
+            input.GenresIds!.ToList().ForEach(video.AddGenre);
+        }
+        if ((input.CastMembersIds?.Count ?? 0) > 0)
+        {
+            await ValidateCastMemberIds(input, cancellationToken);
+            input.CastMembersIds!.ToList().ForEach(video.AddCastMember);
+        }
     }
 
     private async Task ValidateCastMemberIds(CreateVideoInput input, CancellationToken cancellationToken)
