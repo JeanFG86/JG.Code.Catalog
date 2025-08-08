@@ -198,6 +198,20 @@ public class CreateVideoTest
         output.ThumbHalf.Should().Be(expectedThumbHalfName);
     }
     
+    [Fact(DisplayName = nameof(ThrowsExceptionInUploadErrorCases))]
+    [Trait("Application", "CreateVideo - Use Cases")]
+    public async Task ThrowsExceptionInUploadErrorCases()
+    {
+        var storageServiceMock = new Mock<IStorageService>();
+        storageServiceMock.Setup(x => x.Upload(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("Something went wrong in upload"));
+        var useCase = new UseCase.CreateVideo(Mock.Of<IUnitOfWork>(), Mock.Of<IVideoRepository>(), Mock.Of<ICategoryRepository>(), Mock.Of<IGenreRepository>(), Mock.Of<ICastMemberRepository>(), storageServiceMock.Object);
+        var input = _fixture.CreateValidInputWithAllImages();
+        
+        var action = async () => await useCase.Handle(input, CancellationToken.None);
+        
+        await action.Should().ThrowAsync<Exception>().WithMessage("Something went wrong in upload");
+    }
+    
     [Theory(DisplayName = nameof(CreateVideoThrowsWithInvalidInput))]
     [Trait("Application", "CreateVideo - Use Cases")]
     [ClassData(typeof(CreateVideoTestDataGenerator))]
