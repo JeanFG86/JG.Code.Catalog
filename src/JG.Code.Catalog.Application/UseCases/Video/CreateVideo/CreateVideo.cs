@@ -33,10 +33,29 @@ public class CreateVideo : ICreateVideo
         if (validationHandler.HasErrors())
             throw new EntityValidationException("There are validation errors", validationHandler.Errors);
         await ValidateAndAddRelations(input, cancellationToken, video);
-        await UploadVideoAssets(input, cancellationToken, video);
-        await _videoRepository.Insert(video, cancellationToken);
-        await _unitOfWork.Commit(cancellationToken);
-        return CreateVideoOutput.FromVideo(video);
+
+        try
+        {
+            await UploadVideoAssets(input, cancellationToken, video);
+            await _videoRepository.Insert(video, cancellationToken);
+            await _unitOfWork.Commit(cancellationToken);
+            return CreateVideoOutput.FromVideo(video);
+        }
+        catch (Exception e)
+        {
+            ClearStorage(cancellationToken, video);
+            throw;
+        }
+    }
+
+    private void ClearStorage(CancellationToken cancellationToken, Domain.Entity.Video video)
+    {
+        if(video.Thumb is not null)
+            _storageService.Delete(video.Thumb.Path, cancellationToken);
+        if(video.ThumbHalf is not null)
+            _storageService.Delete(video.ThumbHalf.Path, cancellationToken);
+        if(video.Banner is not null)
+            _storageService.Delete(video.Banner.Path, cancellationToken);
     }
 
     private async Task UploadVideoAssets(CreateVideoInput input, CancellationToken cancellationToken, Domain.Entity.Video video)

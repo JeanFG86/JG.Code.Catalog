@@ -3,4 +3,5 @@
 public interface IStorageService
 {
     Task<string> Upload(string fileName, Stream stream, CancellationToken cancellationToken);
+    Task Delete(string filePath, CancellationToken cancellationToken);
 }
