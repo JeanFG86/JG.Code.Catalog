@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.UnitTests.Common.Fixtures;
+using UseCase = JG.Code.Catalog.Application.UseCases.Video.UploadMideas;
 
 namespace JG.Code.Catalog.UnitTests.Application.Video.UploadMideas;
 
@@ -7,5 +8,6 @@ public class UploadMideasTestFixtureFixtureCollection : ICollectionFixture<Uploa
 
 public class UploadMideasTestFixture : VideoTestFixtureBase
 {
-    
+    public UseCase.UploadMediasInput GetValidInput() =>
+        new (Guid.NewGuid(), GetValidMediaFileInput(), GetValidMediaFileInput());
 }
