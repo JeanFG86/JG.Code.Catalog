@@ -6,7 +6,7 @@ using UseCase = JG.Code.Catalog.Application.UseCases.Video.UploadMideas;
 namespace JG.Code.Catalog.UnitTests.Application.Video.UploadMideas;
 
 [Collection(nameof(UploadMideasTestFixture))]
-public class UploadMideasTest
+public class UploadMediasTest
 {
     private readonly UploadMideasTestFixture _fixture;
     private readonly UseCase.UploadMedias _useCase;
@@ -14,7 +14,7 @@ public class UploadMideasTest
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IStorageService> _storageService;
     
-    public UploadMideasTest(UploadMideasTestFixture fixture)
+    public UploadMediasTest(UploadMideasTestFixture fixture)
     {
         _fixture = fixture;
         _repositoryMock = new Mock<IVideoRepository>();
