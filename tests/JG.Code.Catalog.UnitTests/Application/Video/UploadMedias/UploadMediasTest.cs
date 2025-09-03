@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Application.Interfaces;
+﻿using JG.Code.Catalog.Application.Common;
+using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Domain.Repository;
 using Moq;
 using UseCase = JG.Code.Catalog.Application.UseCases.Video.UploadMideas;
@@ -27,15 +28,18 @@ public class UploadMediasTest
     [Trait("Application ", "UploadMedias - Use Cases")]
     public async void UploadMedias()
     {
-        _repositoryMock.Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_fixture.GetValidVideo());
+        var video = _fixture.GetValidVideo();
+        var validInput = _fixture.GetValidInput(video.Id);
+        var fileNames = new List<string> { StorageFileName.Create(video.Id, nameof(video.Media), validInput.VideoFile!.Extension),  StorageFileName.Create(video.Id, nameof(video.Trailer), validInput.TrailerFile!.Extension)};
+        _repositoryMock.Setup(x => x.Get(It.Is<Guid>(x => x == video.Id), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(video);
         _storageService.Setup(x => x.Upload(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Guid.NewGuid().ToString());
 
-        await _useCase.Handle(input: _fixture.GetValidInput(), cancellationToken: CancellationToken.None);
+        await _useCase.Handle(validInput, cancellationToken: CancellationToken.None);
         
         _repositoryMock.VerifyAll();
-        _storageService.Verify(x => x.Upload(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _storageService.Verify(x => x.Upload(It.Is<string>(x => fileNames.Contains(x)), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -8,6 +8,6 @@ public class UploadMideasTestFixtureFixtureCollection : ICollectionFixture<Uploa
 
 public class UploadMideasTestFixture : VideoTestFixtureBase
 {
-    public UseCase.UploadMediasInput GetValidInput() =>
-        new (Guid.NewGuid(), GetValidMediaFileInput(), GetValidMediaFileInput());
+    public UseCase.UploadMediasInput GetValidInput(Guid? videoId = null) =>
+        new (videoId ?? Guid.NewGuid(), GetValidMediaFileInput(), GetValidMediaFileInput());
 }
