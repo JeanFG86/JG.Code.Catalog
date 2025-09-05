@@ -1,4 +1,6 @@
-﻿using JG.Code.Catalog.Application.Common;
+﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Common;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Domain.Repository;
 using Moq;
@@ -41,5 +43,19 @@ public class UploadMediasTest
         _repositoryMock.VerifyAll();
         _storageService.Verify(x => x.Upload(It.Is<string>(x => fileNames.Contains(x)), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
+    }
+    
+    [Fact(DisplayName = nameof(ThrowsWhenVideoNotFound))]
+    [Trait("Application ", "UploadMedias - Use Cases")]
+    public async void ThrowsWhenVideoNotFound()
+    {
+        var video = _fixture.GetValidVideo();
+        var validInput = _fixture.GetValidInput(video.Id);
+        _repositoryMock.Setup(x => x.Get(It.Is<Guid>(x => x == video.Id), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new NotFoundException("Video bot found"));
+
+        var action = () => _useCase.Handle(validInput, cancellationToken: CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>().WithMessage("Video bot found");
     }
 }
