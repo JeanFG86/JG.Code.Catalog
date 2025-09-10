@@ -58,4 +58,29 @@ public class UploadMediasTest
 
         await action.Should().ThrowAsync<NotFoundException>().WithMessage("Video bot found");
     }
+    
+    [Fact(DisplayName = nameof(ClearStorageInUploadErrorCase))]
+    [Trait("Application ", "UploadMedias - Use Cases")]
+    public async void ClearStorageInUploadErrorCase()
+    {
+        var video = _fixture.GetValidVideo();
+        var validInput = _fixture.GetValidInput(video.Id);
+        var videoFileName = StorageFileName.Create(video.Id, nameof(video.Media), validInput.VideoFile!.Extension);
+        var videoStoragePath = $"storage/{videoFileName}";
+        var trailerFileName = StorageFileName.Create(video.Id, nameof(video.Trailer), validInput.TrailerFile!.Extension);
+        var fileNames = new List<string> { videoFileName, trailerFileName};
+        _repositoryMock.Setup(x => x.Get(It.Is<Guid>(x => x == video.Id), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(video);
+        _storageService.Setup(x => x.Upload(It.Is<string>(x => x == videoFileName), It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(videoStoragePath);
+        _storageService.Setup(x => x.Upload(It.Is<string>(x => x == trailerFileName), It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Something went wrong whit the upload"));
+        
+        var action = () => _useCase.Handle(validInput, cancellationToken: CancellationToken.None);
+        
+        await action.Should().ThrowAsync<Exception>().WithMessage("Something went wrong whit the upload");
+        _repositoryMock.VerifyAll();
+        _storageService.Verify(x => x.Upload(It.Is<string>(x => fileNames.Contains(x)), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _storageService.Verify(x => x.Delete(It.Is<string>(x => x == videoStoragePath), It.IsAny<CancellationToken>()), Times.Once);
+    }
 }
