@@ -8,8 +8,8 @@ using UseCase = JG.Code.Catalog.Application.UseCases.Video.UploadMideas;
 
 namespace JG.Code.Catalog.UnitTests.Application.Video.UploadMideas;
 
-[Collection(nameof(UploadMideasTestFixture))]
-public class UploadMediasTest
+//[Collection(nameof(UploadMideasTestFixture))]
+public class UploadMediasTest : IClassFixture<UploadMideasTestFixture>
 {
     private readonly UploadMideasTestFixture _fixture;
     private readonly UseCase.UploadMedias _useCase;
@@ -86,7 +86,7 @@ public class UploadMediasTest
     
     [Fact(DisplayName = nameof(ClearStorageInCommitErrorCase))]
     [Trait("Application ", "UploadMedias - Use Cases")]
-    public async void ClearStorageInCommitErrorCase()
+    public async Task ClearStorageInCommitErrorCase()
     {
         var video = _fixture.GetValidVideo();
         var validInput = _fixture.GetValidInput(video.Id);
@@ -116,7 +116,7 @@ public class UploadMediasTest
     
     [Fact(DisplayName = nameof(ClearOnlyOneFileInStorageInCommitErrorCaseIfProvidedOnlyOneFile))]
     [Trait("Application ", "UploadMedias - Use Cases")]
-    public async void ClearOnlyOneFileInStorageInCommitErrorCaseIfProvidedOnlyOneFile()
+    public async Task ClearOnlyOneFileInStorageInCommitErrorCaseIfProvidedOnlyOneFile()
     {
         var video = _fixture.GetValidVideo();
         video.UpdateTrailer(_fixture.GetValidMediaPath());

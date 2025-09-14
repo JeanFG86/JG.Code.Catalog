@@ -3,8 +3,8 @@ using UseCase = JG.Code.Catalog.Application.UseCases.Video.UploadMideas;
 
 namespace JG.Code.Catalog.UnitTests.Application.Video.UploadMideas;
 
-[CollectionDefinition(nameof(UploadMideasTestFixture))]
-public class UploadMideasTestFixtureFixtureCollection : ICollectionFixture<UploadMideasTestFixture>{}
+//[CollectionDefinition(nameof(UploadMideasTestFixture))]
+//public class UploadMideasTestFixtureCollection : ICollectionFixture<UploadMideasTestFixture>{}
 
 public class UploadMideasTestFixture : VideoTestFixtureBase
 {
