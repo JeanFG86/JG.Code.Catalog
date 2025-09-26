@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Application.Exceptions;
+﻿using JG.Code.Catalog.Application.Common;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
@@ -37,6 +38,7 @@ public class CreateVideo : ICreateVideo
         try
         {
             await UploadVideoAssets(input, cancellationToken, video);
+            await UploadVideoMedias(input, cancellationToken, video);
             await _videoRepository.Insert(video, cancellationToken);
             await _unitOfWork.Commit(cancellationToken);
             return CreateVideoOutput.FromVideo(video);
@@ -45,6 +47,16 @@ public class CreateVideo : ICreateVideo
         {
             ClearStorage(cancellationToken, video);
             throw;
+        }
+    }
+
+    private async Task UploadVideoMedias(CreateVideoInput input, CancellationToken cancellationToken, Domain.Entity.Video video)
+    {
+        if (input.Media is not null)
+        {
+            var fileName = StorageFileName.Create(video.Id, nameof(video.Media), input.Media.Extension);
+            var mediaUrl = await _storageService.Upload(fileName, input.Media.FileStream, cancellationToken);
+            video.UpdateMedia(mediaUrl);
         }
     }
 

@@ -1,9 +1,7 @@
-﻿using System.Text;
-using JG.Code.Catalog.Application.Interfaces;
+﻿using JG.Code.Catalog.Application.Interfaces;
 using Moq;
 using FluentAssertions;
 using JG.Code.Catalog.Application.Exceptions;
-using JG.Code.Catalog.Application.UseCases.Video.Common;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
@@ -155,7 +153,41 @@ public class CreateVideoTest
         output.Rating.Should().Be(input.Rating);
         output.ThumbHalf.Should().Be(expectedThumbHalfName);
     }
-    
+
+    [Fact(DisplayName = nameof(CreateVideoWithMedia))]
+    [Trait("Application", "CreateVideo - Use Cases")]
+    public async Task CreateVideoWithMedia()
+    {
+        var repositoryMock = new Mock<IVideoRepository>();
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        var storageServiceMock = new Mock<IStorageService>();
+        var expectedMediaName = $"/storage/{_fixture.GetValidMediaPath()}";
+        storageServiceMock.Setup(x => x.Upload(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>())).ReturnsAsync(expectedMediaName);
+        var useCase = new UseCase.CreateVideo(unitOfWorkMock.Object, repositoryMock.Object, Mock.Of<ICategoryRepository>(), Mock.Of<IGenreRepository>(), Mock.Of<ICastMemberRepository>(), storageServiceMock.Object);
+        var input = _fixture.CreateValidInput(media: _fixture.GetValidMediaFileInput());
+
+        var output = await useCase.Handle(input, CancellationToken.None);
+
+        repositoryMock.Verify(x => x.Insert(It.Is<DomainEntity.Video>(video
+            => video.Id != Guid.Empty &&
+               video.Title == input.Title &&
+               video.Published == input.Published &&
+               video.Description == input.Description &&
+               video.YearLaunched == input.YearLaunched
+        ), It.IsAny<CancellationToken>()));
+        unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()));
+        output.Id.Should().NotBeEmpty();
+        output.CreatedAt.Should().NotBe(default);
+        output.Title.Should().Be(input.Title);
+        output.Description.Should().Be(input.Description);
+        output.YearLaunched.Should().Be(input.YearLaunched);
+        output.Opened.Should().Be(input.Opened);
+        output.Published.Should().Be(input.Published);
+        output.Duration.Should().Be(input.Duration);
+        output.Rating.Should().Be(input.Rating);
+        output.Media.Should().Be(expectedMediaName);
+    }
+
     [Fact(DisplayName = nameof(CreateVideoWithAllImages))]
     [Trait("Application", "CreateVideo - Use Cases")]
     public async Task CreateVideoWithAllImages()

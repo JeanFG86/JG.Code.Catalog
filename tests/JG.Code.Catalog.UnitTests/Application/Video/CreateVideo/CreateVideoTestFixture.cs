@@ -10,7 +10,7 @@ public class CreateVideoTestFixtureCollection : ICollectionFixture<CreateVideoTe
 
 public class CreateVideoTestFixture : VideoTestFixtureBase
 {
-    public CreateVideoInput CreateValidInput(List<Guid>? categoriesIds = null, List<Guid>? genresIds = null, List<Guid>? castMembersIds = null, FileInput? thumb = null, FileInput? banner = null, FileInput? thumbHalf = null) =>
+    public CreateVideoInput CreateValidInput(List<Guid>? categoriesIds = null, List<Guid>? genresIds = null, List<Guid>? castMembersIds = null, FileInput? thumb = null, FileInput? banner = null, FileInput? thumbHalf = null, FileInput? media = null) =>
         new(
             GetValidTitle(), 
             GetValidDescription(), 
@@ -24,7 +24,8 @@ public class CreateVideoTestFixture : VideoTestFixtureBase
             castMembersIds,
             thumb,
             banner,
-            thumbHalf
+            thumbHalf,
+            media
         );
     
     public CreateVideoInput CreateValidInputWithAllImages() =>
