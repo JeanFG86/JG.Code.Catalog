@@ -58,6 +58,12 @@ public class CreateVideo : ICreateVideo
             var mediaUrl = await _storageService.Upload(fileName, input.Media.FileStream, cancellationToken);
             video.UpdateMedia(mediaUrl);
         }
+        if (input.Trailer is not null)
+        {
+            var fileName = StorageFileName.Create(video.Id, nameof(video.Trailer), input.Trailer.Extension);
+            var mediaUrl = await _storageService.Upload(fileName, input.Trailer.FileStream, cancellationToken);
+            video.UpdateTrailer(mediaUrl);
+        }
     }
 
     private void ClearStorage(CancellationToken cancellationToken, Domain.Entity.Video video)

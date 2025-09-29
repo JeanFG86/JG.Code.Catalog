@@ -17,7 +17,8 @@ public record CreateVideoInput(string Title,
     FileInput? Thumb = null,
     FileInput? Banner = null,
     FileInput? ThumbHalf = null,
-    FileInput? Media = null) : IRequest<CreateVideoOutput>
+    FileInput? Media = null,
+    FileInput? Trailer = null) : IRequest<CreateVideoOutput>
 {
    
 }

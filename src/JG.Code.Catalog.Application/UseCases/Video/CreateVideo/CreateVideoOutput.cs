@@ -18,12 +18,14 @@ public record CreateVideoOutput(
     string? Thumb = null,
     string? Banner = null,
     string? ThumbHalf = null,
-    string? Media = null)
+    string? Media = null,
+    string? Trailer = null)
 {
     public static CreateVideoOutput FromVideo(Domain.Entity.Video video)
     {
         return new CreateVideoOutput(video.Id, video.CreatedAt, video.Title, video.Published, video.Description, video.Rating, 
-            video.YearLaunched,video.Duration, video.Opened, video.Categories, video.Genres, video.CastMembers, video.Thumb?.Path, video.Banner?.Path, video.ThumbHalf?.Path, video.Media?.FilePath);
+            video.YearLaunched,video.Duration, video.Opened, video.Categories, video.Genres, video.CastMembers, video.Thumb?.Path, 
+            video.Banner?.Path, video.ThumbHalf?.Path, video.Media?.FilePath, video.Trailer?.FilePath);
     }
 }
 
