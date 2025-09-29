@@ -186,7 +186,7 @@ public class CreateVideoTest
         output.Duration.Should().Be(input.Duration);
         output.Rating.Should().Be(input.Rating);
         output.Media.Should().Be(expectedMediaName);
-    }
+    }    
 
     [Fact(DisplayName = nameof(CreateVideoWithAllImages))]
     [Trait("Application", "CreateVideo - Use Cases")]
