@@ -74,6 +74,10 @@ public class CreateVideo : ICreateVideo
             _storageService.Delete(video.ThumbHalf.Path, cancellationToken);
         if(video.Banner is not null)
             _storageService.Delete(video.Banner.Path, cancellationToken);
+        if (video.Media is not null)
+            _storageService.Delete(video.Media.FilePath, cancellationToken);
+        if (video.Trailer is not null)
+            _storageService.Delete(video.Trailer.FilePath, cancellationToken);
     }
 
     private async Task UploadVideoAssets(CreateVideoInput input, CancellationToken cancellationToken, Domain.Entity.Video video)

@@ -6,6 +6,7 @@ using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using UseCase = JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
+using JG.Code.Catalog.Application.Common;
 
 namespace JG.Code.Catalog.UnitTests.Application.Video.CreateVideo;
 
@@ -278,9 +279,9 @@ public class CreateVideoTest
         await action.Should().ThrowAsync<Exception>().WithMessage("Something went wrong in upload");
     }
     
-    [Fact(DisplayName = nameof(ThrowsExceptionAndRollbackInUploadErrorCases))]
+    [Fact(DisplayName = nameof(ThrowsExceptionAndRollbackInImagesUploadErrorCases))]
     [Trait("Application", "CreateVideo - Use Cases")]
-    public async Task ThrowsExceptionAndRollbackInUploadErrorCases()
+    public async Task ThrowsExceptionAndRollbackInImagesUploadErrorCases()
     {
         var storageServiceMock = new Mock<IStorageService>();
         storageServiceMock.Setup(x => x.Upload(It.Is<string>(x => x.EndsWith("-banner.jpg")), It.IsAny<Stream>(), It.IsAny<CancellationToken>())).ReturnsAsync("123-banner.jpg");
@@ -294,7 +295,29 @@ public class CreateVideoTest
         await action.Should().ThrowAsync<Exception>().WithMessage("Something went wrong in upload");
         storageServiceMock.Verify(x => x.Delete(It.Is<string>(x => (x =="123-banner.jpg") || (x =="123-thumb.jpg")), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
-    
+
+    [Fact(DisplayName = nameof(ThrowsExceptionAndRollbackInMediaUploadCommitErrorCases))]
+    [Trait("Application", "CreateVideo - Use Cases")]
+    public async Task ThrowsExceptionAndRollbackInMediaUploadCommitErrorCases()
+    {
+        var input = _fixture.CreateValidInputWithAllMedias();
+        var storageServiceMock = new Mock<IStorageService>();
+        var storageMediaPath = _fixture.GetValidMediaPath();
+        var storageTrailerPath = _fixture.GetValidMediaPath();
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        var storagePathList = new List<string>() { storageMediaPath, storageTrailerPath };
+        storageServiceMock.Setup(x => x.Upload(It.Is<string>(x => x.EndsWith($"media.{input.Media!.Extension}")), It.IsAny<Stream>(), It.IsAny<CancellationToken>())).ReturnsAsync(storageMediaPath);
+        storageServiceMock.Setup(x => x.Upload(It.Is<string>(x => x.EndsWith($"trailer.{input.Trailer!.Extension}")), It.IsAny<Stream>(), It.IsAny<CancellationToken>())).ReturnsAsync(storageTrailerPath);
+        unitOfWorkMock.Setup(x => x.Commit(It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("Something went wrong in the commit"));
+        var useCase = new UseCase.CreateVideo(unitOfWorkMock.Object, Mock.Of<IVideoRepository>(), Mock.Of<ICategoryRepository>(), Mock.Of<IGenreRepository>(), Mock.Of<ICastMemberRepository>(), storageServiceMock.Object);
+
+        var action = async () => await useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<Exception>().WithMessage("Something went wrong in the commit");
+        storageServiceMock.Verify(x => x.Delete(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        storageServiceMock.Verify(x => x.Delete(It.Is<string>(x => storagePathList.Contains(x)), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
     [Theory(DisplayName = nameof(CreateVideoThrowsWithInvalidInput))]
     [Trait("Application", "CreateVideo - Use Cases")]
     [ClassData(typeof(CreateVideoTestDataGenerator))]
