@@ -1,6 +1,7 @@
 ﻿using JG.Code.Catalog.Application.Common;
 using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.Interfaces;
+using JG.Code.Catalog.Application.UseCases.Video.Common;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using JG.Code.Catalog.Domain.Validation;
@@ -26,7 +27,7 @@ public class CreateVideo : ICreateVideo
         _storageService = storageService;
     }
 
-    public async Task<CreateVideoOutput> Handle(CreateVideoInput input, CancellationToken cancellationToken)
+    public async Task<VideoModelOutput> Handle(CreateVideoInput input, CancellationToken cancellationToken)
     {
         var video = new Domain.Entity.Video(input.Title, input.Description, input.YearLaunched, input.Opened, input.Published, input.Duration, input.Rating);
         var validationHandler = new NotificationValidationHandler();
@@ -41,7 +42,7 @@ public class CreateVideo : ICreateVideo
             await UploadVideoMedias(input, cancellationToken, video);
             await _videoRepository.Insert(video, cancellationToken);
             await _unitOfWork.Commit(cancellationToken);
-            return CreateVideoOutput.FromVideo(video);
+            return VideoModelOutput.FromVideo(video);
         }
         catch (Exception e)
         {

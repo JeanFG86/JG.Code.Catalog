@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Domain.Repository;
+﻿using JG.Code.Catalog.Application.UseCases.Video.Common;
+using JG.Code.Catalog.Domain.Repository;
 
 namespace JG.Code.Catalog.Application.UseCases.Video.GetVideo;
 
@@ -11,9 +12,9 @@ public class GetVideo : IGetVideo
         _videoRepository = videoRepository;
     }
 
-    public async Task<GetVideoOutput> Handle(GetVideoInput request, CancellationToken cancellationToken)
+    public async Task<VideoModelOutput> Handle(GetVideoInput request, CancellationToken cancellationToken)
     {
         var video = await _videoRepository.Get(request.VideoId, cancellationToken);
-        return GetVideoOutput.FromVideo(video);
+        return VideoModelOutput.FromVideo(video);
     }
 }

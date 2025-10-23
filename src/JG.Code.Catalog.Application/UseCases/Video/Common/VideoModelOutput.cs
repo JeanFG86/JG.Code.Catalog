@@ -1,8 +1,8 @@
 ﻿using JG.Code.Catalog.Domain.Enum;
 
-namespace JG.Code.Catalog.Application.UseCases.Video.GetVideo;
+namespace JG.Code.Catalog.Application.UseCases.Video.Common;
 
-public record GetVideoOutput(
+public record VideoModelOutput(
     Guid Id,
     DateTime CreatedAt,
     string Title,
@@ -21,9 +21,9 @@ public record GetVideoOutput(
     string? Media = null,
     string? Trailer = null)
 {
-    public static GetVideoOutput FromVideo(Domain.Entity.Video video)
+    public static VideoModelOutput FromVideo(Domain.Entity.Video video)
     {
-        return new GetVideoOutput(video.Id, video.CreatedAt, video.Title, video.Published, video.Description, video.Rating,
+        return new VideoModelOutput(video.Id, video.CreatedAt, video.Title, video.Published, video.Description, video.Rating,
             video.YearLaunched, video.Duration, video.Opened, video.Categories, video.Genres, video.CastMembers, video.Thumb?.Path,
             video.Banner?.Path, video.ThumbHalf?.Path, video.Media?.FilePath, video.Trailer?.FilePath);
     }
