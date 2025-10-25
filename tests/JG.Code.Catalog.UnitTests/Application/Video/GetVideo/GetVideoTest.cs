@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using Moq;
 using UseCase = JG.Code.Catalog.Application.UseCases.Video.GetVideo;
@@ -37,6 +38,21 @@ public class GetVideoTest
         output.Published.Should().Be(exampleVideo.Published);
         output.Duration.Should().Be(exampleVideo.Duration);
         output.Rating.Should().Be(exampleVideo.Rating);
+        repositoryMock.VerifyAll();
+    }
+
+    [Fact(DisplayName = nameof(ThrowsExceptionWhenNotFound))]
+    [Trait("Application", "GetVideo - Use Cases")]
+    public async Task ThrowsExceptionWhenNotFound()
+    {
+        var repositoryMock = new Mock<IVideoRepository>();
+        repositoryMock.Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ThrowsAsync(new NotFoundException("Video not found"));
+        var useCase = new UseCase.GetVideo(repositoryMock.Object);
+        var input = new UseCase.GetVideoInput(Guid.NewGuid());
+
+        var action = () => useCase.Handle(input, CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>().WithMessage("Video not found");
         repositoryMock.VerifyAll();
     }
 }
