@@ -55,4 +55,37 @@ public class GetVideoTest
         await action.Should().ThrowAsync<NotFoundException>().WithMessage("Video not found");
         repositoryMock.VerifyAll();
     }
+
+    [Fact(DisplayName = nameof(GetVideoWithAllProperties))]
+    [Trait("Application", "GetVideo - Use Cases")]
+    public async Task GetVideoWithAllProperties()
+    {
+        var repositoryMock = new Mock<IVideoRepository>();
+        var exampleVideo = _fixture.GetValidVideoWithAllProperties();
+        repositoryMock.Setup(x => x.Get(exampleVideo.Id, It.IsAny<CancellationToken>())).ReturnsAsync(exampleVideo);
+        var useCase = new UseCase.GetVideo(repositoryMock.Object);
+        var input = new UseCase.GetVideoInput(exampleVideo.Id);
+
+        var output = await useCase.Handle(input, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Id.Should().Be(exampleVideo.Id);
+        output.CreatedAt.Should().Be(exampleVideo.CreatedAt);
+        output.Title.Should().Be(exampleVideo.Title);
+        output.Description.Should().Be(exampleVideo.Description);
+        output.YearLaunched.Should().Be(exampleVideo.YearLaunched);
+        output.Opened.Should().Be(exampleVideo.Opened);
+        output.Published.Should().Be(exampleVideo.Published);
+        output.Duration.Should().Be(exampleVideo.Duration);
+        output.Rating.Should().Be(exampleVideo.Rating);
+        output.Thumb.Should().Be(exampleVideo.Thumb!.Path);
+        output.ThumbHalf.Should().Be(exampleVideo.ThumbHalf!.Path);
+        output.Banner.Should().Be(exampleVideo.Banner!.Path);
+        output.Media.Should().Be(exampleVideo.Media!.FilePath);
+        output.Trailer.Should().Be(exampleVideo.Trailer!.FilePath);
+        output.CategoriesIds.Should().BeEquivalentTo(exampleVideo.Categories);
+        output.CastMembersIds.Should().BeEquivalentTo(exampleVideo.CastMembers);
+        output.GenresIds.Should().BeEquivalentTo(exampleVideo.Genres);
+        repositoryMock.VerifyAll();
+    }
 }

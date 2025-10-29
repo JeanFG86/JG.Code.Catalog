@@ -12,6 +12,24 @@ public abstract class VideoTestFixtureBase : BaseFixture
         return new DomainEntity.Video(GetValidTitle(), GetValidDescription(), GetValidYearLaunched(), GetRandomBoolean(), GetRandomBoolean(), GetValidDuration(), GetRandomRating());
     }
 
+    public DomainEntity.Video GetValidVideoWithAllProperties()
+    {
+        var video = new DomainEntity.Video(GetValidTitle(), GetValidDescription(), GetValidYearLaunched(), GetRandomBoolean(), GetRandomBoolean(), GetValidDuration(), GetRandomRating());
+        video.UpdateBanner(GetValidImagePath());
+        video.UpdateThumb(GetValidImagePath());
+        video.UpdateThumbHalf(GetValidImagePath());
+        video.UpdateMedia(GetValidMediaPath());
+        video.UpdateTrailer(GetValidMediaPath());
+        var random = new Random();
+        Enumerable.Range(1, random.Next(2, 5)).ToList().ForEach(_ =>
+        {
+            video.AddCategory(Guid.NewGuid());
+            video.AddGenre(Guid.NewGuid());
+            video.AddCastMember(Guid.NewGuid());
+        });
+        return video;
+    }
+
     public Rating GetRandomRating()
     {
         var values = Enum.GetValues<Rating>();
