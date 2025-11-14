@@ -66,4 +66,34 @@ public class ListVideosTest
             outputItem.CastMembersIds.Should().BeEquivalentTo(exampleVideo.CastMembers);
         });
     }
+
+    [Fact(DisplayName = nameof(ListReturnsEmptyWhenThereIsNoVideos))]
+    [Trait("Application", "ListVideos - Use Cases")]
+    public async Task ListReturnsEmptyWhenThereIsNoVideos()
+    {
+        var emptyVideosList = new List<DomainEntity.Video>();
+        var input = new ListVideosInput(1, 10, "", "", SearchOrder.Asc);
+
+        _videoRepositoryMock.Setup(x => x.Search(
+            It.Is<SearchInput>(x =>
+                x.Page == input.Page &&
+                x.PerPage == input.PerPage &&
+                x.Search == input.Search &&
+                x.OrderBy == input.Sort &&
+                x.Order == input.Dir),
+            It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchOutput<DomainEntity.Video>(
+                input.Page,
+                input.PerPage,
+                0,
+                emptyVideosList));
+
+        PaginatedListOutput<VideoModelOutput> output = await _useCase.Handle(input, CancellationToken.None);
+
+        output.Should().NotBeNull();
+        output.Page.Should().Be(input.Page);
+        output.PerPage.Should().Be(input.PerPage);
+        output.Total.Should().Be(0);
+        output.Items.Should().BeEmpty();
+    }
 }
