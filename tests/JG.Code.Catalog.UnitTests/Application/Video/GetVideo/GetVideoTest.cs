@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Domain.Extensions;
 using JG.Code.Catalog.Domain.Repository;
 using Moq;
 using UseCase = JG.Code.Catalog.Application.UseCases.Video.GetVideo;
@@ -37,7 +38,7 @@ public class GetVideoTest
         output.Opened.Should().Be(exampleVideo.Opened);
         output.Published.Should().Be(exampleVideo.Published);
         output.Duration.Should().Be(exampleVideo.Duration);
-        output.Rating.Should().Be(exampleVideo.Rating);
+        output.Rating.Should().Be(exampleVideo.Rating.ToStringSignal());
         repositoryMock.VerifyAll();
     }
 
@@ -77,12 +78,12 @@ public class GetVideoTest
         output.Opened.Should().Be(exampleVideo.Opened);
         output.Published.Should().Be(exampleVideo.Published);
         output.Duration.Should().Be(exampleVideo.Duration);
-        output.Rating.Should().Be(exampleVideo.Rating);
-        output.Thumb.Should().Be(exampleVideo.Thumb!.Path);
-        output.ThumbHalf.Should().Be(exampleVideo.ThumbHalf!.Path);
-        output.Banner.Should().Be(exampleVideo.Banner!.Path);
-        output.Media.Should().Be(exampleVideo.Media!.FilePath);
-        output.Trailer.Should().Be(exampleVideo.Trailer!.FilePath);
+        output.Rating.Should().Be(exampleVideo.Rating.ToStringSignal());
+        output.ThumbFileUrl.Should().Be(exampleVideo.Thumb!.Path);
+        output.ThumbHalfFileUrl.Should().Be(exampleVideo.ThumbHalf!.Path);
+        output.BannerFileUrl.Should().Be(exampleVideo.Banner!.Path);
+        output.VideoFileUrl.Should().Be(exampleVideo.Media!.FilePath);
+        output.TrailerFileUrl.Should().Be(exampleVideo.Trailer!.FilePath);
         output.CategoriesIds.Should().BeEquivalentTo(exampleVideo.Categories);
         output.CastMembersIds.Should().BeEquivalentTo(exampleVideo.CastMembers);
         output.GenresIds.Should().BeEquivalentTo(exampleVideo.Genres);
