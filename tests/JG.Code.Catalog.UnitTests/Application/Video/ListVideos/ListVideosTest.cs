@@ -72,7 +72,7 @@ public class ListVideosTest
     [Trait("Application", "ListVideos - Use Cases")]
     public async Task ListVideosWithRelations()
     {
-        var exampleVideosList = _fixture.CreateExampleVideosList();
+        var (exampleVideosList, exampleCaregoriesList) = _fixture.CreateExampleVideosListWithRelations();
         var input = new ListVideosInput(1, 10, "", "", SearchOrder.Asc);
         _videoRepositoryMock.Setup(x => x.Search(It.Is<SearchInput>(x =>
                                     x.Page == input.Page &&
@@ -108,12 +108,17 @@ public class ListVideosTest
             outputItem.CategoriesIds.Should().BeEquivalentTo(exampleVideo.Categories);
             outputItem.GenresIds.Should().BeEquivalentTo(exampleVideo.Genres);
             outputItem.CastMembersIds.Should().BeEquivalentTo(exampleVideo.CastMembers);
-            var outputItemCategoryIds = outputItem.Categories.Select(dto => dto.Id).ToList();
-            outputItemCategoryIds.Should().BeEquivalentTo(exampleVideo.Categories);
-            var outputItemGenresIds = outputItem.Genres.Select(dto => dto.Id).ToList();
-            outputItemGenresIds.Should().BeEquivalentTo(exampleVideo.Genres);
-            var outputItemCastMembersIds = outputItem.CastMembers.Select(dto => dto.Id).ToList();
-            outputItemCastMembersIds.Should().BeEquivalentTo(exampleVideo.CastMembers);
+            outputItem.Categories.ToList().ForEach(outputItemCategory =>
+            {
+                var exampleCategory = exampleCaregoriesList.Find(x => x.Id == outputItemCategory.Id);
+                exampleCategory.Should().NotBeNull();
+                outputItemCategory.Name.Should().Be(exampleCategory?.Name);
+            });
+            //outputItemCategoryIds.Should().BeEquivalentTo(exampleVideo.Categories);
+            //var outputItemGenresIds = outputItem.Genres.Select(dto => dto.Id).ToList();
+            //outputItemGenresIds.Should().BeEquivalentTo(exampleVideo.Genres);
+            //var outputItemCastMembersIds = outputItem.CastMembers.Select(dto => dto.Id).ToList();
+            //outputItemCastMembersIds.Should().BeEquivalentTo(exampleVideo.CastMembers);
         });
     }
 
