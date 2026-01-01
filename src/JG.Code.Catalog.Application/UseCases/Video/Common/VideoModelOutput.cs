@@ -32,6 +32,15 @@ public record VideoModelOutput(
             video.Categories.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(), video.Genres.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(), video.CastMembers.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(), 
             video.Thumb?.Path, video.Banner?.Path, video.ThumbHalf?.Path, video.Media?.FilePath, video.Trailer?.FilePath);
     }
+
+    public static VideoModelOutput FromVideo(Domain.Entity.Video video, IReadOnlyList<Domain.Entity.Category>? categories = null)
+    {
+        return new VideoModelOutput(video.Id, video.CreatedAt, video.Title, video.Published, video.Description, video.Rating.ToStringSignal(),
+            video.YearLaunched, video.Duration, video.Opened, video.Categories, video.Genres, video.CastMembers,
+            video.Categories.Select(id => new VideoModelOutputRelatedAggregate(id, categories?.FirstOrDefault(x => x.Id == id)?.Name)).ToList(), 
+            video.Genres.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(), video.CastMembers.Select(id => new VideoModelOutputRelatedAggregate(id)).ToList(),
+            video.Thumb?.Path, video.Banner?.Path, video.ThumbHalf?.Path, video.Media?.FilePath, video.Trailer?.FilePath);
+    }
 }
 
 

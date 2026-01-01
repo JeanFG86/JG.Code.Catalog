@@ -16,13 +16,15 @@ public class ListVideosTest
 {
     private readonly ListVideosTestFixture _fixture;
     private readonly Mock<IVideoRepository> _videoRepositoryMock;
+    private readonly Mock<ICategoryRepository> _categoryRepositoryMock;
     private readonly UseCase.ListVideos _useCase;
 
     public ListVideosTest(ListVideosTestFixture fixture)
     {
         _fixture = fixture;
         _videoRepositoryMock = new Mock<IVideoRepository>();
-        _useCase = new UseCase.ListVideos(_videoRepositoryMock.Object);
+        _categoryRepositoryMock = new Mock<ICategoryRepository>();
+        _useCase = new UseCase.ListVideos(_videoRepositoryMock.Object, _categoryRepositoryMock.Object);
     }
 
     [Fact(DisplayName =nameof(ListVideos))]
@@ -74,6 +76,8 @@ public class ListVideosTest
     {
         var (exampleVideosList, exampleCaregoriesList) = _fixture.CreateExampleVideosListWithRelations();
         var input = new ListVideosInput(1, 10, "", "", SearchOrder.Asc);
+        var examplesCategoriesIds = exampleCaregoriesList.Select(cat => cat.Id).ToList();
+        _categoryRepositoryMock.Setup(x => x.GetListByIds(It.Is<List<Guid>>(list => list.All(examplesCategoriesIds.Contains) && list.Count == examplesCategoriesIds.Count), It.IsAny<CancellationToken>())).ReturnsAsync(exampleCaregoriesList);
         _videoRepositoryMock.Setup(x => x.Search(It.Is<SearchInput>(x =>
                                     x.Page == input.Page &&
                                     x.PerPage == input.PerPage &&
@@ -114,6 +118,7 @@ public class ListVideosTest
                 exampleCategory.Should().NotBeNull();
                 outputItemCategory.Name.Should().Be(exampleCategory?.Name);
             });
+            _categoryRepositoryMock.VerifyAll();
             //outputItemCategoryIds.Should().BeEquivalentTo(exampleVideo.Categories);
             //var outputItemGenresIds = outputItem.Genres.Select(dto => dto.Id).ToList();
             //outputItemGenresIds.Should().BeEquivalentTo(exampleVideo.Genres);

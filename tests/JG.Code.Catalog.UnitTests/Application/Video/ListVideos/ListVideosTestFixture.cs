@@ -37,7 +37,8 @@ public class ListVideosTestFixture : VideoTestFixtureBase
     {
         var quantityToBeCreated = Random.Shared.Next(2, 10);
         List<Entities.Category> categories = new List<Entities.Category>();
-        var videos = Enumerable.Range(1, quantityToBeCreated).Select(_ => GetValidVideoWithAllProperties()).ToList();
+        var videos = Enumerable.Range(1, quantityToBeCreated)
+            .Select(_ => GetValidVideoWithAllProperties()).ToList();
 
         videos.ForEach(video =>
         {
@@ -46,6 +47,7 @@ public class ListVideosTestFixture : VideoTestFixtureBase
             for (int i = 0; i < categoriesqtd; i++)
             {
                 var category = GetExampleCategory();
+                categories.Add(category); 
                 video.AddCategory(category.Id);
             }
         });
