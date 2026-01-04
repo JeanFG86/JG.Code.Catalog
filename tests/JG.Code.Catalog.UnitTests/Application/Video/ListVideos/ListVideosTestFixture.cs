@@ -33,10 +33,11 @@ public class ListVideosTestFixture : VideoTestFixtureBase
     public Entities.Category GetExampleCategory()
         => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
 
-    public (List<Entities.Video> Videos, List<Entities.Category> Categories) CreateExampleVideosListWithRelations()
+    public (List<Entities.Video> Videos, List<Entities.Category> Categories, List<Entities.Genre> Genres) CreateExampleVideosListWithRelations()
     {
         var quantityToBeCreated = Random.Shared.Next(2, 10);
         List<Entities.Category> categories = new List<Entities.Category>();
+        List<Entities.Genre> genres = new List<Entities.Genre>();
         var videos = Enumerable.Range(1, quantityToBeCreated)
             .Select(_ => GetValidVideoWithAllProperties()).ToList();
 
@@ -50,8 +51,27 @@ public class ListVideosTestFixture : VideoTestFixtureBase
                 categories.Add(category); 
                 video.AddCategory(category.Id);
             }
+
+            video.RemoveAllGenres();
+            var genresqtd = Random.Shared.Next(2, 5);
+            for (int i = 0; i < genresqtd; i++)
+            {
+                var genre = GetExampleGenre();
+                genres.Add(genre);
+                video.AddGenre(genre.Id);
+            }
         });
 
-        return (videos, categories);
+        return (videos, categories, genres);
+    }
+
+    private string GetValidGenreName() =>
+       Faker.Commerce.Categories(1)[0];
+
+    private Entities.Genre GetExampleGenre(bool? isActive = null, List<Guid>? categoriesIds = null, string? name = null)
+    {
+        var genre = new Entities.Genre(name ?? GetValidGenreName(), isActive ?? GetRandomBoolean());
+        categoriesIds?.ForEach(genre.AddCategory);
+        return genre;
     }
 }
