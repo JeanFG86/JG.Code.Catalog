@@ -33,6 +33,10 @@ public class ListVideosTestFixture : VideoTestFixtureBase
     public Entities.Category GetExampleCategory()
         => new(GetValidCategoryName(), GetValidCategoryDescription(), GetRandomBoolean());
 
+    public List<Entities.Video> CreateExampleVideosListWithoutRelations() =>
+        Enumerable.Range(1, Random.Shared.Next(10, 20)).Select(_ => GetValidVideo()).ToList();
+
+
     public (List<Entities.Video> Videos, List<Entities.Category> Categories, List<Entities.Genre> Genres) CreateExampleVideosListWithRelations()
     {
         var quantityToBeCreated = Random.Shared.Next(2, 10);
@@ -48,7 +52,7 @@ public class ListVideosTestFixture : VideoTestFixtureBase
             for (int i = 0; i < categoriesqtd; i++)
             {
                 var category = GetExampleCategory();
-                categories.Add(category); 
+                categories.Add(category);
                 video.AddCategory(category.Id);
             }
 
