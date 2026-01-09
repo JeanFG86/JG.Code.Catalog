@@ -1,4 +1,5 @@
 ﻿using JG.Code.Catalog.UnitTests.Common.Fixtures;
+using UseCase = JG.Code.Catalog.Application.UseCases.Video.UpdateVideo;
 
 namespace JG.Code.Catalog.UnitTests.Application.Video.UpdateVideo;
 
@@ -9,4 +10,13 @@ public class UpdateVideoTestFixtureCollection : ICollectionFixture<UpdateVideoTe
 
 public class UpdateVideoTestFixture : VideoTestFixtureBase
 {
+    public UseCase.UpdateVideoInput CreateValidInput(Guid videoId) => new(
+        GetValidTitle(),
+        GetValidDescription(),
+        GetValidYearLaunched(),
+        GetValidDuration(),
+        GetRandomBoolean(),
+        GetRandomBoolean(),
+        GetRandomRating()
+    );
 }

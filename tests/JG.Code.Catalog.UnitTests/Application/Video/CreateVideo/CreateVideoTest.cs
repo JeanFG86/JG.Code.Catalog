@@ -6,7 +6,6 @@ using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
 using UseCase = JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
-using JG.Code.Catalog.Application.Common;
 using JG.Code.Catalog.Domain.Extensions;
 
 namespace JG.Code.Catalog.UnitTests.Application.Video.CreateVideo;
