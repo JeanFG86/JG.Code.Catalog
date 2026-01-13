@@ -11,12 +11,13 @@ public class UpdateVideoTestFixtureCollection : ICollectionFixture<UpdateVideoTe
 public class UpdateVideoTestFixture : VideoTestFixtureBase
 {
     public UseCase.UpdateVideoInput CreateValidInput(Guid videoId) => new(
-        GetValidTitle(),
-        GetValidDescription(),
-        GetValidYearLaunched(),
-        GetValidDuration(),
-        GetRandomBoolean(),
-        GetRandomBoolean(),
-        GetRandomRating()
-    );
+    VideoId: videoId,
+    Title: GetValidTitle(),
+    Description: GetValidDescription(),
+    YearLaunched: GetValidYearLaunched(),
+    Duration: GetValidDuration(),
+    Opened: GetRandomBoolean(),
+    Published: GetRandomBoolean(),
+    Rating: GetRandomRating()
+);
 }

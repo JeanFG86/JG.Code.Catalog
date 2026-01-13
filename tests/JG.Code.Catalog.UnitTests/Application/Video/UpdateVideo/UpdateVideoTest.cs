@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Application.UseCases.Video.Common;
+using JG.Code.Catalog.Domain.Extensions;
 using JG.Code.Catalog.Domain.Repository;
 using Moq;
 using DomainEntity = JG.Code.Catalog.Domain.Entity;
@@ -43,7 +44,7 @@ public class UpdateVideoTest
             video.Opened == input.Opened &&
             video.Published == input.Published &&
             video.Rating == input.Rating
-        )), Times.Once);
+        ), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.Commit(It.IsAny<CancellationToken>()), Times.Once);
         output.Id.Should().NotBeEmpty();
         output.CreatedAt.Should().NotBe(default);
