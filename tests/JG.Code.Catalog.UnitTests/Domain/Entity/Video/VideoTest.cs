@@ -98,7 +98,7 @@ public class VideoTest
         video.Duration.Should().Be(expectedDuration);
     }
 
-    [Fact(DisplayName = nameof(Update))]
+    [Fact(DisplayName = nameof(UpdateWithRating))]
     [Trait("Domain", "Video - Aggregates")]
     public void UpdateWithRating()
     {
@@ -120,6 +120,19 @@ public class VideoTest
         video.Published.Should().Be(expectedPublished);
         video.YearLaunched.Should().Be(expectedYearLaunched);
         video.Duration.Should().Be(expectedDuration);
+        video.Rating.Should().Be(expectedRating);
+    }
+
+    [Fact(DisplayName = nameof(UpdateWithoutRatingDoesentChangeTheRating))]
+    [Trait("Domain", "Video - Aggregates")]
+    public void UpdateWithoutRatingDoesentChangeTheRating()
+    {
+        var video = _fixture.GetValidVideo();
+        var expectedRating = video.Rating;
+
+        video.Update(_fixture.GetValidTitle(), _fixture.GetValidDescription(), _fixture.GetValidYearLaunched(), _fixture.GetRandomBoolean(), _fixture.GetRandomBoolean(), _fixture.GetValidDuration());
+
+        video.Should().NotBeNull();
         video.Rating.Should().Be(expectedRating);
     }
 
