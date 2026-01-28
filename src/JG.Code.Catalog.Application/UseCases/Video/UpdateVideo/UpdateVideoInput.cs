@@ -12,4 +12,5 @@ public record UpdateVideoInput(
     bool Published,
     int YearLaunched,
     int Duration,
-    Rating Rating) : IRequest<VideoModelOutput>;
+    Rating Rating,
+    List<Guid>? GenresIds = null) : IRequest<VideoModelOutput>;

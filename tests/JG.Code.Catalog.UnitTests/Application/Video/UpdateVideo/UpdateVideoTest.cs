@@ -15,6 +15,7 @@ public class UpdateVideoTest
 {
     private readonly UpdateVideoTestFixture _fixture;
     private readonly Mock<IVideoRepository> _videoRepositoryMock = new();
+    private readonly Mock<IGenreRepository> _genreRepositoryMock = new();
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
     private readonly UseCase.UpdateVideo _useCase;
 
@@ -22,8 +23,9 @@ public class UpdateVideoTest
     {
         _fixture = fixture;
         _videoRepositoryMock = new Mock<IVideoRepository>();
+        _genreRepositoryMock = new Mock<IGenreRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
-        _useCase = new UseCase.UpdateVideo(_videoRepositoryMock.Object, _unitOfWorkMock.Object);
+        _useCase = new UseCase.UpdateVideo(_videoRepositoryMock.Object, _genreRepositoryMock.Object, _unitOfWorkMock.Object);
     }
 
     [Fact(DisplayName = nameof(UpdateVideosBasicInfo))]

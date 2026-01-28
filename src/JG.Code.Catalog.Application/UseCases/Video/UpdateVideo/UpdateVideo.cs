@@ -1,4 +1,5 @@
-﻿using JG.Code.Catalog.Application.Interfaces;
+﻿using JG.Code.Catalog.Application.Exceptions;
+using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Application.UseCases.Video.Common;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
@@ -10,10 +11,13 @@ public class UpdateVideo : IUpdateVideo
 {
     private readonly IVideoRepository _videoRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public UpdateVideo(IVideoRepository videoRepository, IUnitOfWork unitOfWork)
+    private readonly IGenreRepository _genreRepository;
+
+    public UpdateVideo(IVideoRepository videoRepository, IGenreRepository genreRepository, IUnitOfWork unitOfWork)
     {
         _videoRepository = videoRepository;
         _unitOfWork = unitOfWork;
+        _genreRepository = genreRepository;
     }
 
     public async Task<VideoModelOutput> Handle(UpdateVideoInput request, CancellationToken cancellationToken)
@@ -28,6 +32,7 @@ public class UpdateVideo : IUpdateVideo
             published: request.Published,
             rating: request.Rating
         );
+        await ValidateAndAddRelations(request, cancellationToken, video);
         var validationHandler = new NotificationValidationHandler();
         video.Validate(validationHandler);
         if(validationHandler.HasErrors())
@@ -37,5 +42,24 @@ public class UpdateVideo : IUpdateVideo
         await _videoRepository.Update(video, cancellationToken);
         await _unitOfWork.Commit(cancellationToken);
         return VideoModelOutput.FromVideo(video);
+    }
+
+    private async Task ValidateAndAddRelations(UpdateVideoInput input, CancellationToken cancellationToken, Domain.Entity.Video video)
+    {
+        if ((input.GenresIds?.Count ?? 0) > 0)
+        {
+            await ValidateAndRetrieveGenreIds(input, cancellationToken);
+            input.GenresIds!.ToList().ForEach(video.AddGenre);
+        }
+    }
+
+    private async Task ValidateAndRetrieveGenreIds(UpdateVideoInput input, CancellationToken cancellationToken)
+    {
+        var persistenceIds = await _genreRepository.GetIdsListByIds(input.GenresIds!.ToList(), cancellationToken);
+        if (persistenceIds.Count < input.GenresIds!.Count)
+        {
+            var notFoundIds = input.GenresIds!.ToList().FindAll(genreId => !persistenceIds.Contains(genreId));
+            throw new RelatedAggregateException($"Related genre id (or ids) not found: {string.Join(',', notFoundIds)}");
+        }
     }
 }
