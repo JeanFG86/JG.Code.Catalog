@@ -1,6 +1,8 @@
 ﻿using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Application.UseCases.Video.Common;
+using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
+using JG.Code.Catalog.Domain.Validation;
 
 namespace JG.Code.Catalog.Application.UseCases.Video.UpdateVideo;
 
@@ -26,6 +28,12 @@ public class UpdateVideo : IUpdateVideo
             published: request.Published,
             rating: request.Rating
         );
+        var validationHandler = new NotificationValidationHandler();
+        video.Validate(validationHandler);
+        if(validationHandler.HasErrors())
+        {
+            throw new EntityValidationException("Could not update video", validationHandler.Errors);
+        }
         await _videoRepository.Update(video, cancellationToken);
         await _unitOfWork.Commit(cancellationToken);
         return VideoModelOutput.FromVideo(video);
