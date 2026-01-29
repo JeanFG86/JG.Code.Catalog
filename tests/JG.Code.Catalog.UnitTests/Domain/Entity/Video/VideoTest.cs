@@ -422,7 +422,7 @@ public class VideoTest
         validVideo.AddCastMember(castMemberIdExample);
         validVideo.AddCastMember(castMemberIdExample2);
         
-        validVideo.RemoveAllCastMembers(castMemberIdExample);
+        validVideo.RemoveAllCastMembers();
 
         validVideo.CastMembers.Should().HaveCount(0);
     }

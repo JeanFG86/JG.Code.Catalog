@@ -101,5 +101,5 @@ public class Video: AggregateRoot
 
     public void RemoveCastMember(Guid castMemberId) => _castMembers.Remove(castMemberId);
 
-    public void RemoveAllCastMembers(Guid castMemberId) => _castMembers = new();
+    public void RemoveAllCastMembers() => _castMembers = new();
 }
