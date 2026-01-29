@@ -1,7 +1,6 @@
 ﻿using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Application.Interfaces;
 using JG.Code.Catalog.Application.UseCases.Video.Common;
-using JG.Code.Catalog.Application.UseCases.Video.CreateVideo;
 using JG.Code.Catalog.Domain.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
 using JG.Code.Catalog.Domain.Validation;
@@ -51,23 +50,32 @@ public class UpdateVideo : IUpdateVideo
 
     private async Task ValidateAndAddRelations(UpdateVideoInput input, CancellationToken cancellationToken, Domain.Entity.Video video)
     {
-        if ((input.CategoriesIds?.Count ?? 0) > 0)
+        if (input.CategoriesIds is not null)
         {
-            await ValidateCategoryIds(input, cancellationToken);
             video.RemoveAllCategories();
-            input.CategoriesIds!.ToList().ForEach(video.AddCategory);
+            if (input.CategoriesIds.Any()) {
+                await ValidateCategoryIds(input, cancellationToken);
+                input.CategoriesIds!.ToList().ForEach(video.AddCategory);
+            }            
         }
-        if ((input.GenresIds?.Count ?? 0) > 0)
+        if (input.GenresIds is not null)
         {
-            await ValidateAndRetrieveGenreIds(input, cancellationToken);
             video.RemoveAllGenres();
-            input.GenresIds!.ToList().ForEach(video.AddGenre);
+            if (input.GenresIds.Any())
+            {
+                await ValidateAndRetrieveGenreIds(input, cancellationToken);
+                input.GenresIds!.ToList().ForEach(video.AddGenre);
+            }                
         }
-        if ((input.CastMembersIds?.Count ?? 0) > 0)
+        if (input.CastMembersIds is not null)
         {
-            await ValidateCastMemberIds(input, cancellationToken);
             video.RemoveAllCastMembers();
-            input.CastMembersIds!.ToList().ForEach(video.AddCastMember);
+
+            if (input.CastMembersIds.Any()) {
+                await ValidateCastMemberIds(input, cancellationToken);
+                input.CastMembersIds!.ToList().ForEach(video.AddCastMember);
+
+            }            
         }
     }
 

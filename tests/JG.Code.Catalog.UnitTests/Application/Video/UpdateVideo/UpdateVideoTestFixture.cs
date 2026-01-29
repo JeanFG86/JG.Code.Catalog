@@ -10,14 +10,44 @@ public class UpdateVideoTestFixtureCollection : ICollectionFixture<UpdateVideoTe
 
 public class UpdateVideoTestFixture : VideoTestFixtureBase
 {
-    public UseCase.UpdateVideoInput CreateValidInput(Guid videoId) => new(
-    VideoId: videoId,
-    Title: GetValidTitle(),
-    Description: GetValidDescription(),
-    YearLaunched: GetValidYearLaunched(),
-    Duration: GetValidDuration(),
-    Opened: GetRandomBoolean(),
-    Published: GetRandomBoolean(),
-    Rating: GetRandomRating()
-);
+    public UseCase.UpdateVideoInput CreateValidInput(
+        Guid videoId,
+        List<Guid>? categoriesIds = null,
+        List<Guid>? genresIds = null,
+        List<Guid>? castMembersIds = null) => new(
+        VideoId: videoId,
+        Title: GetValidTitle(),
+        Description: GetValidDescription(),
+        YearLaunched: GetValidYearLaunched(),
+        Duration: GetValidDuration(),
+        Opened: GetRandomBoolean(),
+        Published: GetRandomBoolean(),
+        Rating: GetRandomRating(),
+        CategoriesIds: categoriesIds,
+        GenresIds: genresIds,
+        CastMembersIds: castMembersIds
+    );
+
+    public UseCase.UpdateVideoInput CreateInvalidInput(Guid videoId) => new(
+        VideoId: videoId,
+        Title: GetTooLongTitle(),
+        Description: GetTooLongDescription(),
+        YearLaunched: GetValidYearLaunched(),
+        Duration: GetValidDuration(),
+        Opened: GetRandomBoolean(),
+        Published: GetRandomBoolean(),
+        Rating: GetRandomRating(),
+        CategoriesIds: null,
+        GenresIds: null,
+        CastMembersIds: null
+    );
+
+    public List<Guid> GetListOfGuids(int? count = null)
+    {
+        var random = new Random();
+        var quantity = count ?? random.Next(2, 5);
+        return Enumerable.Range(1, quantity)
+            .Select(_ => Guid.NewGuid())
+            .ToList();
+    }
 }

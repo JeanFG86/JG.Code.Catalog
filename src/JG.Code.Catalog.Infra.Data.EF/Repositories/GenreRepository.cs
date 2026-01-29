@@ -93,4 +93,9 @@ public class GenreRepository : IGenreRepository
     {
         return await _genres.AsNoTracking().Where(genre => ids.Contains(genre.Id)).Select(c => c.Id).ToListAsync();
     }
+
+    public async Task<IReadOnlyList<Genre>> GetListByIds(List<Guid> ids, CancellationToken cancellationToken)
+    {
+        return await _genres.AsNoTracking().Where(genre => ids.Contains(genre.Id)).ToListAsync();
+    }
 }
