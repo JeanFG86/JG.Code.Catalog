@@ -8,11 +8,17 @@ public record UpdateVideoInput(
     Guid VideoId,
     string Title,
     string Description,
-    bool Opened,
-    bool Published,
     int YearLaunched,
     int Duration,
+    bool Opened,
+    bool Published,
     Rating Rating,
-    List<Guid>? GenresIds = null,
     List<Guid>? CategoriesIds = null,
-    List<Guid>? CastMembersIds = null) : IRequest<VideoModelOutput>;
+    List<Guid>? GenresIds = null,
+    List<Guid>? CastMembersIds = null,
+    FileInput? Thumb = null,
+    FileInput? Banner = null,
+    FileInput? ThumbHalf = null,
+    FileInput? Media = null,
+    FileInput? Trailer = null
+) : IRequest<VideoModelOutput>;
