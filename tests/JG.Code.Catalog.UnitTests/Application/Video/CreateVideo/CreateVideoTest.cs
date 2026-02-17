@@ -32,7 +32,7 @@ public class CreateVideoTest
         var output =await useCase.Handle(input, CancellationToken.None);
         
         repositoryMock.Verify(x => x.Insert(It.Is<DomainEntity.Video>(video 
-            => video.Id != Guid.Empty &&
+            => video.Id != Guid.Empty && 
                video.Title == input.Title &&
                video.Published == input.Published &&
                video.Description == input.Description &&
