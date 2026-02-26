@@ -2,7 +2,7 @@
 
 namespace JG.Code.Catalog.Domain.Entity;
 
-public class Media
+public class Media: SeedWork.Entity
 {
     public string FilePath { get; private set; }
     public string EncodedPath { get; private set; }
