@@ -34,8 +34,22 @@ public class VideoRepositoryTestFixture : BaseFixture
     
     public CastMember GetExampleCastMember() => new (GetValidName(), GetRandomCastMemberType());
 
-    public IEnumerable<CastMember> GetRandomCastMemberList() => Enumerable.Range(0, Random.Shared.Next(1, 5))
-        .Select(_ => new CastMember(GetValidName(), GetRandomCastMemberType()));
+    public List<CastMember> GetRandomCastMemberList() => Enumerable.Range(0, Random.Shared.Next(1, 5))
+        .Select(_ => new CastMember(GetValidName(), GetRandomCastMemberType()))
+        .ToList();
+
     public string GetValidName() => Faker.Name.FullName();
-    public CastMemberType GetRandomCastMemberType() => (CastMemberType)(new Random()).Next(1,2);
+    public CastMemberType GetRandomCastMemberType() => (CastMemberType)(new Random()).Next(1, 2);
+
+    public Category GetExampleCategory() => new(Faker.Commerce.Categories(1)[0], Faker.Commerce.ProductDescription());
+
+    public List<Category> GetRandomCategoryList() => Enumerable.Range(0, Random.Shared.Next(1, 5))
+        .Select(_ => GetExampleCategory())
+        .ToList();
+
+    public Genre GetExampleGenre() => new(Faker.Commerce.Department());
+
+    public List<Genre> GetRandomGenreList() => Enumerable.Range(0, Random.Shared.Next(1, 5))
+        .Select(_ => GetExampleGenre())
+        .ToList();
 }
