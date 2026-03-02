@@ -11,6 +11,7 @@ public class CodeCatalogDbContext : DbContext
     public DbSet<Genre> Genres => Set<Genre>();
     public DbSet<Video> Videos => Set<Video>();
     public DbSet<GenresCategories> GenresCategories => Set<GenresCategories>();
+    public DbSet<VideosCategories> VideosCategories => Set<VideosCategories>();
     public CodeCatalogDbContext(DbContextOptions<CodeCatalogDbContext> options) : base(options)
     {
     }
@@ -21,6 +22,7 @@ public class CodeCatalogDbContext : DbContext
         modelBuilder.ApplyConfiguration(new CastMemberConfiguration());
         modelBuilder.ApplyConfiguration(new GenreConfiguration());
         modelBuilder.ApplyConfiguration(new GenresCategoriesConfiguration());
+        modelBuilder.ApplyConfiguration(new VideosCategoriesConfiguration());
         modelBuilder.ApplyConfiguration(new VideoConfiguration());
     }
 }

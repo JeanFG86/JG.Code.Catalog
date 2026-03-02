@@ -31,4 +31,11 @@ public class VideoRepositoryTestFixture : BaseFixture
         var random = new Random();
         return values[random.Next(values.Length)];
     }
+    
+    public CastMember GetExampleCastMember() => new (GetValidName(), GetRandomCastMemberType());
+
+    public IEnumerable<CastMember> GetRandomCastMemberList() => Enumerable.Range(0, Random.Shared.Next(1, 5))
+        .Select(_ => new CastMember(GetValidName(), GetRandomCastMemberType()));
+    public string GetValidName() => Faker.Name.FullName();
+    public CastMemberType GetRandomCastMemberType() => (CastMemberType)(new Random()).Next(1,2);
 }

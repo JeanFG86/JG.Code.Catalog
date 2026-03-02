@@ -41,6 +41,28 @@ public class VideoRepositoryTest
         dbVideo.Genres.Should().BeEmpty();
         dbVideo.Categories.Should().BeEmpty();
         dbVideo.CastMembers.Should().BeEmpty();
+    }
+    
+    [Fact(DisplayName = nameof(InsertWithRelations))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task InsertWithRelations()
+    {
+        CodeCatalogDbContext dbContext = _fixture.CreateDbContext();
+        var exampleVideo = _fixture.GetValidVideo();
+        var castMembers = _fixture.GetRandomCastMemberList();
+        dbContext.AddRange(castMembers);
+        IVideoRepository videoRepository = new Repository.VideoRepository(dbContext);
 
+        await videoRepository.Insert(exampleVideo, CancellationToken.None);
+        await dbContext.SaveChangesAsync();
+
+        var assertsDbContext = _fixture.CreateDbContext(true);
+        var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
+        dbVideo.Should().NotBeNull();
+        
+
+        dbVideo.Genres.Should().BeEmpty();
+        dbVideo.Categories.Should().BeEmpty();
+        dbVideo.CastMembers.Should().BeEmpty();
     }
 }
