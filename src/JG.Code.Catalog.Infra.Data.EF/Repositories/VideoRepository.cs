@@ -11,6 +11,8 @@ public class VideoRepository : IVideoRepository
     private readonly CodeCatalogDbContext _context;
     private DbSet<Video> _videos => _context.Set<Video>();
     private DbSet<VideosCategories> _videosCategories => _context.Set<VideosCategories>();
+    private DbSet<VideosGenres> _videosGenres => _context.Set<VideosGenres>();
+    private DbSet<VideosCastMembers> _videosCastMembers => _context.Set<VideosCastMembers>();
 
     public VideoRepository(CodeCatalogDbContext context)
     {
@@ -25,10 +27,15 @@ public class VideoRepository : IVideoRepository
             var relations = video.Categories.Select(categoryId => new VideosCategories(categoryId, video.Id));
             await _videosCategories.AddRangeAsync(relations);
         }
-        if (video.Genres.Any()) 
+        if (video.Genres.Any())
         {
             var relations = video.Genres.Select(genreId => new VideosGenres(genreId, video.Id));
-            await _videosCategories.AddRangeAsync(relations);
+            await _videosGenres.AddRangeAsync(relations);
+        }
+        if (video.CastMembers.Any())
+        {
+            var relations = video.CastMembers.Select(castMemberId => new VideosCastMembers(castMemberId, video.Id));
+            await _videosCastMembers.AddRangeAsync(relations);
         }
     }
 
