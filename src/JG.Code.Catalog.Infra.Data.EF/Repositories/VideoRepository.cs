@@ -56,6 +56,7 @@ public class VideoRepository : IVideoRepository
 
     public Task Update(Video aggregate, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _videos.Update(aggregate);
+        return Task.CompletedTask;   
     }
 }

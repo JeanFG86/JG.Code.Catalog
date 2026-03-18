@@ -89,4 +89,36 @@ public class VideoRepositoryTest
         dbCastMembers.Should().HaveCount(castMembers.Count);
         dbCastMembers.Select(r => r.CastMemberId).Should().BeEquivalentTo(castMembers.Select(cm => cm.Id));
     }
+    
+    [Fact(DisplayName = nameof(Update))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task Update()
+    {
+        CodeCatalogDbContext dbContextArrange = _fixture.CreateDbContext();
+        var exampleVideo = _fixture.GetValidVideo();
+        await dbContextArrange.AddAsync(exampleVideo);
+        await dbContextArrange.SaveChangesAsync();
+        var newValues = _fixture.GetValidVideo();
+        var dbContextAct = _fixture.CreateDbContext(true);
+        IVideoRepository videoRepository = new Repository.VideoRepository(dbContextAct);
+
+        exampleVideo.Update(newValues.Title, newValues.Description, newValues.YearLaunched, newValues.Opened, newValues.Published, newValues.Duration, newValues.Rating);
+        await videoRepository.Update(exampleVideo, CancellationToken.None);
+        await dbContextArrange.SaveChangesAsync();
+
+        var assertsDbContext = _fixture.CreateDbContext(true);
+        var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
+        dbVideo.Should().NotBeNull();
+        dbVideo!.Id.Should().Be(exampleVideo.Id);
+        dbVideo.Title.Should().Be(exampleVideo.Title);
+        dbVideo.Description.Should().Be(exampleVideo.Description);
+        dbVideo.YearLaunched.Should().Be(exampleVideo.YearLaunched);
+        dbVideo.Opened.Should().Be(exampleVideo.Opened);
+        dbVideo.Published.Should().Be(exampleVideo.Published);
+        dbVideo.Duration.Should().Be(exampleVideo.Duration);
+        dbVideo.Rating.Should().Be(exampleVideo.Rating);
+        dbVideo.Genres.Should().BeEmpty();
+        dbVideo.Categories.Should().BeEmpty();
+        dbVideo.CastMembers.Should().BeEmpty();
+    }
 }
