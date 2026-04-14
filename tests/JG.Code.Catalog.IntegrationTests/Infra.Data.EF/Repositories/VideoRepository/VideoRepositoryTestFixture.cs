@@ -32,6 +32,22 @@ public class VideoRepositoryTestFixture : BaseFixture
         return values[random.Next(values.Length)];
     }
     
+    public string GetValidImagePath() => Faker.Image.PlaceImgUrl();
+    
+    public string GetValidMediaPath()
+    {
+        var exampleMedias = new[]
+        {
+            "https://www.googlestorage.com/file-example.mp4",
+            "https://www.storage.com/anothe-example.mp4",
+            "https://www.googlestorage.com/file-example.mp4",
+            "https://www.s3.com.br/example.mp4",
+            "https://www.glg.com/file.mp4",
+        };
+        var random = new Random();
+        return exampleMedias[random.Next(exampleMedias.Length)];
+    }
+    
     public CastMember GetExampleCastMember() => new (GetValidName(), GetRandomCastMemberType());
 
     public List<CastMember> GetRandomCastMemberList() => Enumerable.Range(0, Random.Shared.Next(1, 5))

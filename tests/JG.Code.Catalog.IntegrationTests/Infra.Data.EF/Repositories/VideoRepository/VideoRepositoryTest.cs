@@ -121,4 +121,35 @@ public class VideoRepositoryTest
         dbVideo.Categories.Should().BeEmpty();
         dbVideo.CastMembers.Should().BeEmpty();
     }
+    
+    [Fact(DisplayName = nameof(UpdateEntitiesAndValueObjects))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task UpdateEntitiesAndValueObjects()
+    {
+        CodeCatalogDbContext dbContextArrange = _fixture.CreateDbContext();
+        var exampleVideo = _fixture.GetValidVideo();
+        await dbContextArrange.AddAsync(exampleVideo);
+        await dbContextArrange.SaveChangesAsync();
+        var newValues = _fixture.GetValidVideo();
+        var dbContextAct = _fixture.CreateDbContext(true);
+        var updateThumb = _fixture.GetValidImagePath();
+        var updateThumbHalf = _fixture.GetValidImagePath();
+        var updateBanner = _fixture.GetValidImagePath();
+        var updateMedia = _fixture.GetValidImagePath();
+        var updateTrailer = _fixture.GetValidMediaPath();
+        IVideoRepository videoRepository = new Repository.VideoRepository(dbContextAct);
+        
+        exampleVideo.UpdateThumb(updateThumb);
+        await videoRepository.Update(exampleVideo, CancellationToken.None);
+        await dbContextArrange.SaveChangesAsync();
+
+        var assertsDbContext = _fixture.CreateDbContext(true);
+        var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
+
+        dbVideo.Thumb.Should().BeNull();
+        dbVideo.ThumbHalf.Should().BeNull();
+        dbVideo.Banner.Should().BeNull();
+        dbVideo.Media.Should().BeNull();
+        dbVideo.Trailer.Should().BeNull();
+    }
 }
