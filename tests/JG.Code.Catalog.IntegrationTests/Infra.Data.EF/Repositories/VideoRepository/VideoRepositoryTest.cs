@@ -130,26 +130,35 @@ public class VideoRepositoryTest
         var exampleVideo = _fixture.GetValidVideo();
         await dbContextArrange.AddAsync(exampleVideo);
         await dbContextArrange.SaveChangesAsync();
-        var newValues = _fixture.GetValidVideo();
         var dbContextAct = _fixture.CreateDbContext(true);
         var updateThumb = _fixture.GetValidImagePath();
         var updateThumbHalf = _fixture.GetValidImagePath();
         var updateBanner = _fixture.GetValidImagePath();
-        var updateMedia = _fixture.GetValidImagePath();
+        var updateMedia = _fixture.GetValidMediaPath();
         var updateTrailer = _fixture.GetValidMediaPath();
         IVideoRepository videoRepository = new Repository.VideoRepository(dbContextAct);
-        
+
         exampleVideo.UpdateThumb(updateThumb);
+        exampleVideo.UpdateThumbHalf(updateThumbHalf);
+        exampleVideo.UpdateBanner(updateBanner);
+        exampleVideo.UpdateMedia(updateMedia);
+        exampleVideo.UpdateTrailer(updateTrailer);
         await videoRepository.Update(exampleVideo, CancellationToken.None);
         await dbContextArrange.SaveChangesAsync();
 
         var assertsDbContext = _fixture.CreateDbContext(true);
         var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
 
-        dbVideo.Thumb.Should().BeNull();
-        dbVideo.ThumbHalf.Should().BeNull();
-        dbVideo.Banner.Should().BeNull();
-        dbVideo.Media.Should().BeNull();
-        dbVideo.Trailer.Should().BeNull();
+        dbVideo.Should().NotBeNull();
+        dbVideo!.Thumb.Should().NotBeNull();
+        dbVideo.Thumb!.Path.Should().Be(updateThumb);
+        dbVideo.ThumbHalf.Should().NotBeNull();
+        dbVideo.ThumbHalf!.Path.Should().Be(updateThumbHalf);
+        dbVideo.Banner.Should().NotBeNull();
+        dbVideo.Banner!.Path.Should().Be(updateBanner);
+        dbVideo.Media.Should().NotBeNull();
+        dbVideo.Media!.FilePath.Should().Be(updateMedia);
+        dbVideo.Trailer.Should().NotBeNull();
+        dbVideo.Trailer!.FilePath.Should().Be(updateTrailer);
     }
 }
