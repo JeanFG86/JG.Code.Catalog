@@ -122,6 +122,73 @@ public class VideoRepositoryTest
         dbVideo.CastMembers.Should().BeEmpty();
     }
     
+    [Fact(DisplayName = nameof(Delete))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task Delete()
+    {
+        CodeCatalogDbContext dbContextArrange = _fixture.CreateDbContext();
+        var exampleVideo = _fixture.GetValidVideo();
+        await dbContextArrange.AddAsync(exampleVideo);
+        await dbContextArrange.SaveChangesAsync();
+        var dbContextAct = _fixture.CreateDbContext(true);
+        IVideoRepository videoRepository = new Repository.VideoRepository(dbContextAct);
+
+        await videoRepository.Delete(exampleVideo, CancellationToken.None);
+        await dbContextAct.SaveChangesAsync();
+
+        var assertsDbContext = _fixture.CreateDbContext(true);
+        var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
+        dbVideo.Should().BeNull();
+    }
+
+    [Fact(DisplayName = nameof(DeleteWithRelations))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task DeleteWithRelations()
+    {
+        CodeCatalogDbContext dbContextArrange = _fixture.CreateDbContext();
+        var exampleVideo = _fixture.GetValidVideo();
+        var categories = _fixture.GetRandomCategoryList();
+        var genres = _fixture.GetRandomGenreList();
+        var castMembers = _fixture.GetRandomCastMemberList();
+
+        dbContextArrange.AddRange(categories);
+        dbContextArrange.AddRange(genres);
+        dbContextArrange.AddRange(castMembers);
+
+        categories.ForEach(c => exampleVideo.AddCategory(c.Id));
+        genres.ForEach(g => exampleVideo.AddGenre(g.Id));
+        castMembers.ForEach(cm => exampleVideo.AddCastMember(cm.Id));
+
+        IVideoRepository arrangeRepository = new Repository.VideoRepository(dbContextArrange);
+        await arrangeRepository.Insert(exampleVideo, CancellationToken.None);
+        await dbContextArrange.SaveChangesAsync();
+
+        var dbContextAct = _fixture.CreateDbContext(true);
+        IVideoRepository videoRepository = new Repository.VideoRepository(dbContextAct);
+
+        await videoRepository.Delete(exampleVideo, CancellationToken.None);
+        await dbContextAct.SaveChangesAsync();
+
+        var assertsDbContext = _fixture.CreateDbContext(true);
+        var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
+        dbVideo.Should().BeNull();
+
+        var dbCategories = await assertsDbContext.Set<VideosCategories>()
+            .Where(r => r.VideoId == exampleVideo.Id)
+            .ToListAsync();
+        dbCategories.Should().BeEmpty();
+
+        var dbGenres = await assertsDbContext.Set<VideosGenres>()
+            .Where(r => r.VideoId == exampleVideo.Id)
+            .ToListAsync();
+        dbGenres.Should().BeEmpty();
+
+        var dbCastMembers = await assertsDbContext.Set<VideosCastMembers>()
+            .Where(r => r.VideoId == exampleVideo.Id)
+            .ToListAsync();
+        dbCastMembers.Should().BeEmpty();
+    }
+
     [Fact(DisplayName = nameof(UpdateEntitiesAndValueObjects))]
     [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
     public async Task UpdateEntitiesAndValueObjects()

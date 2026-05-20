@@ -39,9 +39,24 @@ public class VideoRepository : IVideoRepository
         }
     }
 
-    public Task Delete(Video aggregate, CancellationToken cancellationToken)
+    public async Task Delete(Video aggregate, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var categoryRelations = await _videosCategories
+            .Where(r => r.VideoId == aggregate.Id)
+            .ToListAsync(cancellationToken);
+        _videosCategories.RemoveRange(categoryRelations);
+
+        var genreRelations = await _videosGenres
+            .Where(r => r.VideoId == aggregate.Id)
+            .ToListAsync(cancellationToken);
+        _videosGenres.RemoveRange(genreRelations);
+
+        var castMemberRelations = await _videosCastMembers
+            .Where(r => r.VideoId == aggregate.Id)
+            .ToListAsync(cancellationToken);
+        _videosCastMembers.RemoveRange(castMemberRelations);
+
+        _videos.Remove(aggregate);
     }
 
     public Task<Video> Get(Guid id, CancellationToken cancellationToken)
