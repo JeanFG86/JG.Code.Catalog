@@ -1,5 +1,7 @@
 ﻿using FluentAssertions;
+using JG.Code.Catalog.Application.Exceptions;
 using JG.Code.Catalog.Domain.Repository;
+using JG.Code.Catalog.Domain.SeedWork.SearchableRepository;
 using JG.Code.Catalog.Infra.Data.EF;
 using JG.Code.Catalog.Infra.Data.EF.Models;
 using Microsoft.EntityFrameworkCore;
@@ -104,7 +106,7 @@ public class VideoRepositoryTest
 
         exampleVideo.Update(newValues.Title, newValues.Description, newValues.YearLaunched, newValues.Opened, newValues.Published, newValues.Duration, newValues.Rating);
         await videoRepository.Update(exampleVideo, CancellationToken.None);
-        await dbContextArrange.SaveChangesAsync();
+        await dbContextAct.SaveChangesAsync();
 
         var assertsDbContext = _fixture.CreateDbContext(true);
         var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
@@ -211,7 +213,7 @@ public class VideoRepositoryTest
         exampleVideo.UpdateMedia(updateMedia);
         exampleVideo.UpdateTrailer(updateTrailer);
         await videoRepository.Update(exampleVideo, CancellationToken.None);
-        await dbContextArrange.SaveChangesAsync();
+        await dbContextAct.SaveChangesAsync();
 
         var assertsDbContext = _fixture.CreateDbContext(true);
         var dbVideo = await assertsDbContext.Videos.FindAsync(exampleVideo.Id);
@@ -227,5 +229,175 @@ public class VideoRepositoryTest
         dbVideo.Media!.FilePath.Should().Be(updateMedia);
         dbVideo.Trailer.Should().NotBeNull();
         dbVideo.Trailer!.FilePath.Should().Be(updateTrailer);
+    }
+
+    [Fact(DisplayName = nameof(UpdateWithRelations))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task UpdateWithRelations()
+    {
+        var arrangeContext = _fixture.CreateDbContext();
+        var video = _fixture.GetValidVideo();
+        var oldCategory = _fixture.GetExampleCategory();
+        var oldGenre = _fixture.GetExampleGenre();
+        var oldCastMember = _fixture.GetExampleCastMember();
+        arrangeContext.AddRange(oldCategory, oldGenre, oldCastMember);
+        video.AddCategory(oldCategory.Id);
+        video.AddGenre(oldGenre.Id);
+        video.AddCastMember(oldCastMember.Id);
+        await new Repository.VideoRepository(arrangeContext).Insert(video, CancellationToken.None);
+        await arrangeContext.SaveChangesAsync();
+
+        var categories = _fixture.GetRandomCategoryList();
+        var genres = _fixture.GetRandomGenreList();
+        var castMembers = _fixture.GetRandomCastMemberList();
+        var actContext = _fixture.CreateDbContext(true);
+        actContext.AddRange(categories);
+        actContext.AddRange(genres);
+        actContext.AddRange(castMembers);
+        video.RemoveAllCategories();
+        video.RemoveAllGenres();
+        video.RemoveAllCastMembers();
+        categories.ForEach(category => video.AddCategory(category.Id));
+        genres.ForEach(genre => video.AddGenre(genre.Id));
+        castMembers.ForEach(castMember => video.AddCastMember(castMember.Id));
+
+        await new Repository.VideoRepository(actContext).Update(video, CancellationToken.None);
+        await actContext.SaveChangesAsync();
+
+        var assertContext = _fixture.CreateDbContext(true);
+        (await assertContext.VideosCategories.Where(x => x.VideoId == video.Id).Select(x => x.CategoryId).ToListAsync())
+            .Should().BeEquivalentTo(categories.Select(x => x.Id));
+        (await assertContext.VideosGenres.Where(x => x.VideoId == video.Id).Select(x => x.GenreId).ToListAsync())
+            .Should().BeEquivalentTo(genres.Select(x => x.Id));
+        (await assertContext.VideosCastMembers.Where(x => x.VideoId == video.Id).Select(x => x.CastMemberId).ToListAsync())
+            .Should().BeEquivalentTo(castMembers.Select(x => x.Id));
+    }
+
+    [Fact(DisplayName = nameof(Get))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task Get()
+    {
+        var arrangeContext = _fixture.CreateDbContext();
+        var video = _fixture.GetValidVideo();
+        video.UpdateThumb(_fixture.GetValidImagePath());
+        video.UpdateMedia(_fixture.GetValidMediaPath());
+        await arrangeContext.AddAsync(video);
+        await arrangeContext.SaveChangesAsync();
+
+        var result = await new Repository.VideoRepository(_fixture.CreateDbContext(true))
+            .Get(video.Id, CancellationToken.None);
+
+        result.Id.Should().Be(video.Id);
+        result.Title.Should().Be(video.Title);
+        result.Thumb.Should().Be(video.Thumb);
+        result.Media.Should().NotBeNull();
+        result.Media!.FilePath.Should().Be(video.Media!.FilePath);
+        result.Media.Status.Should().Be(video.Media.Status);
+    }
+
+    [Fact(DisplayName = nameof(GetThrowsWhenNotFound))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task GetThrowsWhenNotFound()
+    {
+        var id = Guid.NewGuid();
+        var repository = new Repository.VideoRepository(_fixture.CreateDbContext());
+
+        var action = () => repository.Get(id, CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>().WithMessage($"Video '{id}' not found.");
+    }
+
+    [Fact(DisplayName = nameof(GetWithRelations))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task GetWithRelations()
+    {
+        var arrangeContext = _fixture.CreateDbContext();
+        var video = _fixture.GetValidVideo();
+        var categories = _fixture.GetRandomCategoryList();
+        var genres = _fixture.GetRandomGenreList();
+        var castMembers = _fixture.GetRandomCastMemberList();
+        arrangeContext.AddRange(categories);
+        arrangeContext.AddRange(genres);
+        arrangeContext.AddRange(castMembers);
+        categories.ForEach(x => video.AddCategory(x.Id));
+        genres.ForEach(x => video.AddGenre(x.Id));
+        castMembers.ForEach(x => video.AddCastMember(x.Id));
+        await new Repository.VideoRepository(arrangeContext).Insert(video, CancellationToken.None);
+        await arrangeContext.SaveChangesAsync();
+
+        var result = await new Repository.VideoRepository(_fixture.CreateDbContext(true))
+            .Get(video.Id, CancellationToken.None);
+
+        result.Categories.Should().BeEquivalentTo(categories.Select(x => x.Id));
+        result.Genres.Should().BeEquivalentTo(genres.Select(x => x.Id));
+        result.CastMembers.Should().BeEquivalentTo(castMembers.Select(x => x.Id));
+    }
+
+    [Fact(DisplayName = nameof(Search))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task Search()
+    {
+        var arrangeContext = _fixture.CreateDbContext();
+        var videos = Enumerable.Range(0, 15).Select(_ => _fixture.GetValidVideo()).ToList();
+        await arrangeContext.AddRangeAsync(videos);
+        await arrangeContext.SaveChangesAsync();
+        var input = new SearchInput(2, 5, "", "title", SearchOrder.Asc);
+
+        var result = await new Repository.VideoRepository(_fixture.CreateDbContext(true))
+            .Search(input, CancellationToken.None);
+
+        result.CurrentPage.Should().Be(2);
+        result.PerPage.Should().Be(5);
+        result.Total.Should().Be(15);
+        result.Items.Should().HaveCount(5).And.BeInAscendingOrder(x => x.Title);
+    }
+
+    [Fact(DisplayName = nameof(SearchByTitle))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task SearchByTitle()
+    {
+        var arrangeContext = _fixture.CreateDbContext();
+        var videos = new[]
+        {
+            _fixture.GetValidVideo("A Course Video"),
+            _fixture.GetValidVideo("Another Course Video"),
+            _fixture.GetValidVideo("Unrelated")
+        };
+        await arrangeContext.AddRangeAsync(videos);
+        await arrangeContext.SaveChangesAsync();
+        var input = new SearchInput(1, 10, "Course", "title", SearchOrder.Desc);
+
+        var result = await new Repository.VideoRepository(_fixture.CreateDbContext(true))
+            .Search(input, CancellationToken.None);
+
+        result.Total.Should().Be(2);
+        result.Items.Should().HaveCount(2).And.BeInDescendingOrder(x => x.Title);
+        result.Items.Should().OnlyContain(x => x.Title.Contains("Course"));
+    }
+
+    [Fact(DisplayName = nameof(SearchReturnsRelations))]
+    [Trait("Integration/Infra.Data", "Video Repository - Repositories")]
+    public async Task SearchReturnsRelations()
+    {
+        var arrangeContext = _fixture.CreateDbContext();
+        var video = _fixture.GetValidVideo();
+        var category = _fixture.GetExampleCategory();
+        var genre = _fixture.GetExampleGenre();
+        var castMember = _fixture.GetExampleCastMember();
+        arrangeContext.AddRange(category, genre, castMember);
+        video.AddCategory(category.Id);
+        video.AddGenre(genre.Id);
+        video.AddCastMember(castMember.Id);
+        await new Repository.VideoRepository(arrangeContext).Insert(video, CancellationToken.None);
+        await arrangeContext.SaveChangesAsync();
+        var input = new SearchInput(1, 10, "", "title", SearchOrder.Asc);
+
+        var result = await new Repository.VideoRepository(_fixture.CreateDbContext(true))
+            .Search(input, CancellationToken.None);
+
+        var returnedVideo = result.Items.Should().ContainSingle().Subject;
+        returnedVideo.Categories.Should().ContainSingle().Which.Should().Be(category.Id);
+        returnedVideo.Genres.Should().ContainSingle().Which.Should().Be(genre.Id);
+        returnedVideo.CastMembers.Should().ContainSingle().Which.Should().Be(castMember.Id);
     }
 }

@@ -17,6 +17,11 @@ public class VideoRepositoryTestFixture : BaseFixture
         return new Video(GetValidTitle(), GetValidDescription(), GetValidYearLaunched(), GetRandomBoolean(), GetRandomBoolean(), GetValidDuration(), GetRandomRating());
     }
 
+    public Video GetValidVideo(string title)
+    {
+        return new Video(title, GetValidDescription(), GetValidYearLaunched(), GetRandomBoolean(), GetRandomBoolean(), GetValidDuration(), GetRandomRating());
+    }
+
     public string GetValidTitle() => Faker.Lorem.Letter(100);
 
     public string GetValidDescription() => Faker.Commerce.ProductDescription();
