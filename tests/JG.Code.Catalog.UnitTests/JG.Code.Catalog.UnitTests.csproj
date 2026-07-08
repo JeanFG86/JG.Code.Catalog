@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\JG.Code.Catalog.Application\JG.Code.Catalog.Application.csproj" />
     <ProjectReference Include="..\..\src\JG.Code.Catalog.Domain\JG.Code.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\..\src\JG.Code.Catalog.Infra.Storage\JG.Code.Catalog.Infra.Storage.csproj" />
   </ItemGroup>
 
   <ItemGroup>
