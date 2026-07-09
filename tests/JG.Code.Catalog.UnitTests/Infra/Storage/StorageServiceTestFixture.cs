@@ -1,11 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using JG.Code.Catalog.UnitTests.Common;
 
 namespace JG.Code.Catalog.UnitTests.Infra.Storage;
 
-internal class StorageServiceTestFixture
+[CollectionDefinition(nameof(StorageServiceTestFixtureCollection))]
+public class StorageServiceTestFixtureCollection : ICollectionFixture<StorageServiceTestFixture>
 {
+}
+
+public class StorageServiceTestFixture : BaseFixture
+{
+    public string GetBucketName() => "fg-catalog-medias";
+    public string GetFileName() => Faker.System.CommonFileName();
+    public string GetContentFile() => Faker.Lorem.Paragraph();
+    public string GetContentType() => Faker.System.MimeType();
 }
